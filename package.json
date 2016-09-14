@@ -1,0 +1,27 @@
+{
+  "name": "igni",
+  "version": "1.0.0",
+  "description": "WebGL-based 2D Physics Engine.",
+  "main": "./dist/igni-full.js",
+  "dependencies": {
+    "source-map-loader": "^0.1.5",
+    "ts-loader": "^0.8.2"
+  },
+  "devDependencies": {
+    "source-map-loader": "^0.1.5",
+    "ts-loader": "^0.8.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ericmux/Igni.git"
+  },
+  "author": "ericmux",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ericmux/Igni/issues"
+  },
+  "homepage": "https://github.com/ericmux/Igni#readme"
+}
