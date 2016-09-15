@@ -1,4 +1,5 @@
 import {AABB} from "./bodies/aabb.ts";
+import $ = require('jquery');
 
 function greeter(x: number, y: number) {
     return "Position: " + x + ", " + y;
@@ -6,4 +7,6 @@ function greeter(x: number, y: number) {
 
 var rect = new AABB(5,10);
 
-document.head.innerHTML = greeter(rect.x, rect.y);
+$(() => {
+    $(document.body).append("<p>" + greeter(rect.x, rect.y) + "</p>");
+});

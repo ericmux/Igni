@@ -1,7 +1,8 @@
 module.exports = {
     entry: "./src/igni.ts",
     output: {
-        filename: "./dist/igni-full.js",
+        filename: "igni-full.js",
+        path: "./dist"
     },
 
     // Enable sourcemaps for debugging webpack's output.
@@ -15,7 +16,9 @@ module.exports = {
     module: {
         loaders: [
             // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
-            { test: /\.tsx?$/, loader: "ts-loader" }
+            { test: /\.tsx?$/, loader: "ts-loader" },
+            // All CSS files will be handled by the style-loader/css-loader.
+            { test: /\.css$/, loader: 'style-loader!css-loader' }
         ],
 
         preLoaders: [
