@@ -1,0 +1,35 @@
+<script id="vs-simplesprite" type="x-shader/x-vertex">
+
+precision mediump float;
+
+attribute vec4 vPosition;
+attribute vec2 vTexcoord;
+uniform mat4 projectionMatrix;
+uniform mat4 modelViewMatrix;
+uniform vec4 fColor;
+
+varying vec2 fTexcoord;
+
+void main() 
+{               
+	fTexcoord = vTexcoord;
+	gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+} 
+</script>
+
+<script id="fs-simplesprite" type="x-shader/x-fragment">
+
+precision mediump float;
+
+uniform vec4 fColor;
+uniform sampler2D texture;
+
+varying vec2 vTexcoord;
+
+void main()
+{
+	gl_FragColor = texture2D (texture, vTexcoord);
+
+	//fColor;
+}
+</script>

@@ -1,0 +1,45 @@
+<script id="fs-phong-fragment-mountain" type="x-shader/x-fragment">
+
+precision mediump float;
+
+varying vec3 N, L, E;
+varying vec4 fPosition;
+
+uniform vec4 ambientProduct;
+uniform vec4 diffuseProduct;
+uniform vec4 specularProduct;
+uniform float shininess;
+
+void main()
+{
+    vec4 fColor;
+
+    vec3 H = normalize( L + E );
+    
+    vec4 ambient;// = ambientProduct;
+    
+    float dist = fPosition.y;
+
+    if(dist > 0.15)
+        ambient = vec4(0.5, 0.5, 0.5, 1.0);
+    else if(dist > 0.01)
+        ambient = vec4(0.0, 1.0, 0.0, 1.0);
+    else if(dist > 0.0)
+        ambient = vec4(0.2, 0.0, 0.2, 1.0);
+    else 
+        ambient = vec4(0.0, 0.0, 1.0, 1.0);
+
+    float Kd = max( dot(L, N), 0.0 );
+    vec4  diffuse = Kd*diffuseProduct;
+
+    float Ks = pow( max(dot(N, H), 0.0), shininess );
+    vec4  specular = Ks * specularProduct;
+    
+    if( dot(L, N) < 0.0 ) specular = vec4(0.0, 0.0, 0.0, 1.0);
+
+    fColor = ambient + diffuse +specular;
+    fColor.a = 1.0;
+
+    gl_FragColor = fColor;
+}
+</script>

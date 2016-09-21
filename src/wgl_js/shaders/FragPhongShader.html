@@ -1,0 +1,59 @@
+<script id="vs-phong-fragment-color" type="x-shader/x-vertex">
+attribute vec4 vPosition;
+attribute vec4 vNormal;
+
+varying vec4 fPosition;
+varying vec3 N, L, E;
+
+uniform vec4 lightPosition;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+
+void main() 
+{               
+	fPosition = vPosition;
+
+    vec3 pos = -(modelViewMatrix * vPosition).xyz;
+    vec3 light = lightPosition.xyz;
+    L = normalize( light - pos );
+    E =  -pos;
+    N = normalize( (modelViewMatrix*vNormal).xyz);
+
+    gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+} 
+</script>
+
+<script id="fs-phong-fragment-color" type="x-shader/x-fragment">
+
+precision mediump float;
+
+varying vec3 N, L, E;
+varying vec4 fPosition;
+
+uniform vec4 ambientProduct;
+uniform vec4 diffuseProduct;
+uniform vec4 specularProduct;
+uniform float shininess;
+
+void main()
+{
+    vec4 fColor;
+
+    vec3 H = normalize( L + E );
+    
+    vec4 ambient = ambientProduct;
+
+    float Kd = max( dot(L, N), 0.0 );
+    vec4  diffuse = Kd*diffuseProduct;
+
+    float Ks = pow( max(dot(N, H), 0.0), shininess );
+    vec4  specular = Ks * specularProduct;
+    
+    if( dot(L, N) < 0.0 ) specular = vec4(0.0, 0.0, 0.0, 1.0);
+
+    fColor = ambient + diffuse +specular;
+    fColor.a = 1.0;
+
+    gl_FragColor = fColor;
+}
+</script>

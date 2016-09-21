@@ -1,0 +1,26 @@
+<script id="vs-flatcolor" type="x-shader/x-vertex">
+
+precision mediump float;
+
+attribute vec4 vPosition;
+uniform mat4 projectionMatrix;
+uniform mat4 modelViewMatrix;
+uniform vec4 fColor;
+
+void main() 
+{               
+	gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+} 
+</script>
+
+<script id="fs-flatcolor" type="x-shader/x-fragment">
+
+precision mediump float;
+
+uniform vec4 fColor;
+
+void main()
+{
+	gl_FragColor = fColor;
+}
+</script>
