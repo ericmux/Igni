@@ -1,12 +1,17 @@
-import {AABB} from "./bodies/aabb.ts";
-import $ = require('jquery');
+import {WebGLUtils} from "./wgl_ts/webgl_utils.ts";
 
-function greeter(x: number, y: number) {
-    return "Position: " + x + ", " + y;
-}
+window.onload = () => {
 
-var rect = new AABB(5,10);
+    let canvas = document.createElement ("canvas");
+    canvas.id = "gl-canvas";
 
-$(() => {
-    $(document.body).append("<p>" + greeter(rect.x, rect.y) + "</p>");
-});
+    document.body.appendChild(canvas);
+
+    let wgl_utils : WebGLUtils = new WebGLUtils ();
+
+    let gl = wgl_utils.setupWebGL (canvas as HTMLCanvasElement, []);
+    if (!gl) { 
+        alert( "WebGL isn't available" ); 
+    }
+};
+
