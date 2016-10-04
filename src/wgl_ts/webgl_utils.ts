@@ -57,7 +57,7 @@
  * visible.
  */
 
-export class WebGLUtils {
+
 
     /**
      * Creates the HTLM for a failure message
@@ -65,7 +65,7 @@ export class WebGLUtils {
      *        canvas.
      * @return {string} The html.
      */
-    makeFailHTML (msg :string) : string {
+    function makeFailHTML (msg :string) : string {
         return '' +
         '<table style="background-color: #8CE; width: 100%; height: 100%;"><tr>' +
         '<td align="center">' +
@@ -79,7 +79,7 @@ export class WebGLUtils {
      * Mesasge for getting a webgl browser
      * @type {string}
      */
-    GET_A_WEBGL_BROWSER : string = '' +
+    let GET_A_WEBGL_BROWSER : string = '' +
         'This page requires a browser that supports WebGL.<br/>' +
         '<a href="http://get.webgl.org">Click here to upgrade your browser.</a>';
 
@@ -87,7 +87,7 @@ export class WebGLUtils {
      * Mesasge for need better hardware
      * @type {string}
      */
-    OTHER_PROBLEM : string = '' +
+    let OTHER_PROBLEM : string = '' +
         "It doesn't appear your computer can support WebGL.<br/>" +
         '<a href="http://get.webgl.org/troubleshooting/">Click here for more information.</a>';
 
@@ -95,7 +95,7 @@ export class WebGLUtils {
      * Changes the contents of the container of the <canvas>
      * tag to an error message with the correct links for WebGL.
      */
-    showLink (canvas : HTMLCanvasElement, str : string) : void {
+    function showLink (canvas : HTMLCanvasElement, str : string) : void {
         let container = canvas.parentElement;
         if (container) {
           container.innerHTML = this.makeFailHTML(str);
@@ -104,32 +104,11 @@ export class WebGLUtils {
 
     /**
      * Creates a webgl context.
-     * @param {Element} canvas. The canvas element to create a
-     *     context from.
-     * @param {WebGLContextCreationAttirbutes} opt_attribs Any
-     *     creation attributes you want to pass in.
-     * @return {WebGLRenderingContext} The created context.
-     */
-    public setupWebGL (canvas : HTMLCanvasElement, opt_attribs : Object) : WebGLRenderingContext {
-      if (!window.hasOwnProperty ("WebGLRenderingContext")) {// isso ta certo?
-          this.showLink(canvas, this.GET_A_WEBGL_BROWSER);
-          return null;
-      }
-
-      let context : WebGLRenderingContext = this.create3DContext(canvas, opt_attribs);
-      if (!context) {
-          this.showLink(canvas, this.OTHER_PROBLEM);
-      }
-      return context;
-    }
-
-    /**
-     * Creates a webgl context.
      * @param {!Canvas} canvas The canvas tag to get context
      *     from. If one is not passed in one will be created.
      * @return {!WebGLContext} The created context.
      */
-    public create3DContext (canvas : HTMLCanvasElement, opt_attribs : Object)
+    function create3DContext (canvas : HTMLCanvasElement, opt_attribs : Object)
     : WebGLRenderingContext {
       let names : string[] = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
       let context :  CanvasRenderingContext2D | WebGLRenderingContext = null;
@@ -143,7 +122,28 @@ export class WebGLUtils {
       }
       return context as WebGLRenderingContext;
     }
-};
+
+
+    /**
+     * Creates a webgl context.
+     * @param {Element} canvas. The canvas element to create a
+     *     context from.
+     * @param {WebGLContextCreationAttirbutes} opt_attribs Any
+     *     creation attributes you want to pass in.
+     * @return {WebGLRenderingContext} The created context.
+     */
+    export default function setupWebGL (canvas : HTMLCanvasElement, opt_attribs : Object) : WebGLRenderingContext {
+      if (!window.hasOwnProperty ("WebGLRenderingContext")) {// isso ta certo?
+          this.showLink(canvas, this.GET_A_WEBGL_BROWSER);
+          return null;
+      }
+
+      let context : WebGLRenderingContext = this.create3DContext(canvas, opt_attribs);
+      if (!context) {
+          this.showLink(canvas, this.OTHER_PROBLEM);
+      }
+      return context;
+    }
 
 // /**
 //  * Provides requestAnimationFrame in a cross browser way.
