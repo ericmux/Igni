@@ -35,11 +35,6 @@ export class WGL {
 			WGL.gl.blendFunc (WGL.gl.SRC_ALPHA, WGL.gl.ONE_MINUS_SRC_ALPHA);
 		}
 
-		WGL.gl.enable(WGL.gl.POLYGON_OFFSET_FILL);
-		WGL.gl.polygonOffset(1.0, 2.0);
-
-		//WGL.gl.getExtension("EXT_frag_depth");
-
 		// Configure WebGL
 		WGL.gl.viewport( 0, 0, this.canvas.width, this.canvas.height );
 		WGL.gl.clearColor(0.043, 0.075, 0.3372, 1.0);	
@@ -51,7 +46,6 @@ export class WGL {
 
 		WGL.gl.clearColor(0.043, 0.075, 0.3372, 1.0);
 		WGL.gl.clear (WGL.gl.COLOR_BUFFER_BIT | WGL.gl.DEPTH_BUFFER_BIT);
-		WGL.gl.enable(WGL.gl.CULL_FACE);
 	}
 
 	/**
@@ -75,8 +69,7 @@ export class WGL {
 		//  Modelview matrix
 		let mv : glMatrix.mat4 = glMatrix.mat4.create();
 		glMatrix.mat4.identity(mv);
-        glMatrix.mat4.translate(mv, mv, [0,0,-2]);
-		
+
 		this.setUpViewport ();
 
 		this.square.draw (o, mv);

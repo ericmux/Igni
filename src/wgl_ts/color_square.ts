@@ -41,7 +41,7 @@ export class ColorSquare {
     }
 
     draw (p : mat4, mv : mat4) : void {
-        this.render.load_vbo (this.vertices (), this.color, WGL.gl.TRIANGLE_FAN, 4)
+        this.render.load_vbo (this.vertices (), this.color, WGL.gl.TRIANGLE_FAN, 4);
         this.render.draw (p, mv);
     }
 }
