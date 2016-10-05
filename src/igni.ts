@@ -1,15 +1,14 @@
-import setupWebGL from "./wgl_ts/webgl_utils.ts";
+import {WGL} from "./wgl_ts/wgl.ts";
 
 window.onload = () => {
 
-    let canvas = document.createElement ("canvas");
+    let canvas = document.createElement ("canvas"); 
     canvas.id = "gl-canvas";
+    canvas.width = 500;
+    canvas.height = 500;
 
     document.body.appendChild(canvas);
 
-    let gl = setupWebGL (canvas as HTMLCanvasElement, []);
-    if (!gl) { 
-        alert( "WebGL isn't available" ); 
-    }
+    let wgl : WGL = new WGL (canvas, null);
+    wgl.draw ();
 };
-
