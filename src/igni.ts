@@ -1,14 +1,15 @@
-import {WGL} from "./wgl_ts/wgl.ts";
+import {WGLRenderer} from "./rendering/WGLRenderer.ts";
 
 window.onload = () => {
 
     let canvas = document.createElement ("canvas"); 
     canvas.id = "gl-canvas";
-    canvas.width = 500;
-    canvas.height = 500;
+    canvas.style.width = "100%"; 
+    canvas.style.height = "100%";
+    canvas.style.display = "block";
 
     document.body.appendChild(canvas);
 
-    let wgl : WGL = new WGL (canvas, null);
+    let wgl : WGLRenderer = new WGLRenderer (canvas, null);
     wgl.draw ();
 };

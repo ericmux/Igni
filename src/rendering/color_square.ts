@@ -2,7 +2,7 @@ import {RENFlatColor} from "./ren_flat_color.ts";
 import {vec2} from "gl-matrix"
 import {vec4} from "gl-matrix"
 import {mat4} from "gl-matrix"
-import {WGL} from "./wgl.ts";
+import {WGLRenderer} from "./WGLRenderer.ts";
 
 export class ColorSquare {
 
@@ -16,8 +16,8 @@ export class ColorSquare {
     constructor (render : RENFlatColor) {
         this.color = vec4.fromValues (1.0, 0.0, 0.0, 1.0);
         this.position = vec2.fromValues (0.0, 0.0);
-        this.width = 50.0;
-        this.height = 50.0;
+        this.width = 20.0;
+        this.height = 20.0;
         this.render = render;
     }
 
@@ -41,7 +41,7 @@ export class ColorSquare {
     }
 
     draw (p : mat4, mv : mat4) : void {
-        this.render.load_vbo (this.vertices (), this.color, WGL.gl.TRIANGLE_FAN, 4);
+        this.render.load_vbo (this.vertices (), this.color, WGLRenderer.gl.TRIANGLE_FAN, 4);
         this.render.draw (p, mv);
     }
 }

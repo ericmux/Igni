@@ -49,8 +49,9 @@
 	window.onload = function () {
 	    var canvas = document.createElement("canvas");
 	    canvas.id = "gl-canvas";
-	    canvas.width = 500;
-	    canvas.height = 500;
+	    canvas.style.width = "100%";
+	    canvas.style.height = "100%";
+	    canvas.style.display = "block";
 	    document.body.appendChild(canvas);
 	    var wgl = new wgl_ts_1.WGL(canvas, null);
 	    wgl.draw();
@@ -89,9 +90,6 @@
 	            WGL.gl.enable(WGL.gl.BLEND);
 	            WGL.gl.blendFunc(WGL.gl.SRC_ALPHA, WGL.gl.ONE_MINUS_SRC_ALPHA);
 	        }
-	        WGL.gl.enable(WGL.gl.POLYGON_OFFSET_FILL);
-	        WGL.gl.polygonOffset(1.0, 2.0);
-	        //WGL.gl.getExtension("EXT_frag_depth");
 	        // Configure WebGL
 	        WGL.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
 	        WGL.gl.clearColor(0.043, 0.075, 0.3372, 1.0);
@@ -101,7 +99,6 @@
 	        WGL.gl.bindFramebuffer(WGL.gl.FRAMEBUFFER, null);
 	        WGL.gl.clearColor(0.043, 0.075, 0.3372, 1.0);
 	        WGL.gl.clear(WGL.gl.COLOR_BUFFER_BIT | WGL.gl.DEPTH_BUFFER_BIT);
-	        WGL.gl.enable(WGL.gl.CULL_FACE);
 	    };
 	    /**
 	    *  If WGL is initialized with null parameters, give them default values
@@ -116,13 +113,11 @@
 	    *  Execute rendering code
 	    */
 	    WGL.prototype.draw = function () {
-	        var thescale = 1;
 	        var o = glMatrix.mat4.create();
-	        glMatrix.mat4.ortho(o, -this.canvas.width / 2 / thescale, this.canvas.width / 2 / thescale, -this.canvas.height / 2 / thescale, this.canvas.height / 2 / thescale, -10, 10);
+	        glMatrix.mat4.ortho(o, -this.canvas.width / 2, this.canvas.width / 2, -this.canvas.height / 2, this.canvas.height / 2, -1, 1);
 	        //  Modelview matrix
 	        var mv = glMatrix.mat4.create();
 	        glMatrix.mat4.identity(mv);
-	        glMatrix.mat4.translate(mv, mv, [0, 0, -2]);
 	        this.setUpViewport();
 	        this.square.draw(o, mv);
 	    };
