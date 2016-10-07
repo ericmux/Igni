@@ -2,7 +2,6 @@
 * WebGL functionality
 */
 import setupWebGL from "./utils/webgl_utils.ts";
-import {RENFlatColor} from "./ren_flat_color.ts";
 import {ColorSquare} from "./color_square.ts";
 import Shader from "./shaders/Shader";
 import {FlatColorShader, FlatColorDrawCall} from "./shaders/FlatColorShader";

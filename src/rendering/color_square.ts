@@ -1,4 +1,3 @@
-import {RENFlatColor} from "./ren_flat_color.ts";
 import {vec2} from "gl-matrix"
 import {vec4} from "gl-matrix"
 import {mat4} from "gl-matrix"
