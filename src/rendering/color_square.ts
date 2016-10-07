@@ -3,6 +3,7 @@ import {vec2} from "gl-matrix"
 import {vec4} from "gl-matrix"
 import {mat4} from "gl-matrix"
 import {WGLRenderer} from "./WGLRenderer.ts";
+import DrawCall from "./shaders/DrawCall";
 
 export class ColorSquare {
 
@@ -11,14 +12,12 @@ export class ColorSquare {
     width : number;
     height : number;
     color : vec4;
-    render : RENFlatColor;
 
-    constructor (render : RENFlatColor) {
+    constructor () {
         this.color = vec4.fromValues (1.0, 0.0, 0.0, 1.0);
         this.position = vec2.fromValues (0.0, 0.0);
         this.width = 20.0;
         this.height = 20.0;
-        this.render = render;
     }
 
     vertices () : Float32Array {
@@ -40,8 +39,7 @@ export class ColorSquare {
         return floats;
     }
 
-    draw (p : mat4, mv : mat4) : void {
-        this.render.load_vbo (this.vertices (), this.color, WGLRenderer.gl.TRIANGLE_FAN, 4);
-        this.render.draw (p, mv);
+    toDrawCall (p : mat4, mv : mat4) : DrawCall {
+        return <DrawCall>{};
     }
 }

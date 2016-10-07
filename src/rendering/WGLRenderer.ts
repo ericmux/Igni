@@ -21,7 +21,6 @@ export class WGLRenderer {
 	private projection_matrix : mat4;
 	private vVBO : WebGLBuffer;
 	private canvas : HTMLCanvasElement;
-	private render : RENFlatColor;
 	private square : ColorSquare;
 	private activeShader : Shader;
 
@@ -47,8 +46,7 @@ export class WGLRenderer {
         this.vVBO = WGLRenderer.gl.createBuffer();
 
 		this.canvas = canvas;
-		this.render = new RENFlatColor ();
-		this.square = new ColorSquare (this.render);
+		this.square = new ColorSquare ();
 		this.activeShader = new FlatColorShader(WGLRenderer.gl, this.vVBO);
 
 		// Set up projection matrix.
