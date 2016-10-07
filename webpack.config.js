@@ -18,7 +18,9 @@ module.exports = {
             // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
             { test: /\.tsx?$/, loader: "ts-loader" },
             // All CSS files will be handled by the style-loader/css-loader.
-            { test: /\.css$/, loader: 'style-loader!css-loader' }
+            { test: /\.css$/, loader: 'style-loader!css-loader' },
+            // All .glsl filels will be handled by the glsl-loader.
+            { test: /\.glsl$/, loader: 'webpack-glsl' }
         ],
 
         preLoaders: [

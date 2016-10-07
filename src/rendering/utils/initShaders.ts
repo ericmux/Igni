@@ -5,10 +5,9 @@ export default function initShaders ( gl : WebGLRenderingContext,
                        fragmentShaderPath : string ) : WebGLProgram
 {
     // TODO Make this async later
-    let vertexShaderSource = "precision mediump float; attribute vec4 vPosition; uniform mat4 projectionMatrix; uniform mat4 modelViewMatrix; uniform vec4 fColor; void main() { gl_Position = projectionMatrix * modelViewMatrix * vPosition;}";
-    //fs.readFileSync (vertexShaderPath, "utf8");
+    let vertexShaderSource = require('../shaders/flat_color_vert.glsl');
 
-    let fragmentShaderSource = "precision mediump float; uniform vec4 fColor; void main() {	gl_FragColor = fColor; }";// fs.readFileSync (fragmentShaderPath, "utf8");
+    let fragmentShaderSource = require('../shaders/flat_color_vert.glsl');
 
     let vertShdr : WebGLShader;
     let fragShdr : WebGLShader;

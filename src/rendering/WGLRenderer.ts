@@ -73,7 +73,7 @@ export class WGLRenderer {
 		mat4.identity(mv);
 
 		this.clear();
-		
+
 		this.square.draw (this.projection_matrix, mv);
 		mat4.translate(mv, mv, vec3.fromValues(50,50,0));
 		this.square.draw(this.projection_matrix, mv);
