@@ -1,7 +1,10 @@
+import DrawCall from "./DrawCall";
+
 abstract class Shader {
     protected vertex_shader: WebGLShader;
     protected fragment_shader: WebGLShader;
     protected program: WebGLProgram;
+    protected targetVBO: WebGLBuffer;
 
     constructor(protected gl_context: WebGLRenderingContext, vertex_shader_source: string, fragment_shader_source: string) {
         // Load and compile vertex shader.
@@ -40,5 +43,7 @@ abstract class Shader {
     public getProgram(): WebGLProgram {
         return this.program;
     }
+
+    abstract render(draw_call: DrawCall) :void;
 }
 export default Shader;

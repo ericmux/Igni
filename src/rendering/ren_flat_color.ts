@@ -12,10 +12,10 @@ export class RENFlatColor {
     render_color : vec4;
 
     constructor () {
-        //  The generic program used to render
-        this.program = new FlatColorShader(WGLRenderer.gl).getProgram();
         //  VBO for both vertices and texture coordinates
         this.vVBO = WGLRenderer.gl.createBuffer ();
+        //  The generic program used to render
+        this.program = new FlatColorShader(WGLRenderer.gl, this.vVBO).getProgram();
     }
     
     load_vbo (vertices : Float32Array, color : vec4, r_type : number, vert_step : number) : void {

@@ -13,13 +13,13 @@ interface WGLOptions {
 
 export class WGLRenderer {
 
-	public static gl : WebGLRenderingContext = null;
 	private static CLEAR_COLOR : vec4 = vec4.fromValues(0.043, 0.075, 0.3372, 1.0);
+	public static gl : WebGLRenderingContext;
 	private projection_matrix : mat4;
 
-	canvas :  HTMLCanvasElement = null;
-	render : RENFlatColor = null;
-	square : ColorSquare = null;
+	canvas : HTMLCanvasElement;
+	render : RENFlatColor;
+	square : ColorSquare;
 
 	constructor (canvas : HTMLCanvasElement, opts?: WGLOptions) {
 		opts = opts || <WGLOptions>{ depth_test: false, blend: false };
