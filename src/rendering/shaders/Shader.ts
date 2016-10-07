@@ -2,9 +2,8 @@ abstract class Shader {
     protected vertex_shader: WebGLShader;
     protected fragment_shader: WebGLShader;
     protected program: WebGLProgram;
-    protected gl_context: WebGLRenderingContext;
 
-    constructor(vertex_shader_source: string, fragment_shader_source: string) {
+    constructor(protected gl_context: WebGLRenderingContext, vertex_shader_source: string, fragment_shader_source: string) {
         // Load and compile vertex shader.
         this.vertex_shader = this.gl_context.createShader(this.gl_context.VERTEX_SHADER);
         this.gl_context.shaderSource(this.vertex_shader, vertex_shader_source);
@@ -36,6 +35,10 @@ abstract class Shader {
                 + "<pre>" + this.gl_context.getProgramInfoLog(this.program) + "</pre>";
             throw new Error(msg);
         }
+    }
+
+    public getProgram(): WebGLProgram {
+        return this.program;
     }
 }
 export default Shader;

@@ -1,12 +1,9 @@
 import Shader from "./Shader";
 
-// Import glsl code.
-import vertex_shader = require("./glsl/flat_color_vert.glsl");
-import fragment_shader = require("./glsl/flat_color_frag.glsl");
-
-export default class FlatColorShader implements Shader {
-    constructor(){
-        this.vertex_shader = vertex_shader;
-        this.fragment_shader = fragment_shader;
+export default class FlatColorShader extends Shader {
+    constructor(gl_context: WebGLRenderingContext){
+        var vertex_shader = require("./glsl/flat_color_vert.glsl");
+        var fragment_shader = require("./glsl/flat_color_frag.glsl");
+        super(gl_context, vertex_shader, fragment_shader);
     }
 }

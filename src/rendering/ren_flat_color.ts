@@ -1,7 +1,6 @@
-import initShaders from "./utils/initShaders.ts";
+import FlatColorShader from "./shaders/FlatColorShader";
 import {WGLRenderer} from "./WGLRenderer.ts";
-import {vec4} from "gl-matrix";
-import {mat4} from "gl-matrix";
+import {vec4, mat4} from "gl-matrix";
 
 export class RENFlatColor {
 
@@ -14,7 +13,7 @@ export class RENFlatColor {
 
     constructor () {
         //  The generic program used to render
-        this.program = initShaders (WGLRenderer.gl, "./shaders/flat_color.vert", "./shaders/flat_color.frag");
+        this.program = new FlatColorShader(WGLRenderer.gl).getProgram();
         //  VBO for both vertices and texture coordinates
         this.vVBO = WGLRenderer.gl.createBuffer ();
     }
