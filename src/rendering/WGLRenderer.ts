@@ -2,10 +2,10 @@
 * WebGL functionality
 */
 import setupWebGL from "./utils/webgl_utils.ts";
-import {ColorSquare} from "./color_square.ts";
+import Square from "./shapes/Square";
 import Shader from "./shaders/Shader";
 import {FlatColorShader, FlatColorDrawCall} from "./shaders/FlatColorShader";
-import {vec3, vec4, mat4} from "gl-matrix";
+import {vec2, vec3, vec4, mat4} from "gl-matrix";
 
 interface WGLOptions {
 	depth_test: boolean;
@@ -20,7 +20,7 @@ export class WGLRenderer {
 	private projection_matrix : mat4;
 	private vVBO : WebGLBuffer;
 	private canvas : HTMLCanvasElement;
-	private square : ColorSquare;
+	private square : Square;
 	private activeShader : Shader;
 
 	constructor (canvas : HTMLCanvasElement, opts?: WGLOptions) {
@@ -45,7 +45,7 @@ export class WGLRenderer {
         this.vVBO = WGLRenderer.gl.createBuffer();
 
 		this.canvas = canvas;
-		this.square = new ColorSquare ();
+		this.square = new Square ();
 		this.activeShader = new FlatColorShader(WGLRenderer.gl, this.vVBO);
 
 		// Set up projection matrix.
@@ -99,18 +99,10 @@ export class WGLRenderer {
 
 		setInterval(() => {
 			this.clear();
+			this.square.translate(vec2.fromValues(inc, 0.0));
 
-			this.activeShader.render(<FlatColorDrawCall>{
-				modelView: mv,
-				projection: this.projection_matrix,
-				color: vec4.fromValues (1.0, 0.0, 0.0, 1.0),
-				vertices: [
-					vec4.fromValues (t, 0.0, 0.0, 1.0),
-					vec4.fromValues (t, 20, 0.0, 1.0),
-					vec4.fromValues (20 + t, 20, 0.0, 1.0),
-					vec4.fromValues (20 + t, 0.0, 0.0, 1.0)
-				]
-			});
+			this.activeShader.render(this.square.toDrawCall(this.projection_matrix));
+
 			t += inc;
 			if (t == 100) inc = -1;
 			else if (t == -100) inc = 1;
