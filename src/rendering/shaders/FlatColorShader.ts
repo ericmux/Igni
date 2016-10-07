@@ -2,12 +2,12 @@ import {vec4, mat4} from "gl-matrix";
 import Shader from "./Shader";
 import DrawCall from "./DrawCall";
 
-interface FlatColorDrawCall extends DrawCall {
+export interface FlatColorDrawCall extends DrawCall {
     color: vec4;
     vertices: vec4[]; // vertices to draw (must have length 4).
 }
 
-export default class FlatColorShader extends Shader {
+export class FlatColorShader extends Shader {
     constructor(gl_context: WebGLRenderingContext, targetVBO: WebGLBuffer) {
         var vertex_shader = require("./glsl/flat_color_vert.glsl");
         var fragment_shader = require("./glsl/flat_color_frag.glsl");
@@ -40,9 +40,7 @@ export default class FlatColorShader extends Shader {
         this.gl_context.vertexAttribPointer(vPosition, floats_per_vertex, this.gl_context.FLOAT, false, 0, 0);
         this.gl_context.enableVertexAttribArray(vPosition);
 
-        // Execute draw calls.
-        for (var i = 0; i < vertices.length; i += floats_per_vertex) {
-            this.gl_context.drawArrays(this.gl_context.TRIANGLE_FAN, i, floats_per_vertex);
-        }
+        // Execute draw call.
+        this.gl_context.drawArrays(this.gl_context.TRIANGLE_FAN, 0, draw_call.vertices.length);
     }
 }

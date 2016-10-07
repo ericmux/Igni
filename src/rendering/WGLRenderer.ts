@@ -4,6 +4,8 @@
 import setupWebGL from "./utils/webgl_utils.ts";
 import {RENFlatColor} from "./ren_flat_color.ts";
 import {ColorSquare} from "./color_square.ts";
+import Shader from "./shaders/Shader";
+import {FlatColorShader, FlatColorDrawCall} from "./shaders/FlatColorShader";
 import {vec3, vec4, mat4} from "gl-matrix";
 
 interface WGLOptions {
@@ -15,11 +17,13 @@ export class WGLRenderer {
 
 	private static CLEAR_COLOR : vec4 = vec4.fromValues(0.043, 0.075, 0.3372, 1.0);
 	public static gl : WebGLRenderingContext;
-	private projection_matrix : mat4;
 
-	canvas : HTMLCanvasElement;
-	render : RENFlatColor;
-	square : ColorSquare;
+	private projection_matrix : mat4;
+	private vVBO : WebGLBuffer;
+	private canvas : HTMLCanvasElement;
+	private render : RENFlatColor;
+	private square : ColorSquare;
+	private activeShader : Shader;
 
 	constructor (canvas : HTMLCanvasElement, opts?: WGLOptions) {
 		opts = opts || <WGLOptions>{ depth_test: false, blend: false };
@@ -39,9 +43,13 @@ export class WGLRenderer {
 			WGLRenderer.gl.blendFunc (WGLRenderer.gl.SRC_ALPHA, WGLRenderer.gl.ONE_MINUS_SRC_ALPHA);
 		}
 
+		//  Setup VBO.
+        this.vVBO = WGLRenderer.gl.createBuffer();
+
 		this.canvas = canvas;
 		this.render = new RENFlatColor ();
 		this.square = new ColorSquare (this.render);
+		this.activeShader = new FlatColorShader(WGLRenderer.gl, this.vVBO);
 
 		// Set up projection matrix.
 		this.projection_matrix = mat4.ortho (mat4.create(), 
@@ -64,6 +72,24 @@ export class WGLRenderer {
 		WGLRenderer.gl.clear (WGLRenderer.gl.COLOR_BUFFER_BIT | WGLRenderer.gl.DEPTH_BUFFER_BIT);		
 	}
 
+	// Resize canvas to adjust resolution.
+	public resizeCanvas() {
+		// Lookup the size the browser is displaying the canvas.
+		var displayWidth  = this.canvas.clientWidth;
+		var displayHeight = this.canvas.clientHeight;
+
+		// Check if the canvas is not the same size.
+		if (this.canvas.width  != displayWidth ||
+			this.canvas.height != displayHeight) {
+			// Make the canvas the same size
+			this.canvas.width  = displayWidth;
+			this.canvas.height = displayHeight;
+		}
+
+		// Fix viewport.
+		WGLRenderer.gl.viewport (0, 0, this.canvas.width, this.canvas.height);
+	}
+
 	/**
 	*  Execute rendering code
 	*/
@@ -71,12 +97,30 @@ export class WGLRenderer {
 		//  Modelview matrix
 		let mv : mat4 = mat4.create();
 		mat4.identity(mv);
+		let t : number = 0;
+		let inc : number = 1;
 
-		this.clear();
+		setInterval(() => {
+			this.clear();
 
-		this.square.draw (this.projection_matrix, mv);
-		mat4.translate(mv, mv, vec3.fromValues(50,50,0));
-		this.square.draw(this.projection_matrix, mv);
+			this.activeShader.render(<FlatColorDrawCall>{
+				modelView: mv,
+				projection: this.projection_matrix,
+				color: vec4.fromValues (1.0, 0.0, 0.0, 1.0),
+				vertices: [
+					vec4.fromValues (t, 0.0, 0.0, 1.0),
+					vec4.fromValues (t, 20, 0.0, 1.0),
+					vec4.fromValues (20 + t, 20, 0.0, 1.0),
+					vec4.fromValues (20 + t, 0.0, 0.0, 1.0)
+				]
+			});
+			t += inc;
+			if (t == 100) inc = -1;
+			else if (t == -100) inc = 1;
+		}, 16.7);
+
+		// this.square.draw (this.projection_matrix, mv);
+		// mat4.translate(mv, mv, vec3.fromValues(50,50,0));
+		// this.square.draw(this.projection_matrix, mv);
 	}
-
 }

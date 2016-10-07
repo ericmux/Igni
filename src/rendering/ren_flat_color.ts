@@ -1,4 +1,4 @@
-import FlatColorShader from "./shaders/FlatColorShader";
+import {FlatColorShader} from "./shaders/FlatColorShader";
 import {WGLRenderer} from "./WGLRenderer.ts";
 import {vec4, mat4} from "gl-matrix";
 

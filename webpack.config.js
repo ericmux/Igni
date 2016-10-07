@@ -2,7 +2,8 @@ module.exports = {
     entry: "./src/igni.ts",
     output: {
         filename: "igni-full.js",
-        path: "./dist"
+        path: "./dist",
+        publicPath: "/dist/"
     },
 
     // Enable sourcemaps for debugging webpack's output.
@@ -20,7 +21,10 @@ module.exports = {
             // All CSS files will be handled by the style-loader/css-loader.
             { test: /\.css$/, loader: 'style-loader!css-loader' },
             // All .glsl filels will be handled by the glsl-loader.
-            { test: /\.glsl$/, loader: 'webpack-glsl' }
+            { test: /\.glsl$/, loader: 'webpack-glsl' },
+            // This is so the dev server is able to pick up and hot reload changes in the html files.
+            // Otherwise, utterly unnecessary.
+            { test: /\.html$/, loader: "raw-loader"}
         ],
 
         preLoaders: [
