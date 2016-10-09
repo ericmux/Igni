@@ -1,16 +1,17 @@
 require("../dist/index.html");
-import {WGLRenderer} from "./rendering/WGLRenderer.ts";
+import {WGLRenderer} from "./rendering/renderers/WGLRenderer.ts";
+import IgniEngine from "./engine/IgniEngine";
 
 let canvas : HTMLCanvasElement;
-let wgl : WGLRenderer;
+let game : IgniEngine;
 
 window.onload = () => {
     canvas = <HTMLCanvasElement> document.getElementById("gl-canvas"); 
-    wgl = new WGLRenderer (canvas, null);
-    wgl.draw ();
+    game = new IgniEngine(canvas);
+    game.start();
 }
 
 window.onresize = () => {
-    wgl.resizeCanvas();
+    game.resizeToCanvas();
 }
 

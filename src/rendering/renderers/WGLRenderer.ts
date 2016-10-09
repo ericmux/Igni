@@ -1,10 +1,12 @@
 /**
 * WebGL functionality
 */
-import setupWebGL from "./utils/webgl_utils.ts";
-import Square from "./shapes/Square";
-import Shader from "./shaders/Shader";
-import {FlatColorShader, FlatColorDrawCall} from "./shaders/FlatColorShader";
+import setupWebGL from "../utils/webgl_utils.ts";
+import Renderer from "./Renderer";
+import Shape from "../shapes/Shape";
+import Square from "../shapes/Square";
+import Shader from "../shaders/Shader";
+import {FlatColorShader, FlatColorDrawCall} from "../shaders/FlatColorShader";
 import {vec2, vec3, vec4, mat4} from "gl-matrix";
 
 interface WGLOptions {
@@ -12,7 +14,7 @@ interface WGLOptions {
 	blend: boolean; 
 }
 
-export class WGLRenderer {
+export class WGLRenderer implements Renderer {
 
 	private static CLEAR_COLOR : vec4 = vec4.fromValues(0.043, 0.075, 0.3372, 1.0);
 	public static gl : WebGLRenderingContext;
@@ -63,37 +65,29 @@ export class WGLRenderer {
 	}
 
 	// Clears the canvas for the next frame.
-	private clear() {
+	public clear() {
 		let clear_color : vec4 = WGLRenderer.CLEAR_COLOR;
 		WGLRenderer.gl.clearColor(clear_color[0], clear_color[1], clear_color[2], clear_color[3]);
 		WGLRenderer.gl.clear (WGLRenderer.gl.COLOR_BUFFER_BIT | WGLRenderer.gl.DEPTH_BUFFER_BIT);		
 	}
 
-	// Resize canvas to adjust resolution.
-	public resizeCanvas() {
-		// Lookup the size the browser is displaying the canvas.
-		var displayWidth  = this.canvas.clientWidth;
-		var displayHeight = this.canvas.clientHeight;
-
+	public resize(width: number, height: number) {
 		// Check if the canvas is not the same size.
-		if (this.canvas.width  != displayWidth ||
-			this.canvas.height != displayHeight) {
+		if (this.canvas.width  != width ||
+			this.canvas.height != height) {
 			// Make the canvas the same size
-			this.canvas.width  = displayWidth;
-			this.canvas.height = displayHeight;
+			this.canvas.width  = width;
+			this.canvas.height = height;
 		}
 
 		// Fix viewport.
-		WGLRenderer.gl.viewport (0, 0, this.canvas.width, this.canvas.height);
+		WGLRenderer.gl.viewport (0, 0, this.canvas.width, this.canvas.height);	
 	}
 
 	/**
-	*  Execute rendering code
+	*  Draw a collection of shapes.
 	*/
-	draw () {	
-		//  Modelview matrix
-		let mv : mat4 = mat4.create();
-		mat4.identity(mv);
+	public drawShapes(shapes: Shape[]) {	
 		let t : number = 0;
 		let inc : number = 1;
 
@@ -107,9 +101,14 @@ export class WGLRenderer {
 			if (t == 100) inc = -1;
 			else if (t == -100) inc = 1;
 		}, 16.7);
+	}
 
-		// this.square.draw (this.projection_matrix, mv);
-		// mat4.translate(mv, mv, vec3.fromValues(50,50,0));
-		// this.square.draw(this.projection_matrix, mv);
+	// Resize canvas to adjust resolution.
+	public resizeToCanvas() {
+		// Lookup the size the browser is displaying the canvas.
+		var displayWidth  = this.canvas.clientWidth;
+		var displayHeight = this.canvas.clientHeight;
+
+		this.resize(displayWidth, displayHeight);
 	}
 }
