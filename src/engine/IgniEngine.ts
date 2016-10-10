@@ -19,6 +19,11 @@ export default class IgniEngine implements Engine {
 
     public start() {
 		setInterval(() => {
+            // Update loop.
+            for(let shape of this.shapes) {
+                shape.update();
+            }
+
 			this.renderer.clear();
             this.renderer.drawShapes(this.shapes);
 		}, 16.7);

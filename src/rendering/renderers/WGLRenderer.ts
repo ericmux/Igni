@@ -16,7 +16,7 @@ interface WGLOptions {
 
 export class WGLRenderer implements Renderer {
 
-	private static CLEAR_COLOR : vec4 = vec4.fromValues(0.043, 0.075, 0.3372, 1.0);
+	private static CLEAR_COLOR : vec4 = vec4.fromValues(0, 0, 0, 1.0);
 	public static gl : WebGLRenderingContext;
 
 	private projection_matrix : mat4;

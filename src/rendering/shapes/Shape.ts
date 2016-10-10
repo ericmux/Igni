@@ -4,6 +4,7 @@ import DrawCall from "../shaders/DrawCall";
 abstract class Shape {
     protected modelView: mat4;
     protected position : vec2;
+    protected updateCallback: (shape :Shape) => void;
     public abstract toDrawCall(projection: mat4) :DrawCall;
 
     constructor(position :vec2) {
@@ -16,6 +17,14 @@ abstract class Shape {
     public translate(v : vec2) {
         let t :vec3 = vec3.fromValues(v[0], v[1], 0.0);
         mat4.translate(this.modelView, this.modelView, t);
+    }
+
+    public update() {
+        this.updateCallback(this);
+    }
+
+    public onUpdate(updateCallback :(shape :Shape) => void) {
+        this.updateCallback = updateCallback;
     }
 }
 export default Shape;
