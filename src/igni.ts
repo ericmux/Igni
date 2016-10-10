@@ -27,6 +27,10 @@ window.onload = () => {
 
     game.add(sq1); game.add(sq2);
     game.start();
+
+    setTimeout(() => {
+        game.stop();
+    }, 1000);
 }
 
 window.onresize = () => {

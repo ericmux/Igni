@@ -7,6 +7,7 @@ export default class IgniEngine implements Engine {
 
     private shapes: Shape[];
     private renderer: Renderer;
+    private lastFrameID: number;
 
     constructor(canvas :HTMLCanvasElement) {
         this.shapes = [];
@@ -18,15 +19,24 @@ export default class IgniEngine implements Engine {
     }
 
     public start() {
-		setInterval(() => {
+
+        let gameLoop : () => void = () => {
+            this.lastFrameID = window.requestAnimationFrame(gameLoop);
+
             // Update loop.
             for(let shape of this.shapes) {
                 shape.update();
             }
 
-			this.renderer.clear();
+            // Draw.
+            this.renderer.clear();
             this.renderer.drawShapes(this.shapes);
-		}, 16.7);
+        };
+        gameLoop();
+    }
+
+    public stop() {
+        window.cancelAnimationFrame(this.lastFrameID);
     }
 
     // Resize canvas to adjust resolution.
