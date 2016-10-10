@@ -46,28 +46,22 @@
 
 	"use strict";
 	__webpack_require__(1);
-	var WGLRenderer_ts_1 = __webpack_require__(2);
+	var IgniEngine_1 = __webpack_require__(2);
+	var Square_1 = __webpack_require__(19);
+	var gl_matrix_1 = __webpack_require__(9);
 	var canvas;
-	// Resize canvas to adjust resolution.
-	function resizeCanvas(canvas) {
-	    // Lookup the size the browser is displaying the canvas.
-	    var displayWidth = canvas.clientWidth;
-	    var displayHeight = canvas.clientHeight;
-	    // Check if the canvas is not the same size.
-	    if (canvas.width != displayWidth ||
-	        canvas.height != displayHeight) {
-	        // Make the canvas the same size
-	        canvas.width = displayWidth;
-	        canvas.height = displayHeight;
-	    }
-	}
+	var game;
 	window.onload = function () {
 	    canvas = document.getElementById("gl-canvas");
-	    var wgl = new WGLRenderer_ts_1.WGLRenderer(canvas, null);
-	    wgl.draw();
+	    game = new IgniEngine_1.default(canvas);
+	    var sq1 = new Square_1.default(gl_matrix_1.vec2.fromValues(-50, -50));
+	    var sq2 = new Square_1.default(gl_matrix_1.vec2.fromValues(50, 50));
+	    game.add(sq1);
+	    game.add(sq2);
+	    game.start();
 	};
 	window.onresize = function () {
-	    resizeCanvas(canvas);
+	    game.resizeToCanvas();
 	};
 
 
@@ -75,21 +69,50 @@
 /* 1 */
 /***/ function(module, exports) {
 
-	module.exports = "<html>\n<head>\n</head>\n<body style=\"margin: 0\">\n    <script type=\"text/javascript\" src=\"dist/igni-full.js\" ></script>\n    <canvas id=\"gl-canvas\" style=\"width:100%; height:100%; display: block;\"></canvas>\n</body>\n</html>"
+	module.exports = "<html>\n<head>\n</head>\n<body style=\"margin: 0\">\n    <script type=\"text/javascript\" src=\"/dist/igni-full.js\" ></script>\n    <canvas id=\"gl-canvas\" style=\"width:100%; height:100%; display: block;\"></canvas>\n</body>\n</html>"
 
 /***/ },
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var WGLRenderer_1 = __webpack_require__(3);
+	var IgniEngine = (function () {
+	    function IgniEngine(canvas) {
+	        this.shapes = [];
+	        this.renderer = new WGLRenderer_1.WGLRenderer(canvas, null);
+	    }
+	    IgniEngine.prototype.add = function (shape) {
+	        this.shapes.push(shape);
+	    };
+	    IgniEngine.prototype.start = function () {
+	        var _this = this;
+	        setInterval(function () {
+	            _this.renderer.clear();
+	            _this.renderer.drawShapes(_this.shapes);
+	        }, 16.7);
+	    };
+	    // Resize canvas to adjust resolution.
+	    IgniEngine.prototype.resizeToCanvas = function () {
+	        this.renderer.resizeToCanvas();
+	    };
+	    return IgniEngine;
+	}());
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = IgniEngine;
+
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
 	/**
 	* WebGL functionality
 	*/
-	var webgl_utils_ts_1 = __webpack_require__(3);
-	var ren_flat_color_ts_1 = __webpack_require__(4);
-	var color_square_ts_1 = __webpack_require__(9);
+	var webgl_utils_ts_1 = __webpack_require__(4);
 	var FlatColorShader_1 = __webpack_require__(5);
-	var gl_matrix_1 = __webpack_require__(10);
+	var gl_matrix_1 = __webpack_require__(9);
 	var WGLRenderer = (function () {
 	    function WGLRenderer(canvas, opts) {
 	        opts = opts || { depth_test: false, blend: false };
@@ -108,9 +131,7 @@
 	        //  Setup VBO.
 	        this.vVBO = WGLRenderer.gl.createBuffer();
 	        this.canvas = canvas;
-	        this.render = new ren_flat_color_ts_1.RENFlatColor();
-	        this.square = new color_square_ts_1.ColorSquare(this.render);
-	        this.shader = new FlatColorShader_1.FlatColorShader(WGLRenderer.gl, this.vVBO);
+	        this.activeShader = new FlatColorShader_1.FlatColorShader(WGLRenderer.gl, this.vVBO);
 	        // Set up projection matrix.
 	        this.projection_matrix = gl_matrix_1.mat4.ortho(gl_matrix_1.mat4.create(), -this.canvas.width / 2, this.canvas.width / 2, -this.canvas.height / 2, this.canvas.height / 2, -1, 1);
 	        // Set up viewport.
@@ -124,38 +145,47 @@
 	        WGLRenderer.gl.clearColor(clear_color[0], clear_color[1], clear_color[2], clear_color[3]);
 	        WGLRenderer.gl.clear(WGLRenderer.gl.COLOR_BUFFER_BIT | WGLRenderer.gl.DEPTH_BUFFER_BIT);
 	    };
+	    WGLRenderer.prototype.resize = function (width, height) {
+	        // Check if the canvas is not the same size.
+	        if (this.canvas.width != width ||
+	            this.canvas.height != height) {
+	            // Make the canvas the same size
+	            this.canvas.width = width;
+	            this.canvas.height = height;
+	        }
+	        // Fix viewport.
+	        WGLRenderer.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+	    };
 	    /**
-	    *  Execute rendering code
+	    *  Draw a collection of shapes.
 	    */
-	    WGLRenderer.prototype.draw = function () {
+	    WGLRenderer.prototype.drawShapes = function (shapes) {
 	        var _this = this;
-	        //  Modelview matrix
-	        var mv = gl_matrix_1.mat4.create();
-	        gl_matrix_1.mat4.identity(mv);
 	        var t = 0;
 	        var inc = 1;
+	        for (var _i = 0, shapes_1 = shapes; _i < shapes_1.length; _i++) {
+	            var shape = shapes_1[_i];
+	            this.activeShader.render(shape.toDrawCall(this.projection_matrix));
+	        }
 	        setInterval(function () {
 	            _this.clear();
-	            _this.shader.render({
-	                modelView: mv,
-	                projection: _this.projection_matrix,
-	                color: gl_matrix_1.vec4.fromValues(1.0, 0.0, 0.0, 1.0),
-	                vertices: [
-	                    gl_matrix_1.vec4.fromValues(40 + t, 0.0, 0.0, 1.0),
-	                    gl_matrix_1.vec4.fromValues(40 + t, 50, 0.0, 1.0),
-	                    gl_matrix_1.vec4.fromValues(70 + t, 50, 0.0, 1.0),
-	                    gl_matrix_1.vec4.fromValues(70 + t, 0.0, 0.0, 1.0)
-	                ]
-	            });
+	            for (var _i = 0, shapes_2 = shapes; _i < shapes_2.length; _i++) {
+	                var shape = shapes_2[_i];
+	                _this.activeShader.render(shape.toDrawCall(_this.projection_matrix));
+	            }
 	            t += inc;
 	            if (t == 100)
 	                inc = -1;
 	            else if (t == -100)
 	                inc = 1;
-	        }, 100);
-	        // this.square.draw (this.projection_matrix, mv);
-	        // mat4.translate(mv, mv, vec3.fromValues(50,50,0));
-	        // this.square.draw(this.projection_matrix, mv);
+	        }, 16.7);
+	    };
+	    // Resize canvas to adjust resolution.
+	    WGLRenderer.prototype.resizeToCanvas = function () {
+	        // Lookup the size the browser is displaying the canvas.
+	        var displayWidth = this.canvas.clientWidth;
+	        var displayHeight = this.canvas.clientHeight;
+	        this.resize(displayWidth, displayHeight);
 	    };
 	    WGLRenderer.CLEAR_COLOR = gl_matrix_1.vec4.fromValues(0.043, 0.075, 0.3372, 1.0);
 	    return WGLRenderer;
@@ -164,7 +194,7 @@
 
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports) {
 
 	/*
@@ -331,48 +361,6 @@
 
 
 /***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var FlatColorShader_1 = __webpack_require__(5);
-	var WGLRenderer_ts_1 = __webpack_require__(2);
-	var RENFlatColor = (function () {
-	    function RENFlatColor() {
-	        //  VBO for both vertices and texture coordinates
-	        this.vVBO = WGLRenderer_ts_1.WGLRenderer.gl.createBuffer();
-	        //  The generic program used to render
-	        this.program = new FlatColorShader_1.FlatColorShader(WGLRenderer_ts_1.WGLRenderer.gl, this.vVBO).getProgram();
-	    }
-	    RENFlatColor.prototype.load_vbo = function (vertices, color, r_type, vert_step) {
-	        // Load the data into the VBOs
-	        WGLRenderer_ts_1.WGLRenderer.gl.bindBuffer(WGLRenderer_ts_1.WGLRenderer.gl.ARRAY_BUFFER, this.vVBO);
-	        WGLRenderer_ts_1.WGLRenderer.gl.bufferData(WGLRenderer_ts_1.WGLRenderer.gl.ARRAY_BUFFER, vertices, WGLRenderer_ts_1.WGLRenderer.gl.STATIC_DRAW);
-	        this.n_vertex = vertices.length / 4;
-	        this.render_color = color;
-	        this.render_type = r_type;
-	        this.vertex_step = vert_step;
-	    };
-	    RENFlatColor.prototype.draw = function (p, mv) {
-	        WGLRenderer_ts_1.WGLRenderer.gl.useProgram(this.program);
-	        WGLRenderer_ts_1.WGLRenderer.gl.uniformMatrix4fv(WGLRenderer_ts_1.WGLRenderer.gl.getUniformLocation(this.program, "projectionMatrix"), false, p); // fltten(p)
-	        WGLRenderer_ts_1.WGLRenderer.gl.uniformMatrix4fv(WGLRenderer_ts_1.WGLRenderer.gl.getUniformLocation(this.program, "modelViewMatrix"), false, mv); // flatten(mv)
-	        WGLRenderer_ts_1.WGLRenderer.gl.uniform4fv(WGLRenderer_ts_1.WGLRenderer.gl.getUniformLocation(this.program, "fColor"), this.render_color);
-	        // Associate out shader variables with our data buffer
-	        var vPosition = WGLRenderer_ts_1.WGLRenderer.gl.getAttribLocation(this.program, "vPosition");
-	        WGLRenderer_ts_1.WGLRenderer.gl.bindBuffer(WGLRenderer_ts_1.WGLRenderer.gl.ARRAY_BUFFER, this.vVBO);
-	        WGLRenderer_ts_1.WGLRenderer.gl.vertexAttribPointer(vPosition, 4, WGLRenderer_ts_1.WGLRenderer.gl.FLOAT, false, 0, 0);
-	        WGLRenderer_ts_1.WGLRenderer.gl.enableVertexAttribArray(vPosition);
-	        for (var i = 0; i < this.n_vertex; i += this.vertex_step) {
-	            WGLRenderer_ts_1.WGLRenderer.gl.drawArrays(this.render_type, i, this.vertex_step);
-	        }
-	    };
-	    return RENFlatColor;
-	}());
-	exports.RENFlatColor = RENFlatColor;
-
-
-/***/ },
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -483,56 +471,6 @@
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
-	var gl_matrix_1 = __webpack_require__(10);
-	var gl_matrix_2 = __webpack_require__(10);
-	var WGLRenderer_ts_1 = __webpack_require__(2);
-	var ColorSquare = (function () {
-	    function ColorSquare(render) {
-	        this.color = gl_matrix_2.vec4.fromValues(1.0, 0.0, 0.0, 1.0);
-	        this.position = gl_matrix_1.vec2.fromValues(0.0, 0.0);
-	        this.width = 20.0;
-	        this.height = 20.0;
-	        this.render = render;
-	    }
-	    ColorSquare.prototype.vertices = function () {
-	        var floats = new Float32Array(4 * 4);
-	        var res = gl_matrix_1.vec2.create();
-	        gl_matrix_1.vec2.add(res, this.position, [-this.width / 2.0, -this.height / 2.0]);
-	        floats[0] = res[0];
-	        floats[1] = res[1];
-	        floats[2] = 0.0;
-	        floats[3] = 1.0;
-	        gl_matrix_1.vec2.add(res, res, [0, this.height]);
-	        floats[4] = res[0];
-	        floats[5] = res[1];
-	        floats[6] = 0.0;
-	        floats[7] = 1.0;
-	        gl_matrix_1.vec2.add(res, res, [this.width, 0]);
-	        floats[8] = res[0];
-	        floats[9] = res[1];
-	        floats[10] = 0.0;
-	        floats[11] = 1.0;
-	        gl_matrix_1.vec2.add(res, res, [0, -this.height]);
-	        floats[12] = res[0];
-	        floats[13] = res[1];
-	        floats[14] = 0.0;
-	        floats[15] = 1.0;
-	        return floats;
-	    };
-	    ColorSquare.prototype.draw = function (p, mv) {
-	        this.render.load_vbo(this.vertices(), this.color, WGLRenderer_ts_1.WGLRenderer.gl.TRIANGLE_FAN, 4);
-	        this.render.draw(p, mv);
-	    };
-	    return ColorSquare;
-	}());
-	exports.ColorSquare = ColorSquare;
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
 	/**
 	 * @fileoverview gl-matrix - High performance matrix and vector operations
 	 * @author Brandon Jones
@@ -561,18 +499,18 @@
 	THE SOFTWARE. */
 	// END HEADER
 	
-	exports.glMatrix = __webpack_require__(11);
-	exports.mat2 = __webpack_require__(12);
-	exports.mat2d = __webpack_require__(13);
-	exports.mat3 = __webpack_require__(14);
-	exports.mat4 = __webpack_require__(15);
-	exports.quat = __webpack_require__(16);
-	exports.vec2 = __webpack_require__(19);
-	exports.vec3 = __webpack_require__(17);
-	exports.vec4 = __webpack_require__(18);
+	exports.glMatrix = __webpack_require__(10);
+	exports.mat2 = __webpack_require__(11);
+	exports.mat2d = __webpack_require__(12);
+	exports.mat3 = __webpack_require__(13);
+	exports.mat4 = __webpack_require__(14);
+	exports.quat = __webpack_require__(15);
+	exports.vec2 = __webpack_require__(18);
+	exports.vec3 = __webpack_require__(16);
+	exports.vec4 = __webpack_require__(17);
 
 /***/ },
-/* 11 */
+/* 10 */
 /***/ function(module, exports) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -648,7 +586,7 @@
 
 
 /***/ },
-/* 12 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -671,7 +609,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 	
-	var glMatrix = __webpack_require__(11);
+	var glMatrix = __webpack_require__(10);
 	
 	/**
 	 * @class 2x2 Matrix
@@ -1090,7 +1028,7 @@
 
 
 /***/ },
-/* 13 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -1113,7 +1051,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 	
-	var glMatrix = __webpack_require__(11);
+	var glMatrix = __webpack_require__(10);
 	
 	/**
 	 * @class 2x3 Matrix
@@ -1565,7 +1503,7 @@
 
 
 /***/ },
-/* 14 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -1588,7 +1526,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 	
-	var glMatrix = __webpack_require__(11);
+	var glMatrix = __webpack_require__(10);
 	
 	/**
 	 * @class 3x3 Matrix
@@ -2317,7 +2255,7 @@
 
 
 /***/ },
-/* 15 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -2340,7 +2278,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 	
-	var glMatrix = __webpack_require__(11);
+	var glMatrix = __webpack_require__(10);
 	
 	/**
 	 * @class 4x4 Matrix
@@ -4459,7 +4397,7 @@
 
 
 /***/ },
-/* 16 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -4482,10 +4420,10 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 	
-	var glMatrix = __webpack_require__(11);
-	var mat3 = __webpack_require__(14);
-	var vec3 = __webpack_require__(17);
-	var vec4 = __webpack_require__(18);
+	var glMatrix = __webpack_require__(10);
+	var mat3 = __webpack_require__(13);
+	var vec3 = __webpack_require__(16);
+	var vec4 = __webpack_require__(17);
 	
 	/**
 	 * @class Quaternion
@@ -5065,7 +5003,7 @@
 
 
 /***/ },
-/* 17 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -5088,7 +5026,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 	
-	var glMatrix = __webpack_require__(11);
+	var glMatrix = __webpack_require__(10);
 	
 	/**
 	 * @class 3 Dimensional Vector
@@ -5848,7 +5786,7 @@
 
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -5871,7 +5809,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 	
-	var glMatrix = __webpack_require__(11);
+	var glMatrix = __webpack_require__(10);
 	
 	/**
 	 * @class 4 Dimensional Vector
@@ -6463,7 +6401,7 @@
 
 
 /***/ },
-/* 19 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -6486,7 +6424,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 	
-	var glMatrix = __webpack_require__(11);
+	var glMatrix = __webpack_require__(10);
 	
 	/**
 	 * @class 2 Dimensional Vector
@@ -7053,6 +6991,76 @@
 	};
 	
 	module.exports = vec2;
+
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var Shape_1 = __webpack_require__(20);
+	var gl_matrix_1 = __webpack_require__(9);
+	var ColorSquare = (function (_super) {
+	    __extends(ColorSquare, _super);
+	    function ColorSquare(position) {
+	        _super.call(this, position);
+	        this.color = gl_matrix_1.vec4.fromValues(1.0, 0.0, 0.0, 1.0);
+	        this.width = 20.0;
+	        this.height = 20.0;
+	    }
+	    ColorSquare.prototype.calculateVertices = function () {
+	        var vertices = [];
+	        var res = gl_matrix_1.vec2.create();
+	        gl_matrix_1.vec2.add(res, this.position, [-this.width / 2.0, -this.height / 2.0]);
+	        vertices.push(gl_matrix_1.vec4.fromValues(res[0], res[1], 0.0, 1.0));
+	        gl_matrix_1.vec2.add(res, res, [0, this.height]);
+	        vertices.push(gl_matrix_1.vec4.fromValues(res[0], res[1], 0.0, 1.0));
+	        gl_matrix_1.vec2.add(res, res, [this.width, 0]);
+	        vertices.push(gl_matrix_1.vec4.fromValues(res[0], res[1], 0.0, 1.0));
+	        gl_matrix_1.vec2.add(res, res, [0, -this.height]);
+	        vertices.push(gl_matrix_1.vec4.fromValues(res[0], res[1], 0.0, 1.0));
+	        return vertices;
+	    };
+	    ColorSquare.prototype.toDrawCall = function (projection) {
+	        return {
+	            projection: projection,
+	            modelView: this.modelView,
+	            color: this.color,
+	            vertices: this.calculateVertices()
+	        };
+	    };
+	    return ColorSquare;
+	}(Shape_1.default));
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = ColorSquare;
+
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var gl_matrix_1 = __webpack_require__(9);
+	var Shape = (function () {
+	    function Shape(position) {
+	        this.position = position;
+	        var translation = gl_matrix_1.vec3.fromValues(position[0], position[1], 0.0);
+	        this.modelView = gl_matrix_1.mat4.create();
+	        this.modelView = gl_matrix_1.mat4.translate(this.modelView, this.modelView, translation);
+	    }
+	    Shape.prototype.translate = function (v) {
+	        var t = gl_matrix_1.vec3.fromValues(v[0], v[1], 0.0);
+	        gl_matrix_1.mat4.translate(this.modelView, this.modelView, t);
+	    };
+	    return Shape;
+	}());
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = Shape;
 
 
 /***/ }

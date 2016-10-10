@@ -22,7 +22,6 @@ export class WGLRenderer implements Renderer {
 	private projection_matrix : mat4;
 	private vVBO : WebGLBuffer;
 	private canvas : HTMLCanvasElement;
-	private square : Square;
 	private activeShader : Shader;
 
 	constructor (canvas : HTMLCanvasElement, opts?: WGLOptions) {
@@ -47,7 +46,6 @@ export class WGLRenderer implements Renderer {
         this.vVBO = WGLRenderer.gl.createBuffer();
 
 		this.canvas = canvas;
-		this.square = new Square ();
 		this.activeShader = new FlatColorShader(WGLRenderer.gl, this.vVBO);
 
 		// Set up projection matrix.
@@ -88,19 +86,9 @@ export class WGLRenderer implements Renderer {
 	*  Draw a collection of shapes.
 	*/
 	public drawShapes(shapes: Shape[]) {	
-		let t : number = 0;
-		let inc : number = 1;
-
-		setInterval(() => {
-			this.clear();
-			this.square.translate(vec2.fromValues(inc, 0.0));
-
-			this.activeShader.render(this.square.toDrawCall(this.projection_matrix));
-
-			t += inc;
-			if (t == 100) inc = -1;
-			else if (t == -100) inc = 1;
-		}, 16.7);
+		for(let shape of shapes) {
+			this.activeShader.render(shape.toDrawCall(this.projection_matrix));
+		}
 	}
 
 	// Resize canvas to adjust resolution.
