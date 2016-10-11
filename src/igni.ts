@@ -13,24 +13,43 @@ window.onload = () => {
 
     let sq1 : Square = new Square(vec2.fromValues(-50,-50));
     let sq2 : Square = new Square(vec2.fromValues(50,50));
+    let sq3 : Square = new Square(vec2.fromValues(-50,50));
+    let sq4 : Square = new Square(vec2.fromValues(50,-50));
+    let sq5 : Square = new Square(vec2.fromValues(0.0,0.0));
 
     let inc : number = 1.0;
-    let t : number = 0.0;
 
-    let update_callback : (square :Square) => void = (square :Square) => {
+    let t1 : number = 0.0, t2 : number = 0.0, t3 : number = 0.0;
+
+    let horizontal_callback : (square :Square) => void = (square :Square) => {
+
         square.translate(vec2.fromValues(0.0,inc));
-        t += inc;
-        if (t === 20.0 || t=== -20.0) inc = -inc;
+        t1 += inc;
+        if (t1 === 60.0 || t1 === -60.0) inc = -inc;
     } 
-    sq1.onUpdate(update_callback);
-    sq2.onUpdate(update_callback);
+    let vertical_callback : (square :Square) => void = (square :Square) => {
+        square.translate(vec2.fromValues(inc,0.0));
+        t2 += inc;
+        if (t2 === 20.0 || t3 === -20.0) inc = -inc;
+    } 
+    let diagonal_callback : (square :Square) => void = (square :Square) => {
+        square.translate(vec2.fromValues(inc,inc));
+        t3 += inc;
+        if (t3 === 20.0 || t3 === -20.0) inc = -inc;
+    } 
 
-    game.add(sq1); game.add(sq2);
+    sq1.onUpdate(horizontal_callback);
+    sq2.onUpdate(horizontal_callback);
+    sq3.onUpdate(vertical_callback);
+    sq4.onUpdate(diagonal_callback);
+    sq5.onUpdate(horizontal_callback);
+
+    game.add(sq1); game.add(sq2); game.add(sq3); game.add(sq4); game.add(sq5);
     game.start();
 
     setTimeout(() => {
         game.stop();
-    }, 1000);
+    }, 10000);
 }
 
 window.onresize = () => {
