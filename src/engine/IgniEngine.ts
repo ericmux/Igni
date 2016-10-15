@@ -1,7 +1,7 @@
 import Engine from "./Engine";
 import Shape from "../rendering/shapes/Shape";
 import Renderer from "../rendering/renderers/Renderer";
-import {WGLRenderer} from "../rendering/renderers/WGLRenderer";
+import {WGLRenderer, WGLOptions} from "../rendering/renderers/WGLRenderer";
 
 export default class IgniEngine implements Engine {
 
@@ -10,8 +10,8 @@ export default class IgniEngine implements Engine {
     private lastFrameID: number;
 
     constructor(canvas :HTMLCanvasElement) {
-        this.shapes = [];
-        this.renderer = new WGLRenderer (canvas, null);
+        this.shapes = []; 
+        this.renderer = new WGLRenderer (canvas, <WGLOptions> { depth_test: false, blend: true });
     }
 
     public add(shape: Shape) :void {

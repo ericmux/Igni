@@ -1,28 +1,28 @@
 import {vec4, mat4} from "gl-matrix";
 import Shader from "./Shader";
-import DrawCall from "./DrawCall";
+import {FlatColorDrawCall} from "./FlatColorShader";
 
-export class FlatColorDrawCall extends DrawCall {
-    public color: vec4;
-    public vertices: vec4[]; // vertices to draw (must have length 4).
+export class FlatColorCircleDrawCall extends FlatColorDrawCall {
+    center: vec4;
+    radius: number;
 
-    constructor (modelView : mat4, projection : mat4, color : vec4, vertices : vec4[]) {
-        super (modelView, projection);
+    constructor (modelView : mat4, projection : mat4, color : vec4, vertices : vec4[], center : vec4, radius : number) {
+        super (modelView, projection, color, vertices);
 
-        this.color = color;
-        this.vertices = vertices;
+        this.center = center;
+        this.radius = radius;
     }
 }
 
-export class FlatColorShader extends Shader {
+export class FlatColorCircleShader extends Shader {
     constructor(gl_context: WebGLRenderingContext, targetVBO: WebGLBuffer) {
-        var vertex_shader = require("./glsl/flat_color_vert.glsl");
-        var fragment_shader = require("./glsl/flat_color_frag.glsl");
+        var vertex_shader = require("./glsl/flat_color_circle_vert.glsl");
+        var fragment_shader = require("./glsl/flat_color_circle_frag.glsl");
         super(gl_context, vertex_shader, fragment_shader);
         this.targetVBO = targetVBO;
     }
 
-    public render(draw_call: FlatColorDrawCall): void {
+    public render(draw_call: FlatColorCircleDrawCall): void {
         // Load the data into the VBO.
         let floats_per_vertex :number = 4;
         let vertices : Float32Array = new Float32Array (floats_per_vertex*draw_call.vertices.length);
@@ -40,6 +40,8 @@ export class FlatColorShader extends Shader {
         this.gl_context.uniformMatrix4fv(this.gl_context.getUniformLocation(this.program, "projectionMatrix"), false, draw_call.projection); 
         this.gl_context.uniformMatrix4fv(this.gl_context.getUniformLocation(this.program, "modelViewMatrix"), false, draw_call.modelView); 
         this.gl_context.uniform4fv(this.gl_context.getUniformLocation(this.program, "fColor"), draw_call.color);
+        this.gl_context.uniform4fv(this.gl_context.getUniformLocation(this.program, "center"), draw_call.center);
+        this.gl_context.uniform1f(this.gl_context.getUniformLocation(this.program, "radius"), draw_call.radius);
 
         // Assigning attributes.
         var vPosition = this.gl_context.getAttribLocation(this.program, "vPosition");

@@ -6,10 +6,12 @@ import Renderer from "./Renderer";
 import Shape from "../shapes/Shape";
 import Square from "../shapes/Square";
 import Shader from "../shaders/Shader";
+import DrawCall from "../shaders/DrawCall";
 import {FlatColorShader, FlatColorDrawCall} from "../shaders/FlatColorShader";
+import {FlatColorCircleShader, FlatColorCircleDrawCall} from "../shaders/FlatColorCircleShader";
 import {vec2, vec3, vec4, mat4} from "gl-matrix";
 
-interface WGLOptions {
+export interface WGLOptions {
 	depth_test: boolean;
 	blend: boolean; 
 }
@@ -22,7 +24,8 @@ export class WGLRenderer implements Renderer {
 	private projection_matrix : mat4;
 	private vVBO : WebGLBuffer;
 	private canvas : HTMLCanvasElement;
-	private activeShader : Shader;
+	private squareShader : Shader;
+	private circleShader : Shader;
 
 	constructor (canvas : HTMLCanvasElement, opts?: WGLOptions) {
 		opts = opts || <WGLOptions>{ depth_test: false, blend: false };
@@ -46,20 +49,25 @@ export class WGLRenderer implements Renderer {
         this.vVBO = WGLRenderer.gl.createBuffer();
 
 		this.canvas = canvas;
-		this.activeShader = new FlatColorShader(WGLRenderer.gl, this.vVBO);
+		this.squareShader = new FlatColorShader (WGLRenderer.gl, this.vVBO);
+		this.circleShader = new FlatColorCircleShader (WGLRenderer.gl, this.vVBO);
 
 		// Set up projection matrix.
-		this.projection_matrix = mat4.ortho (mat4.create(), 
-									-this.canvas.width/2, 
-									this.canvas.width/2, 
-									-this.canvas.height/2, 
-									this.canvas.height/2, 
-									-1, 1);
+		this.projection_matrix = this.projectionMatrixFromCanvas ();
 
 		// Set up viewport.
 		WGLRenderer.gl.viewport (0, 0, this.canvas.width, this.canvas.height);
 		WGLRenderer.gl.bindFramebuffer (WGLRenderer.gl.FRAMEBUFFER, null);
 		this.clear();
+	}
+
+	private projectionMatrixFromCanvas () {
+		return mat4.ortho (mat4.create(), 
+							-this.canvas.width/2, 
+							this.canvas.width/2, 
+							-this.canvas.height/2, 
+							this.canvas.height/2, 
+							-1, 1);
 	}
 
 	// Clears the canvas for the next frame.
@@ -80,6 +88,7 @@ export class WGLRenderer implements Renderer {
 
 		// Fix viewport.
 		WGLRenderer.gl.viewport (0, 0, this.canvas.width, this.canvas.height);	
+		this.projection_matrix = this.projectionMatrixFromCanvas ();
 	}
 
 	/**
@@ -87,15 +96,30 @@ export class WGLRenderer implements Renderer {
 	*/
 	public drawShapes(shapes: Shape[]) {	
 		for(let shape of shapes) {
-			this.activeShader.render(shape.toDrawCall(this.projection_matrix));
+			this.render(shape.toDrawCall(this.projection_matrix));
+		}
+	}
+
+	private render (drawCall: FlatColorCircleDrawCall) : void;
+	private render (drawCall: FlatColorDrawCall) : void;
+	private render (drawCall: DrawCall) : void;
+	private render (drawCall : any) : void {
+		if (drawCall instanceof FlatColorCircleDrawCall) {
+			this.circleShader.render(drawCall);
+		}
+		else if (drawCall instanceof FlatColorDrawCall) {
+			this.squareShader.render(drawCall);
+		}
+		else if (typeof drawCall == "DrawCall") {
+			console.log ("It is drawcall");
 		}
 	}
 
 	// Resize canvas to adjust resolution.
 	public resizeToCanvas() {
 		// Lookup the size the browser is displaying the canvas.
-		var displayWidth  = this.canvas.clientWidth;
-		var displayHeight = this.canvas.clientHeight;
+		var displayWidth  = document.body.clientWidth;//this.canvas.clientWidth;
+		var displayHeight = document.body.clientHeight;//this.canvas.clientHeight;
 
 		this.resize(displayWidth, displayHeight);
 	}
