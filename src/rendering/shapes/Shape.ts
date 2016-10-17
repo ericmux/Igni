@@ -1,22 +1,53 @@
-import {vec2, vec3, mat4} from "gl-matrix";
+import {vec2, vec3, mat4, quat} from "gl-matrix";
 import DrawCall from "../shaders/DrawCall";
 
 abstract class Shape {
-    protected modelMatrix: mat4;
-    protected position : vec2;
-    protected updateCallback: (shape :Shape) => void;
     public abstract toDrawCall(projection: mat4) :DrawCall;
 
-    constructor(position :vec2) {
+    private _modelMatrix: mat4;
+    get modelMatrix () : mat4 {
+        this.updateModelMatrix ();
+        return this._modelMatrix;
+    }
+
+    protected position : vec3;
+    protected rotation : number;
+    protected scale : vec3;
+
+    protected updateCallback: (shape :Shape) => void;
+
+    constructor(position :vec3) {
         this.position = position;
-        let translation : vec3 = vec3.fromValues(position[0], position[1], 0.0);
-        this.modelMatrix = mat4.create();
-        this.modelMatrix = mat4.translate(this.modelMatrix, this.modelMatrix, translation);
+        this.rotation = 0;
+        this.scale = vec3.fromValues (1,1,1);
+        this._modelMatrix = mat4.create();
+    }
+
+    private updateModelMatrix () {
+        let q : quat = quat.create ();
+        quat.setAxisAngle (q, [0,0,1], this.rotation);
+
+        this._modelMatrix = mat4.fromRotationTranslationScale (this._modelMatrix,
+            q, this.position, this.scale);
     }
 
     public translate(v : vec2) {
-        let t :vec3 = vec3.fromValues(v[0], v[1], 0.0);
-        mat4.translate(this.modelMatrix, this.modelMatrix, t);
+        vec3.add(this.position, this.position, vec3.fromValues(v[0], v[1], 0));
+    }
+
+    /**
+     * Rotate around z axis angle degrees
+     * @angle angle degrees
+     */
+    public rotate (angle : number) {
+        this.rotation += angle;
+    }
+
+    /**
+     * Set shape scale in x and y dimensions
+     */
+    public setScale (s : vec2) {
+        this.scale = vec3.fromValues(s[0], s[1], 1);
     }
 
     public update() {

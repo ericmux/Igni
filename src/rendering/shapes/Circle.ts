@@ -1,5 +1,5 @@
 import Shape from "./Shape";
-import {vec2, vec4, mat4} from "gl-matrix"
+import {vec2, vec3, vec4, mat4} from "gl-matrix"
 import DrawCall from "../shaders/DrawCall";
 import {FlatColorCircleDrawCall} from "../shaders/FlatColorCircleShader";
 
@@ -7,7 +7,7 @@ export default class Circle extends Shape {
     private radius : number;
     private color  : vec4;
 
-    constructor (position :vec2, radius : number) {
+    constructor (position :vec3, radius : number) {
         super(position);
         this.color = vec4.fromValues (0.0, 0.0, 1.0, 1.0);
         this.radius = radius;
