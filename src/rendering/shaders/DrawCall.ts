@@ -4,10 +4,10 @@ class DrawCall {
     public modelView: mat4; // Modelview matrix of the object to render.
     public projection: mat4; // Projection matrix (only orthogonal for now).
     
-    constructor (modelView : mat4, projection : mat4)
+    constructor (projection : mat4, modelView : mat4)
     {
-        this.modelView = modelView;
         this.projection = projection;
+        this.modelView = modelView;
     }
 }
 export default DrawCall;

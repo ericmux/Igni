@@ -6,8 +6,8 @@ export class FlatColorCircleDrawCall extends FlatColorDrawCall {
     center: vec4;
     radius: number;
 
-    constructor (modelView : mat4, projection : mat4, color : vec4, vertices : vec4[], center : vec4, radius : number) {
-        super (modelView, projection, color, vertices);
+    constructor (projection : mat4, modelView : mat4, color : vec4, vertices : vec4[], center : vec4, radius : number) {
+        super (projection, modelView, color, vertices);
 
         this.center = center;
         this.radius = radius;

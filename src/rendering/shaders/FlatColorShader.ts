@@ -6,8 +6,8 @@ export class FlatColorDrawCall extends DrawCall {
     public color: vec4;
     public vertices: vec4[]; // vertices to draw (must have length 4).
 
-    constructor (modelView : mat4, projection : mat4, color : vec4, vertices : vec4[]) {
-        super (modelView, projection);
+    constructor (projection : mat4, modelView : mat4, color : vec4, vertices : vec4[]) {
+        super (projection, modelView);
 
         this.color = color;
         this.vertices = vertices;
