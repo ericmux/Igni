@@ -1,7 +1,7 @@
 /**
 * WebGL functionality
 */
-import setupWebGL from "../utils/webgl_utils.ts";
+import setupWebGL from "../utils/webgl_utils";
 import Renderer from "./Renderer";
 import Shape from "../shapes/Shape";
 import Square from "../shapes/Square";
@@ -52,22 +52,21 @@ export class WGLRenderer implements Renderer {
 		this.squareShader = new FlatColorShader (WGLRenderer.gl, this.vVBO);
 		this.circleShader = new FlatColorCircleShader (WGLRenderer.gl, this.vVBO);
 
-		// Set up projection matrix.
-		this.projection_matrix = this.projectionMatrixFromCanvas ();
-
-		// Set up viewport.
-		WGLRenderer.gl.viewport (0, 0, this.canvas.width, this.canvas.height);
+		//  Set up viewport and projection matrix
+		this.resizeToCanvas ();
+		
 		WGLRenderer.gl.bindFramebuffer (WGLRenderer.gl.FRAMEBUFFER, null);
 		this.clear();
 	}
 
-	private projectionMatrixFromCanvas () {
-		return mat4.ortho (mat4.create(), 
-							-this.canvas.width/2, 
-							this.canvas.width/2, 
-							-this.canvas.height/2, 
-							this.canvas.height/2, 
-							-1, 1);
+	private setOrthoProjetionMatrix (left : number, right : number, bottom : number, top : number, near : number, far : number) {
+		this.projection_matrix =  mat4.ortho (mat4.create(), 
+									left, 
+									right, 
+									bottom, 
+									top, 
+									near,
+									far);
 	}
 
 	// Clears the canvas for the next frame.
@@ -87,8 +86,27 @@ export class WGLRenderer implements Renderer {
 		}
 
 		// Fix viewport.
-		WGLRenderer.gl.viewport (0, 0, this.canvas.width, this.canvas.height);	
-		this.projection_matrix = this.projectionMatrixFromCanvas ();
+		WGLRenderer.gl.viewport (0, 0, WGLRenderer.gl.drawingBufferWidth, WGLRenderer.gl.drawingBufferHeight);
+		let target_width : number = 1080;
+		let target_height : number = 920
+		let A : number = target_width / target_height; // target aspect ratio 
+		let V : number = WGLRenderer.gl.drawingBufferWidth / WGLRenderer.gl.drawingBufferHeight;
+		
+		if (V >= A) {
+			// wide viewport, use full height
+			this.setOrthoProjetionMatrix (-V/A * target_width/2, 
+							    		  V/A * target_width/2, 
+										  -target_height/2, 
+										  target_height/2, 
+										  -1, 1);
+		} else {
+			// tall viewport, use full width
+			this.setOrthoProjetionMatrix (-target_width/2, 
+										  target_width/2, 
+										  -A/V*target_height/2, 
+										  A/V*target_height/2, 
+										  -1, 1);
+		}
 	}
 
 	/**
@@ -118,8 +136,8 @@ export class WGLRenderer implements Renderer {
 	// Resize canvas to adjust resolution.
 	public resizeToCanvas() {
 		// Lookup the size the browser is displaying the canvas.
-		var displayWidth  = document.body.clientWidth;//this.canvas.clientWidth;
-		var displayHeight = document.body.clientHeight;//this.canvas.clientHeight;
+		var displayWidth  = this.canvas.clientWidth;
+		var displayHeight = this.canvas.clientHeight;
 
 		this.resize(displayWidth, displayHeight);
 	}

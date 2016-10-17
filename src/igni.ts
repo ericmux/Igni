@@ -11,11 +11,11 @@ window.onload = () => {
     canvas = <HTMLCanvasElement> document.getElementById("gl-canvas"); 
     game = new IgniEngine(canvas);
 
-    let sq1 : Square = new Square(vec2.fromValues(-50,-50));
-    let sq2 : Square = new Square(vec2.fromValues(50,50));
-    let sq3 : Square = new Square(vec2.fromValues(-50,50));
-    let sq4 : Square = new Square(vec2.fromValues(50,-50));
-    let sq5 : Square = new Square(vec2.fromValues(0.0,0.0));
+    let sq1 : Square = new Square(vec2.fromValues(-50,-50), 20, 20);
+    let sq2 : Square = new Square(vec2.fromValues(50,50), 20, 20);
+    let sq3 : Square = new Square(vec2.fromValues(-50,50), 20, 20);
+    let sq4 : Square = new Square(vec2.fromValues(50,-50), 20, 20);
+    let sq5 : Square = new Square(vec2.fromValues(0.0,0.0), 20, 20);
 
     let inc : number = 1.0;
 

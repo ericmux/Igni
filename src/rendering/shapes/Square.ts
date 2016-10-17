@@ -8,11 +8,11 @@ export default class ColorSquare extends Shape {
     private height : number;
     private color  : vec4;
 
-    constructor (position :vec2) {
+    constructor (position :vec2, width : number, height : number) {
         super(position);
         this.color = vec4.fromValues (1.0, 0.0, 0.0, 1.0);
-        this.width = 20.0;
-        this.height = 20.0;
+        this.width = width;
+        this.height = height;
     }
 
     private calculateVertices () : vec4[] {
@@ -36,7 +36,7 @@ export default class ColorSquare extends Shape {
 
     public toDrawCall (projection : mat4) : DrawCall {
             return new FlatColorDrawCall (projection,
-                                          this.modelView,
+                                          this.modelMatrix,
                                           this.color,
                                           this.calculateVertices());
     }

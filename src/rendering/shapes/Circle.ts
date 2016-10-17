@@ -34,7 +34,7 @@ export default class Circle extends Shape {
 
     public toDrawCall (projection : mat4) : DrawCall {
         return new FlatColorCircleDrawCall (projection,
-                                            this.modelView,
+                                            this.modelMatrix,
                                             this.color,
                                             this.calculateVertices(),
                                             vec4.fromValues (this.position[0], this.position[1], 0, 1),
