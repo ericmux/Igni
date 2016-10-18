@@ -14,7 +14,7 @@ abstract class Shape {
     protected rotation : number;
     protected scale : vec3;
 
-    protected updateCallback: (shape :Shape) => void;
+    protected updateCallback: (shape : Shape, deltaTime : number) => void;
 
     constructor(position :vec3) {
         this.position = position;
@@ -50,11 +50,11 @@ abstract class Shape {
         this.scale = vec3.fromValues(s[0], s[1], 1);
     }
 
-    public update() {
-        this.updateCallback(this);
+    public update(deltaTime : number) {
+        this.updateCallback(this, deltaTime);
     }
 
-    public onUpdate(updateCallback :(shape :Shape) => void) {
+    public onUpdate(updateCallback :(shape :Shape, deltaTime : number) => void) {
         this.updateCallback = updateCallback;
     }
 }
