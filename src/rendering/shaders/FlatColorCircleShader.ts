@@ -6,8 +6,8 @@ export class FlatColorCircleDrawCall extends FlatColorDrawCall {
     center: vec4;
     radius: number;
 
-    constructor (projection : mat4, modelView : mat4, color : vec4, vertices : vec4[], center : vec4, radius : number) {
-        super (projection, modelView, color, vertices);
+    constructor (projection : mat4, view : mat4, model : mat4, color : vec4, vertices : vec4[], center : vec4, radius : number) {
+        super (projection, view, model, color, vertices);
 
         this.center = center;
         this.radius = radius;
@@ -38,7 +38,8 @@ export class FlatColorCircleShader extends Shader {
         // Assign uniform variables.
         this.gl_context.useProgram(this.program);
         this.gl_context.uniformMatrix4fv(this.gl_context.getUniformLocation(this.program, "projectionMatrix"), false, draw_call.projection); 
-        this.gl_context.uniformMatrix4fv(this.gl_context.getUniformLocation(this.program, "modelViewMatrix"), false, draw_call.modelView); 
+        this.gl_context.uniformMatrix4fv(this.gl_context.getUniformLocation(this.program, "viewMatrix"), false, draw_call.view);
+        this.gl_context.uniformMatrix4fv(this.gl_context.getUniformLocation(this.program, "modelMatrix"), false, draw_call.model); 
         this.gl_context.uniform4fv(this.gl_context.getUniformLocation(this.program, "fColor"), draw_call.color);
         this.gl_context.uniform4fv(this.gl_context.getUniformLocation(this.program, "center"), draw_call.center);
         this.gl_context.uniform1f(this.gl_context.getUniformLocation(this.program, "radius"), draw_call.radius);

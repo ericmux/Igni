@@ -34,8 +34,9 @@ export default class ColorSquare extends Shape {
         return vertices;
     }
 
-    public toDrawCall (projection : mat4) : DrawCall {
+    public toDrawCall (projection : mat4, view : mat4) : DrawCall {
             return new FlatColorDrawCall (projection,
+                                          view,
                                           this.modelMatrix,
                                           this.color,
                                           this.calculateVertices());

@@ -32,8 +32,9 @@ export default class Circle extends Shape {
         return vertices;
     }
 
-    public toDrawCall (projection : mat4) : DrawCall {
+    public toDrawCall (projection : mat4, view : mat4) : DrawCall {
         return new FlatColorCircleDrawCall (projection,
+                                            view,
                                             this.modelMatrix,
                                             this.color,
                                             this.calculateVertices(),

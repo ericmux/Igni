@@ -2,7 +2,7 @@ import {vec2, vec3, mat4, quat} from "gl-matrix";
 import DrawCall from "../shaders/DrawCall";
 
 abstract class Shape {
-    public abstract toDrawCall(projection: mat4) :DrawCall;
+    public abstract toDrawCall(projection: mat4, view : mat4) :DrawCall;
 
     private _modelMatrix: mat4;
     get modelMatrix () : mat4 {
@@ -37,7 +37,7 @@ abstract class Shape {
 
     /**
      * Rotate around z axis angle degrees
-     * @angle angle degrees
+     * @param angle angle degrees
      */
     public rotate (angle : number) {
         this.rotation += angle;
