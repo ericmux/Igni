@@ -1,5 +1,5 @@
 require("../dist/index.html");
-import {WGLRenderer} from "./rendering/renderers/WGLRenderer.ts";
+import {WGLRenderer} from "./rendering/renderers/WGLRenderer";
 import IgniEngine from "./engine/IgniEngine";
 import Square from "./rendering/shapes/Square";
 import {vec2} from "gl-matrix";
