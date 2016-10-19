@@ -1,6 +1,7 @@
 import Engine from "./Engine";
 import Shape from "../rendering/shapes/Shape";
 import Renderer from "../rendering/renderers/Renderer";
+import Camera from "../rendering/camera/Camera";
 import {WGLRenderer, WGLOptions} from "../rendering/renderers/WGLRenderer";
 
 export default class IgniEngine implements Engine {
@@ -17,9 +18,11 @@ export default class IgniEngine implements Engine {
     private physicsUpdatePeriod : number;
     private lastPhysicsTick : number;
 
-    constructor(canvas :HTMLCanvasElement) {
+    constructor(canvas :HTMLCanvasElement, camera :Camera) {
         this.shapes = []; 
         this.renderer = new WGLRenderer (canvas, <WGLOptions> { depth_test: false, blend: true });
+        this.renderer.setCamera(camera);
+        this.add(camera);
     }
 
     public add(shape: Shape) :void {

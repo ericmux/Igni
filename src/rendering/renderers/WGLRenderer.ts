@@ -53,16 +53,8 @@ export class WGLRenderer implements Renderer {
 		//  Setup VBO.
         this.vVBO = WGLRenderer.gl.createBuffer();
 
+		// Set up default static camera.
 		this.camera = new Camera (vec3.fromValues(0,0,0), 1,1);
-
-		let t = 0;
-		this.camera.onUpdate((camera : Camera) => {
-			camera.zoomX = 3 + 2*Math.sin((180/Math.PI)*t/2000);
-			camera.zoomY = 3 + 2*Math.sin((180/Math.PI)*t/2000);
-			camera.translate(vec2.fromValues(1, 0));
-			t++;
-		});
-
 
 		this.canvas = canvas;
 		this.squareShader = new FlatColorShader (WGLRenderer.gl, this.vVBO);
@@ -105,8 +97,7 @@ export class WGLRenderer implements Renderer {
 	/**
 	*  Draw a collection of shapes.
 	*/
-	public drawShapes(shapes: Shape[]) {
-		this.camera.update(0.1);	
+	public drawShapes(shapes: Shape[]) {	
 		for(let shape of shapes) {
 			this.render(shape.toDrawCall(this.projection_matrix, this.camera.modelMatrix));
 		}
@@ -116,6 +107,8 @@ export class WGLRenderer implements Renderer {
 	private render (drawCall: FlatColorDrawCall) : void;
 	private render (drawCall: DrawCall) : void;
 	private render (drawCall : any) : void {
+		if (!drawCall) return;
+		
 		if (drawCall instanceof FlatColorCircleDrawCall) {
 			this.circleShader.render(drawCall);
 		}
@@ -135,4 +128,9 @@ export class WGLRenderer implements Renderer {
 
 		this.resize(displayWidth, displayHeight);
 	}
+
+	// Set camera object.
+	public setCamera(camera : Camera) {
+		this.camera = camera;
+	} 
 }
