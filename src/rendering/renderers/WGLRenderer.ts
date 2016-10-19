@@ -10,6 +10,7 @@ import DrawCall from "../shaders/DrawCall";
 import {FlatColorShader, FlatColorDrawCall} from "../shaders/FlatColorShader";
 import {FlatColorCircleShader, FlatColorCircleDrawCall} from "../shaders/FlatColorCircleShader";
 import {vec2, vec3, vec4, mat4} from "gl-matrix";
+import Camera from "../camera/camera";
 
 export interface WGLOptions {
 	depth_test: boolean;
@@ -24,8 +25,12 @@ export class WGLRenderer implements Renderer {
 	private projection_matrix : mat4;
 	private vVBO : WebGLBuffer;
 	private canvas : HTMLCanvasElement;
+	private camera : Camera;
 	private squareShader : Shader;
 	private circleShader : Shader;
+	private targetWidth : number = 1080;
+	private targetHeight : number = 920;
+	private A : number = this.targetWidth / this.targetHeight; // target aspect ratio 
 
 	constructor (canvas : HTMLCanvasElement, opts?: WGLOptions) {
 		opts = opts || <WGLOptions>{ depth_test: false, blend: false };
@@ -48,6 +53,7 @@ export class WGLRenderer implements Renderer {
 		//  Setup VBO.
         this.vVBO = WGLRenderer.gl.createBuffer();
 
+		this.camera = new Camera (this.targetHeight);
 		this.canvas = canvas;
 		this.squareShader = new FlatColorShader (WGLRenderer.gl, this.vVBO);
 		this.circleShader = new FlatColorCircleShader (WGLRenderer.gl, this.vVBO);
@@ -87,24 +93,22 @@ export class WGLRenderer implements Renderer {
 
 		// Fix viewport.
 		WGLRenderer.gl.viewport (0, 0, WGLRenderer.gl.drawingBufferWidth, WGLRenderer.gl.drawingBufferHeight);
-		let target_width : number = 1080;
-		let target_height : number = 920
-		let A : number = target_width / target_height; // target aspect ratio 
 		let V : number = WGLRenderer.gl.drawingBufferWidth / WGLRenderer.gl.drawingBufferHeight;
 		
-		if (V >= A) {
+		if (V >= this.A) {
 			// wide viewport, use full height
-			this.setOrthoProjetionMatrix (-V/A * target_width/2, 
-							    		  V/A * target_width/2, 
-										  -target_height/2, 
-										  target_height/2, 
+			this.camera.heightPx = this.targetHeight;
+			this.setOrthoProjetionMatrix (-V/this.A * this.targetWidth/2, 
+							    		  V/this.A * this.targetWidth/2, 
+										  -this.targetHeight/2, 
+										  this.targetHeight/2, 
 										  -1, 1);
 		} else {
 			// tall viewport, use full width
-			this.setOrthoProjetionMatrix (-target_width/2, 
-										  target_width/2, 
-										  -A/V*target_height/2, 
-										  A/V*target_height/2, 
+			this.setOrthoProjetionMatrix (-this.targetWidth/2, 
+										  this.targetWidth/2, 
+										  -this.A/V*this.targetHeight/2, 
+										  this.A/V*this.targetHeight/2, 
 										  -1, 1);
 		}
 	}
@@ -114,7 +118,7 @@ export class WGLRenderer implements Renderer {
 	*/
 	public drawShapes(shapes: Shape[]) {	
 		for(let shape of shapes) {
-			this.render(shape.toDrawCall(this.projection_matrix));
+			this.render(shape.toDrawCall(this.projection_matrix, this.camera.viewMatrix));
 		}
 	}
 

@@ -1,5 +1,5 @@
 import Shape from "./Shape";
-import {vec2, vec4, mat4} from "gl-matrix"
+import {vec2, vec3, vec4, mat4} from "gl-matrix"
 import DrawCall from "../shaders/DrawCall";
 import {FlatColorDrawCall} from "../shaders/FlatColorShader";
 
@@ -8,7 +8,7 @@ export default class ColorSquare extends Shape {
     private height : number;
     private color  : vec4;
 
-    constructor (position :vec2, width : number, height : number) {
+    constructor (position :vec3, width : number, height : number) {
         super(position);
         this.color = vec4.fromValues (1.0, 0.0, 0.0, 1.0);
         this.width = width;
@@ -34,8 +34,9 @@ export default class ColorSquare extends Shape {
         return vertices;
     }
 
-    public toDrawCall (projection : mat4) : DrawCall {
+    public toDrawCall (projection : mat4, view : mat4) : DrawCall {
             return new FlatColorDrawCall (projection,
+                                          view,
                                           this.modelMatrix,
                                           this.color,
                                           this.calculateVertices());
