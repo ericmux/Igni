@@ -69,9 +69,7 @@ window.onload = () => {
     yAxis.onUpdate((shape: Shape) => {});
     cr1.onUpdate ((shape : Shape) => {});
 
-    // game.add(sq1); // repeating a callback will mess with time count.
-                      //  lazy to fix now
-    game.add(sq2); game.add(sq3); game.add(sq4);
+    game.add(sq1); game.add(sq2); game.add(sq3); game.add(sq4);
     game.add(cr1);
     game.add(xAxis); game.add(yAxis);
     game.start();

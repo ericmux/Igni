@@ -6,7 +6,7 @@ import {WGLRenderer, WGLOptions} from "../rendering/renderers/WGLRenderer";
 
 export default class IgniEngine implements Engine {
 
-    private shapes: Shape[];
+    private shapes: Shape[]; // this must change to World, which has its bodies. Bodies have a shape each.
     private renderer: Renderer;
     private lastFrameID: number;
 

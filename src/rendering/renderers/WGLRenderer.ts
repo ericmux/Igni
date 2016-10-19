@@ -28,9 +28,6 @@ export class WGLRenderer implements Renderer {
 	private camera : Shape;
 	private squareShader : Shader;
 	private circleShader : Shader;
-	private targetWidth : number = 1080;
-	private targetHeight : number = 920;
-	private A : number = this.targetWidth / this.targetHeight; // target aspect ratio 
 
 	constructor (canvas : HTMLCanvasElement, opts?: WGLOptions) {
 		opts = opts || <WGLOptions>{ depth_test: false, blend: false };
@@ -106,7 +103,7 @@ export class WGLRenderer implements Renderer {
 	private render (drawCall: FlatColorCircleDrawCall) : void;
 	private render (drawCall: FlatColorDrawCall) : void;
 	private render (drawCall: DrawCall) : void;
-	private render (drawCall : any) : void {
+	private render (drawCall: any) : void {
 		if (!drawCall) return;
 		
 		if (drawCall instanceof FlatColorCircleDrawCall) {
