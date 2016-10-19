@@ -53,7 +53,17 @@ export class WGLRenderer implements Renderer {
 		//  Setup VBO.
         this.vVBO = WGLRenderer.gl.createBuffer();
 
-		this.camera = new Camera (this.targetHeight);
+		this.camera = new Camera (vec3.fromValues(0,0,0), 1,1);
+
+		let t = 0;
+		this.camera.onUpdate((camera : Camera) => {
+			camera.zoomX = 3 + 2*Math.sin((180/Math.PI)*t/2000);
+			camera.zoomY = 3 + 2*Math.sin((180/Math.PI)*t/2000);
+			camera.translate(vec2.fromValues(1, 0));
+			t++;
+		});
+
+
 		this.canvas = canvas;
 		this.squareShader = new FlatColorShader (WGLRenderer.gl, this.vVBO);
 		this.circleShader = new FlatColorCircleShader (WGLRenderer.gl, this.vVBO);
@@ -63,16 +73,6 @@ export class WGLRenderer implements Renderer {
 		
 		WGLRenderer.gl.bindFramebuffer (WGLRenderer.gl.FRAMEBUFFER, null);
 		this.clear();
-	}
-
-	private setOrthoProjetionMatrix (left : number, right : number, bottom : number, top : number, near : number, far : number) {
-		this.projection_matrix =  mat4.ortho (mat4.create(), 
-									left, 
-									right, 
-									bottom, 
-									top, 
-									near,
-									far);
 	}
 
 	// Clears the canvas for the next frame.
@@ -91,34 +91,24 @@ export class WGLRenderer implements Renderer {
 			this.canvas.height = height;
 		}
 
-		// Fix viewport.
-		WGLRenderer.gl.viewport (0, 0, WGLRenderer.gl.drawingBufferWidth, WGLRenderer.gl.drawingBufferHeight);
-		let V : number = WGLRenderer.gl.drawingBufferWidth / WGLRenderer.gl.drawingBufferHeight;
-		
-		if (V >= this.A) {
-			// wide viewport, use full height
-			this.camera.heightPx = this.targetHeight;
-			this.setOrthoProjetionMatrix (-V/this.A * this.targetWidth/2, 
-							    		  V/this.A * this.targetWidth/2, 
-										  -this.targetHeight/2, 
-										  this.targetHeight/2, 
-										  -1, 1);
-		} else {
-			// tall viewport, use full width
-			this.setOrthoProjetionMatrix (-this.targetWidth/2, 
-										  this.targetWidth/2, 
-										  -this.A/V*this.targetHeight/2, 
-										  this.A/V*this.targetHeight/2, 
-										  -1, 1);
-		}
+		// Fix viewport and projection matrix. Guaranteed to have same aspect ratio by definition.
+		WGLRenderer.gl.viewport (0, 0, this.canvas.width, this.canvas.height);
+		this.projection_matrix =  mat4.ortho (mat4.create(), 
+							-this.canvas.width/2, 
+							this.canvas.width/2, 
+							-this.canvas.height/2, 
+							this.canvas.height/2, 
+							-1,
+							1);
 	}
 
 	/**
 	*  Draw a collection of shapes.
 	*/
-	public drawShapes(shapes: Shape[]) {	
+	public drawShapes(shapes: Shape[]) {
+		this.camera.update(0.1);	
 		for(let shape of shapes) {
-			this.render(shape.toDrawCall(this.projection_matrix, this.camera.viewMatrix));
+			this.render(shape.toDrawCall(this.projection_matrix, this.camera.modelMatrix));
 		}
 	}
 

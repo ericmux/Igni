@@ -9,24 +9,26 @@ import {vec2, vec3} from "gl-matrix";
 let canvas : HTMLCanvasElement;
 let game : IgniEngine;
 
+let yAxis : Square = new Square(vec3.fromValues(0,0,0.0), 1, 773);
+let xAxis : Square = new Square(vec3.fromValues(0,0,0.0), 773, 1);
+
 window.onload = () => {
     canvas = <HTMLCanvasElement> document.getElementById("gl-canvas"); 
     game = new IgniEngine(canvas);
 
-    let sq1 : Square = new Square(vec3.fromValues(-5,-5,0.0), 0.5, 0.5);
-    let sq2 : Square = new Square(vec3.fromValues(5,8,0.0), 1, 1);
-    let sq3 : Square = new Square(vec3.fromValues(-8*1.174,5,0.0), 1, 1);
-    let sq4 : Square = new Square(vec3.fromValues(5,-5,0.0), 0.5, 0.5);
-    let sq5 : Square = new Square(vec3.fromValues(0.0,0.0,0.0), 1, 1);
-    let cr1 : Circle = new Circle(vec3.fromValues(0,8,0), 0.5);
+    let sq1 : Square = new Square(vec3.fromValues(-5,-5,0.0), 5, 5);
+    let sq2 : Square = new Square(vec3.fromValues(5,8,0.0), 10, 10);
+    let sq3 : Square = new Square(vec3.fromValues(0,0,0.0), 10, 10);
+    let sq4 : Square = new Square(vec3.fromValues(5,-5,0.0), 5, 5);
+    let cr1 : Circle = new Circle(vec3.fromValues(0,80,0), 5);
 
-    let speed : number = 1; //  Units per second
+    let speed : number = 10; //  Units per second
 
     let t1 : number = 0.0, t2 : number = 0.0, t3 : number = 0.0;
 
     let horizontal_callback : (square :Square, deltaTime : number) => void = (square :Square, deltaTime : number) => {
         square.translate(vec2.fromValues(speed*deltaTime,0.0));
-        square.rotate (speed/10);
+        square.rotate (speed/100);
         t1 += deltaTime;
         if (t1 > 3.0) { 
             speed = -speed;
@@ -54,14 +56,15 @@ window.onload = () => {
     sq2.onUpdate(horizontal_callback);
     sq3.onUpdate(vertical_callback);
     sq4.onUpdate(diagonal_callback);
-    sq5.onUpdate(vertical_callback);
+    xAxis.onUpdate((shape: Shape) => {});
+    yAxis.onUpdate((shape: Shape) => {});
     cr1.onUpdate ((shape : Shape) => {});
 
     // game.add(sq1); // repeating a callback will mess with time count.
                       //  lazy to fix now
-    game.add(sq2); game.add(sq3); game.add(sq4); 
-    // game.add(sq5);
+    game.add(sq2); game.add(sq3); game.add(sq4);
     game.add(cr1);
+    game.add(xAxis); game.add(yAxis);
     game.start();
 
     setTimeout(() => {
@@ -71,5 +74,7 @@ window.onload = () => {
 
 window.onresize = () => {
     game.resizeToCanvas();
+    xAxis.width = canvas.width;
+    yAxis.height = canvas.height;
 }
 

@@ -5,15 +5,9 @@ abstract class Shape {
     public abstract toDrawCall(projection: mat4, view : mat4) :DrawCall;
 
     private _modelMatrix: mat4;
-    get modelMatrix () : mat4 {
-        this.updateModelMatrix ();
-        return this._modelMatrix;
-    }
-
     protected position : vec3;
     protected rotation : number;
     protected scale : vec3;
-
     protected updateCallback: (shape : Shape, deltaTime : number) => void;
 
     constructor(position :vec3) {
@@ -23,12 +17,12 @@ abstract class Shape {
         this._modelMatrix = mat4.create();
     }
 
-    private updateModelMatrix () {
-        let q : quat = quat.create ();
-        quat.setAxisAngle (q, [0,0,1], this.rotation);
+    public update(deltaTime : number) {
+        this.updateCallback(this, deltaTime);
+    }
 
-        this._modelMatrix = mat4.fromRotationTranslationScale (this._modelMatrix,
-            q, this.position, this.scale);
+    public onUpdate(updateCallback :(shape :Shape, deltaTime : number) => void) {
+        this.updateCallback = updateCallback;
     }
 
     public translate(v : vec2) {
@@ -50,12 +44,17 @@ abstract class Shape {
         this.scale = vec3.fromValues(s[0], s[1], 1);
     }
 
-    public update(deltaTime : number) {
-        this.updateCallback(this, deltaTime);
+    protected updateModelMatrix () {
+        let q : quat = quat.create ();
+        quat.setAxisAngle (q, [0,0,1], this.rotation);
+
+        this._modelMatrix = mat4.fromRotationTranslationScale (this._modelMatrix,
+            q, this.position, this.scale);
     }
 
-    public onUpdate(updateCallback :(shape :Shape, deltaTime : number) => void) {
-        this.updateCallback = updateCallback;
+    get modelMatrix () : mat4 {
+        this.updateModelMatrix();
+        return this._modelMatrix;
     }
 }
 export default Shape;

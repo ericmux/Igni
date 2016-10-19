@@ -4,31 +4,31 @@ import DrawCall from "../shaders/DrawCall";
 import {FlatColorDrawCall} from "../shaders/FlatColorShader";
 
 export default class ColorSquare extends Shape {
-    private width  : number;
-    private height : number;
-    private color  : vec4;
+    private _width  : number;
+    private _height : number;
+    private _color  : vec4;
 
     constructor (position :vec3, width : number, height : number) {
         super(position);
-        this.color = vec4.fromValues (1.0, 0.0, 0.0, 1.0);
-        this.width = width;
-        this.height = height;
+        this._color = vec4.fromValues (1.0, 0.0, 0.0, 1.0);
+        this._width = width;
+        this._height = height;
     }
 
     private calculateVertices () : vec4[] {
         let vertices :vec4[] = [];
         let res : vec2 = vec2.create ();
 
-        vec2.add (res, vec2.create(), [-this.width/2.0, -this.height/2.0]);  
+        vec2.add (res, vec2.create(), [-this._width/2.0, -this._height/2.0]);  
         vertices.push(vec4.fromValues(res[0], res[1], 0.0, 1.0));
 
-        vec2.add (res, res, [0, this.height]);  
+        vec2.add (res, res, [0, this._height]);  
         vertices.push(vec4.fromValues(res[0], res[1], 0.0, 1.0));
 
-        vec2.add (res, res, [this.width, 0]);  
+        vec2.add (res, res, [this._width, 0]);  
         vertices.push(vec4.fromValues(res[0], res[1], 0.0, 1.0));
 
-        vec2.add (res, res, [0, -this.height]);  
+        vec2.add (res, res, [0, -this._height]);  
         vertices.push(vec4.fromValues(res[0], res[1], 0.0, 1.0));
 
         return vertices;
@@ -38,7 +38,24 @@ export default class ColorSquare extends Shape {
             return new FlatColorDrawCall (projection,
                                           view,
                                           this.modelMatrix,
-                                          this.color,
+                                          this._color,
                                           this.calculateVertices());
+    }
+
+
+    get height () :number {
+        return this._height;
+    }
+
+    set height (newHeight :number) {
+        this._height = newHeight;
+    }
+
+    get width () {
+        return this._width;
+    }
+
+    set width (newWidth :number) {
+        this._width = newWidth;
     }
 }

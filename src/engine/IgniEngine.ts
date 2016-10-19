@@ -27,7 +27,7 @@ export default class IgniEngine implements Engine {
     }
 
     private init () {
-        this.physicsUpdatePeriod = 33; // in ms (~30fps)
+        this.physicsUpdatePeriod = 1000/60; // in ms (~30fps)
         this.lastPhysicsTick = performance.now (); 
         
         this.deltaTime = 0;
