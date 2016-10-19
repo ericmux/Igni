@@ -24,4 +24,8 @@ export default class Camera extends Shape {
     public toDrawCall(projection: mat4, view : mat4) :DrawCall {
         return null;
     }
+
+    public followShapeViewMatrix () : mat4 {
+        return this.modelMatrix;
+    }
 }

@@ -76,9 +76,11 @@ window.onload = () => {
     game.add(xAxis); game.add(yAxis);
     game.start();
 
+    
+
     setTimeout(() => {
-        game.stop();
-    }, 20000);
+        game.setCamera(sq4);
+    }, 5000);
 }
 
 window.onresize = () => {

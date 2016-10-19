@@ -56,5 +56,13 @@ abstract class Shape {
         this.updateModelMatrix();
         return this._modelMatrix;
     }
+
+    // A matrix which sets the camera reference to this shape's object coordinates.
+    public followShapeViewMatrix () : mat4 {
+        this.updateModelMatrix();
+        let viewMatrix : mat4 = mat4.create();
+        mat4.invert(viewMatrix, this._modelMatrix);
+        return viewMatrix;    
+    }
 }
 export default Shape;

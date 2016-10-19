@@ -10,7 +10,7 @@ import DrawCall from "../shaders/DrawCall";
 import {FlatColorShader, FlatColorDrawCall} from "../shaders/FlatColorShader";
 import {FlatColorCircleShader, FlatColorCircleDrawCall} from "../shaders/FlatColorCircleShader";
 import {vec2, vec3, vec4, mat4} from "gl-matrix";
-import Camera from "../camera/camera";
+import Camera from "../camera/Camera";
 
 export interface WGLOptions {
 	depth_test: boolean;
@@ -25,7 +25,7 @@ export class WGLRenderer implements Renderer {
 	private projection_matrix : mat4;
 	private vVBO : WebGLBuffer;
 	private canvas : HTMLCanvasElement;
-	private camera : Camera;
+	private camera : Shape;
 	private squareShader : Shader;
 	private circleShader : Shader;
 	private targetWidth : number = 1080;
@@ -99,7 +99,7 @@ export class WGLRenderer implements Renderer {
 	*/
 	public drawShapes(shapes: Shape[]) {	
 		for(let shape of shapes) {
-			this.render(shape.toDrawCall(this.projection_matrix, this.camera.modelMatrix));
+			this.render(shape.toDrawCall(this.projection_matrix, this.camera.followShapeViewMatrix()));
 		}
 	}
 
@@ -130,7 +130,7 @@ export class WGLRenderer implements Renderer {
 	}
 
 	// Set camera object.
-	public setCamera(camera : Camera) {
+	public setCamera(camera : Shape) {
 		this.camera = camera;
 	} 
 }

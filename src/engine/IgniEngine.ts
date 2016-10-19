@@ -18,11 +18,14 @@ export default class IgniEngine implements Engine {
     private physicsUpdatePeriod : number;
     private lastPhysicsTick : number;
 
-    constructor(canvas :HTMLCanvasElement, camera :Camera) {
+    constructor(canvas :HTMLCanvasElement, camera :Shape) {
         this.shapes = []; 
         this.renderer = new WGLRenderer (canvas, <WGLOptions> { depth_test: false, blend: true });
         this.renderer.setCamera(camera);
-        this.add(camera);
+        
+        if (this.shapes.indexOf(camera) === -1){
+            this.add(camera);
+        }
     }
 
     public add(shape: Shape) :void {
@@ -86,4 +89,11 @@ export default class IgniEngine implements Engine {
         this.renderer.resizeToCanvas();
 	}
 
+    public setCamera(camera : Shape) {
+        this.renderer.setCamera(camera);
+        
+        if (this.shapes.indexOf(camera) === -1){
+            this.add(camera);
+        }
+    }
 }
