@@ -5,6 +5,7 @@ import Square from "./rendering/shapes/Square";
 import Circle from "./rendering/shapes/Circle";
 import Shape from "./rendering/shapes/Shape";
 import Camera from "./rendering/camera/Camera";
+import Body from "./physics/bodies/Body";
 import {vec2, vec3} from "gl-matrix";
 
 let canvas : HTMLCanvasElement;
@@ -16,12 +17,7 @@ let xAxis : Square = new Square(vec3.fromValues(0,0,0.0), 773, 1);
 window.onload = () => {
     canvas = <HTMLCanvasElement> document.getElementById("gl-canvas"); 
     let camera : Camera = new Camera(vec3.fromValues(0,0,0), 1, 1);
-    let t = 0;
-    camera.onUpdate((camera : Camera, deltaTime : number) => {
-        camera.zoomX = 3 + 2*Math.sin((180/Math.PI)*t/2000);
-        camera.zoomY = 3 + 2*Math.sin((180/Math.PI)*t/2000);
-        t++;
-    });
+    camera.onUpdate((camera : Camera, deltaTime : number) => {});
 
     game = new IgniEngine(canvas, camera);
 
@@ -69,16 +65,23 @@ window.onload = () => {
     yAxis.onUpdate((shape: Shape) => {});
     cr1.onUpdate ((shape : Shape) => {});
 
-    game.add(sq1); game.add(sq2); game.add(sq3); game.add(sq4);
-    game.add(cr1);
-    game.add(xAxis); game.add(yAxis);
-    game.start();
+    game.addShape(sq1); game.addShape(sq3); game.addShape(sq4);
+    game.addShape(cr1);
+    game.addShape(xAxis); game.addShape(yAxis);
 
+    // Add a body.
+    let body1 : Body = new Body(vec2.fromValues(60,60), 10, 10);
+    body1.acceleration = vec2.fromValues(0.0,-5.0);
+    body1.velocity = vec2.fromValues(0.0, 50.0);
+    body1.torque = 1.0;
+    let tb = 0.0;
+    body1.onUpdate((body: Body, deltaTime: number) => {
+        vec2.add(body.velocity, vec2.fromValues(deltaTime,-deltaTime), body.velocity);
+    });
     
+    game.addBody(body1);
 
-    setTimeout(() => {
-        game.setCamera(sq4);
-    }, 5000);
+    game.start();
 }
 
 window.onresize = () => {

@@ -1,8 +1,10 @@
 import Shape from "../rendering/shapes/Shape";
 import Renderer from "../rendering/renderers/Renderer";
+import Body from "../physics/bodies/Body";
 interface Engine {
     start: () => void;
     stop: () => void;
-    add: (shape: Shape) => void; // Shouldn't be Shape, but "Body/Actor" (with Body containing a ref to its Shape).
+    addShape: (shape: Shape) => void; // For render-only objects.
+    addBody: (body: Body) => void; // For physics-enabled rich objects.
 }
 export default Engine;

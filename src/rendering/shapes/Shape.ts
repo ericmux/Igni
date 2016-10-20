@@ -44,6 +44,14 @@ abstract class Shape {
         this.scale = vec3.fromValues(s[0], s[1], 1);
     }
 
+    public setPosition(newPos : vec2) {
+        this.position = vec3.fromValues(newPos[0], newPos[1], 0);
+    }
+
+    public setRotation(angle : number) {
+        this.rotation = angle;
+    }
+
     protected updateModelMatrix () {
         let q : quat = quat.create ();
         quat.setAxisAngle (q, [0,0,1], this.rotation);

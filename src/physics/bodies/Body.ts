@@ -1,11 +1,14 @@
-import {vec2} from "gl-matrix";
+import {vec2, vec3} from "gl-matrix";
 import CollisionArea from "../collision/CollisionArea";
+import Shape from "../../rendering/shapes/Shape";
+import Square from "../../rendering/shapes/Square";
 
 export default class Body {
     // Incremented every time a new body is created.
     public static nextID :number = 0;
 
-    private id :number;
+    // TODO: units are still treated as px/sec. Fix
+    private _id :number;
     public position :vec2;
     public velocity :vec2;
     public acceleration :vec2;
@@ -21,14 +24,55 @@ export default class Body {
     public width :number;
     public height :number;
 
+    // Shape representing the physical object graphically.
+    public shape :Shape;
+
+    // Update callback.
+    protected updateCallback: (body : Body, deltaTime : number) => void;
+
     constructor(position :vec2, width :number, height :number) {
-        this.id = Body.nextID++;
+        this._id = Body.nextID++;
         this.position = vec2.clone(position);
         this.width = width;
         this.height = height;
         this.angle = 0;
+        this.shape = new Square(vec3.fromValues(this.position[0], this.position[1],0), this.width, this.height);
+        this.velocity = vec2.create();
+        this.acceleration = vec2.create();
+        this.angularVelocity = 0;
+        this.momentOfInertia = 1;
+        this.torque = 0;
+        this.updateCallback = (body :Body, deltaTime :number) => {};
     }
 
-    
+    // Integrates body's state, updating position, velocities and rotation. Time must be given in seconds.
+    public integrate(dt: number) {
+       // update velocity.
+       this.oldVelocity = this.velocity;
+       vec2.scaleAndAdd(this.velocity, this.velocity, vec2.clone(this.acceleration), dt);
+
+       // update position.
+       vec2.scaleAndAdd(this.position, this.position, vec2.clone(this.velocity), dt);
+       vec2.scaleAndAdd(this.position, this.position, vec2.clone(this.acceleration), dt*dt/2);
+
+       // update angle. 
+       this.angularVelocity += (this.torque / this.momentOfInertia) * dt;
+       this.angle += this.angularVelocity * dt + (this.torque / this.momentOfInertia)*dt*dt/2;
+    }
+
+    public update(deltaTime : number) {
+        this.updateCallback(this, deltaTime);
+    }
+
+    public onUpdate(updateCallback :(body :Body, deltaTime : number) => void) {
+        this.updateCallback = updateCallback;
+    }
+
+    // updates shape's transform and returns it. 
+    public getLatestShape() :Shape {
+        this.shape.setPosition(this.position);
+        this.shape.setRotation(this.angle);
+        return this.shape;
+    }
 
 }

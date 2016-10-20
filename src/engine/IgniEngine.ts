@@ -3,10 +3,13 @@ import Shape from "../rendering/shapes/Shape";
 import Renderer from "../rendering/renderers/Renderer";
 import Camera from "../rendering/camera/Camera";
 import {WGLRenderer, WGLOptions} from "../rendering/renderers/WGLRenderer";
+import Body from "../physics/bodies/Body";
+import World from "../physics/World";
 
 export default class IgniEngine implements Engine {
 
-    private shapes: Shape[]; // this must change to World, which has its bodies. Bodies have a shape each.
+    private bodylessShapes: Shape[] = [];
+    private world: World;
     private renderer: Renderer;
     private lastFrameID: number;
 
@@ -19,17 +22,21 @@ export default class IgniEngine implements Engine {
     private lastPhysicsTick : number;
 
     constructor(canvas :HTMLCanvasElement, camera :Shape) {
-        this.shapes = []; 
+        this.world = new World();
         this.renderer = new WGLRenderer (canvas, <WGLOptions> { depth_test: false, blend: true });
         this.renderer.setCamera(camera);
         
-        if (this.shapes.indexOf(camera) === -1){
-            this.add(camera);
+        if (this.bodylessShapes.indexOf(camera) === -1){
+            this.addShape(camera);
         }
     }
 
-    public add(shape: Shape) :void {
-        this.shapes.push(shape);
+    public addShape(shape: Shape) :void {
+        this.bodylessShapes.push(shape);
+    }
+
+    public addBody(body : Body) :void {
+        this.world.addBody(body);
     }
 
     private init () {
@@ -58,21 +65,26 @@ export default class IgniEngine implements Engine {
                                             this.physicsUpdatePeriod);
             }
 
+            //  Update Pattern
+            for(let shape of this.bodylessShapes) {
+                shape.update(this.deltaTime/1000);
+            }
+            this.world.update(this.deltaTime/1000);
+
             // Physics engine update loop.
             for (let i = 0; i < physicsTicks; ++i) {
                 this.lastPhysicsTick += this.physicsUpdatePeriod;
-                for(let shape of this.shapes) {
-                    shape.update(this.physicsUpdatePeriod/1000);
-                }
+                this.world.step(this.physicsUpdatePeriod/1000);
             }
-
-            //  Update Pattern
-            
 
             // Draw
             this.renderer.clear();
-            this.renderer.drawShapes(this.shapes);
-        
+            for (let body of this.world.bodies) {
+                this.renderer.drawShape(body.getLatestShape());
+            }
+            for (let shape of this.bodylessShapes) {
+                this.renderer.drawShape(shape);
+            }
             this.lastFrameTime = frameTime;
         };
 
@@ -92,8 +104,8 @@ export default class IgniEngine implements Engine {
     public setCamera(camera : Shape) {
         this.renderer.setCamera(camera);
         
-        if (this.shapes.indexOf(camera) === -1){
-            this.add(camera);
+        if (this.bodylessShapes.indexOf(camera) === -1){
+            this.addShape(camera);
         }
     }
 }

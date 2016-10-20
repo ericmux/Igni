@@ -94,10 +94,8 @@ export class WGLRenderer implements Renderer {
 	/**
 	*  Draw a collection of shapes.
 	*/
-	public drawShapes(shapes: Shape[]) {	
-		for(let shape of shapes) {
-			this.render(shape.toDrawCall(this.projection_matrix, this.camera.followShapeViewMatrix()));
-		}
+	public drawShape(shape: Shape) {
+		this.render(shape.toDrawCall(this.projection_matrix, this.camera.followShapeViewMatrix()));	
 	}
 
 	private render (drawCall: FlatColorCircleDrawCall) : void;
