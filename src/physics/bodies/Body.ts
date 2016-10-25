@@ -2,6 +2,8 @@ import {vec2, vec3} from "gl-matrix";
 import CollisionArea from "../collision/CollisionArea";
 import Shape from "../../rendering/shapes/Shape";
 import Square from "../../rendering/shapes/Square";
+import StepIntegrator from "../integration/StepIntegrator";
+import VelocityVerlet from "../integration/VelocityVerlet";
 
 export default class Body {
     // Incremented every time a new body is created.
@@ -30,6 +32,10 @@ export default class Body {
     // Update callback.
     protected updateCallback: (body : Body, deltaTime : number) => void;
 
+    // Step integration method to be used. 
+    // TO DO: take method from World setting.
+    private stepIntegrator :StepIntegrator = new VelocityVerlet();
+
     constructor(position :vec2, width :number, height :number) {
         this._id = Body.nextID++;
         this.position = vec2.clone(position);
@@ -47,17 +53,7 @@ export default class Body {
 
     // Integrates body's state, updating position, velocities and rotation. Time must be given in seconds.
     public integrate(dt: number) {
-       // update velocity.
-       this.oldVelocity = this.velocity;
-       vec2.scaleAndAdd(this.velocity, this.velocity, vec2.clone(this.acceleration), dt);
-
-       // update position.
-       vec2.scaleAndAdd(this.position, this.position, vec2.clone(this.velocity), dt);
-       vec2.scaleAndAdd(this.position, this.position, vec2.clone(this.acceleration), dt*dt/2);
-
-       // update angle. 
-       this.angularVelocity += (this.torque / this.momentOfInertia) * dt;
-       this.angle += this.angularVelocity * dt + (this.torque / this.momentOfInertia)*dt*dt/2;
+        this.stepIntegrator.integrate(this, dt);
     }
 
     public update(deltaTime : number) {
