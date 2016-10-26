@@ -1,5 +1,5 @@
    import {vec2} from "gl-matrix";
-   import CollisionArea from "./CollisionArea";
+   import Body from "../bodies/Body";
    
    export default class Manifold {
       /**
@@ -9,11 +9,11 @@
       /**
        * The first rigid body in the collision.
        */
-      bodyA: CollisionArea;
+      bodyA: Body;
       /**
        * The second rigid body in the collision.
        */
-      bodyB: CollisionArea;
+      bodyB: Body;
       /**
        * The minimum translation vector to resolve penetration, pointing away from bodyA.
        */
@@ -28,7 +28,7 @@
       normal: vec2;
            
       
-      constructor(bodyA: CollisionArea, bodyB: CollisionArea, mtv: vec2, point: vec2, normal: vec2) {
+      constructor(bodyA :Body, bodyB :Body, mtv: vec2, point: vec2, normal: vec2) {
          this.bodyA = bodyA;
          this.bodyB = bodyB;
          this.mtv = mtv;
