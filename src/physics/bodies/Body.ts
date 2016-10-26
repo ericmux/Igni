@@ -4,6 +4,7 @@ import Shape from "../../rendering/shapes/Shape";
 import Square from "../../rendering/shapes/Square";
 import StepIntegrator from "../integration/StepIntegrator";
 import VelocityVerletIntegrator from "../integration/VelocityVerletIntegrator";
+import BodyDefinition from "./BodyDefinition";
 
 export default class Body {
     // Incremented every time a new body is created.
@@ -27,8 +28,6 @@ export default class Body {
     public mass :number;
     public momentOfInertia :number;
     public restitutionCoefficient :number;
-    public width :number;
-    public height :number;
 
     // Shape representing the physical object graphically.
     public shape :Shape;
@@ -40,25 +39,38 @@ export default class Body {
     // TO DO: take method from World setting.
     private stepIntegrator :StepIntegrator;
 
-    constructor(position :vec2, width :number, height :number) {
+    constructor(bodyDef :BodyDefinition) {
         this._id = Body.nextID++;
-        this.position = vec2.clone(position);
-        this.width = width;
-        this.height = height;
-        this.shape = new Square(vec3.fromValues(this.position[0], this.position[1],0), this.width, this.height);
-        this.mass = 1;
-        this.torque = 0;
-        this.momentOfInertia = 1;
-        this.velocity = vec2.create();
-        this._acceleration = vec2.create();
+
+        if(!bodyDef) bodyDef = <BodyDefinition>{ position: vec2.create() };
+
+        bodyDef.position = bodyDef.position || vec2.create();
+        bodyDef.angle = bodyDef.angle || 0.0;
+        bodyDef.velocity = bodyDef.velocity || vec2.create();
+        bodyDef.angularVelocity = bodyDef.angularVelocity || 0.0;
+        bodyDef.force = bodyDef.force || vec2.create();
+        bodyDef.torque = bodyDef.torque || 0.0;
+        bodyDef.mass = bodyDef.mass || 1.0;
+        bodyDef.restitutionCoefficient = bodyDef.restitutionCoefficient || 1.0;
+        bodyDef.updateCallback = bodyDef.updateCallback || ((body :Body, deltaTime :number) => {});
+        bodyDef.stepIntegrator = bodyDef.stepIntegrator || new VelocityVerletIntegrator();
+
+        this.position = vec2.clone(bodyDef.position);
+        this.angle = bodyDef.angle;
+        this.velocity = vec2.clone(bodyDef.velocity);
+        this.angularVelocity = bodyDef.angularVelocity;
+        this.force = vec2.create();
+        this.torque = bodyDef.torque;
+        this.mass = bodyDef.mass;
+        this.restitutionCoefficient = bodyDef.restitutionCoefficient;
+        this.updateCallback = bodyDef.updateCallback;
+        this.stepIntegrator = bodyDef.stepIntegrator;
+        this.momentOfInertia = 1; // TO DO: Make Body abstract and force every child class to implement moi() method.
+        this._acceleration = vec2.scale(vec2.create(), this.force, 1.0 / this.mass);
         this._oldAcceleration = vec2.clone(this._acceleration);
-        this.angle = 0;
-        this.angularVelocity = 0;
         this._angularAcceleration = this.torque / this.momentOfInertia;
         this._oldAngularAcceleration = this._angularAcceleration;
-        this.force = vec2.create();
-        this.updateCallback = (body :Body, deltaTime :number) => {};
-        this.stepIntegrator = new VelocityVerletIntegrator();
+        this.shape = new Square(vec3.fromValues(this.position[0], this.position[1],0), 50, 50);
     }
 
     // Integrates body's state, updating position, velocities and rotation. Time must be given in seconds.

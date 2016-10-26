@@ -4,8 +4,9 @@ import StepIntegrator from "../integration/StepIntegrator";
 
 interface BodyDefinition {
     position: vec2;
+    angle?: number;
     velocity?: vec2;
-    angularVelocity?: vec2;
+    angularVelocity?: number;
     force?: vec2;
     torque?: number;
     mass?: number;

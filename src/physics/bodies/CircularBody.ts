@@ -1,5 +1,6 @@
 import {vec2, vec3} from "gl-matrix";
 import Body from "./Body";
+import CircularBodyDefinition from "./CircularBodyDefinition";
 import Shape from "../../rendering/shapes/Shape";
 import Circle from "../../rendering/shapes/Circle";
 import CollisionArea from "../collision/CollisionArea";
@@ -10,10 +11,12 @@ export default class CircularBody extends Body implements CollisionArea {
 
     private _radius :number;
 
-    constructor(position :vec2, radius :number) {
-        super(position, 2*radius, 2*radius);
-        this._radius = radius;
-        this.shape = new Circle(vec3.fromValues(position[0], position[1],1.0), this._radius);
+    constructor(bodyDef :CircularBodyDefinition) {
+        super(bodyDef);
+        bodyDef.radius = bodyDef.radius || 0.0;
+
+        this._radius = bodyDef.radius;
+        this.shape = new Circle(vec3.fromValues(this.position[0], this.position[1],1.0), this._radius);
         this.momentOfInertia = 0.5 * Math.PI * Math.pow(this._radius, 4);
     }
 

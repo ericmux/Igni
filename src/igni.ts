@@ -6,7 +6,11 @@ import Circle from "./rendering/shapes/Circle";
 import Shape from "./rendering/shapes/Shape";
 import Camera from "./rendering/camera/Camera";
 import Body from "./physics/bodies/Body";
+import RectangularBody from "./physics/bodies/RectangularBody";
 import CircularBody from "./physics/bodies/CircularBody";
+import BodyDefinition from "./physics/bodies/BodyDefinition";
+import RectangularBodyDefinition from "./physics/bodies/RectangularBodyDefinition";
+import CircularBodyDefinition from "./physics/bodies/CircularBodyDefinition";
 import {vec2, vec3} from "gl-matrix";
 
 let canvas : HTMLCanvasElement;
@@ -70,18 +74,25 @@ window.onload = () => {
     game.addShape(cr1);
     game.addShape(xAxis); game.addShape(yAxis);
 
-    // Add a body.
-    let body1 : Body = new Body(vec2.fromValues(60,60), 10, 10);
-    body1.force = vec2.fromValues(0.0,-5.0);
-    body1.velocity = vec2.fromValues(0.0, 50.0);
-    body1.torque = 0.01;
+    // Add a rectangular body.
+    let body1 : Body = new RectangularBody(<RectangularBodyDefinition>{
+        position: vec2.fromValues(60,60),
+        width: 10,
+        height: 10,
+        force: vec2.fromValues(0.0,-5.0),
+        velocity: vec2.fromValues(0.0, 50.0),
+        torque: 0.1
+    });
     game.addBody(body1);
 
     // Add a circular body.
-    let body2 : Body = new CircularBody(vec2.fromValues(40,60), 10);
-    body2.force = vec2.fromValues(0.0,-10.0);
-    body2.velocity = vec2.fromValues(0.0, 50.0);
-    body2.torque = 0.01;
+    let body2 : Body = new CircularBody(<CircularBodyDefinition>{
+        position: vec2.fromValues(40,60),
+        radius: 10,
+        force: vec2.fromValues(0.0,-10.0),
+        velocity: vec2.fromValues(0.0, 50.0),
+        torque: 0.01
+    });
     game.addBody(body2); 
 
     game.start();
