@@ -71,13 +71,9 @@ window.onload = () => {
 
     // Add a body.
     let body1 : Body = new Body(vec2.fromValues(60,60), 10, 10);
-    body1.acceleration = vec2.fromValues(0.0,-5.0);
+    body1.force = vec2.fromValues(0.0,-5.0);
     body1.velocity = vec2.fromValues(0.0, 50.0);
-    body1.torque = 1.0;
-    let tb = 0.0;
-    body1.onUpdate((body: Body, deltaTime: number) => {
-        vec2.add(body.velocity, vec2.fromValues(deltaTime,-deltaTime), body.velocity);
-    });
+    body1.torque = 0.01;
     
     game.addBody(body1);
 
