@@ -3,7 +3,7 @@ import CollisionArea from "../collision/CollisionArea";
 import Shape from "../../rendering/shapes/Shape";
 import Square from "../../rendering/shapes/Square";
 import StepIntegrator from "../integration/StepIntegrator";
-import VelocityVerlet from "../integration/VelocityVerlet";
+import VelocityVerletIntegrator from "../integration/VelocityVerletIntegrator";
 
 export default class Body {
     // Incremented every time a new body is created.
@@ -22,7 +22,6 @@ export default class Body {
     public oldAngularVelocity :number;
     private _angularAcceleration :number;
     private _oldAngularAcceleration :number;
-    public collisionArea :CollisionArea;
     public torque :number;
     public force :vec2;
     public mass :number;
@@ -39,7 +38,7 @@ export default class Body {
 
     // Step integration method to be used. 
     // TO DO: take method from World setting.
-    private stepIntegrator :StepIntegrator = new VelocityVerlet();
+    private stepIntegrator :StepIntegrator;
 
     constructor(position :vec2, width :number, height :number) {
         this._id = Body.nextID++;
@@ -59,6 +58,7 @@ export default class Body {
         this._oldAngularAcceleration = this._angularAcceleration;
         this.force = vec2.create();
         this.updateCallback = (body :Body, deltaTime :number) => {};
+        this.stepIntegrator = new VelocityVerletIntegrator();
     }
 
     // Integrates body's state, updating position, velocities and rotation. Time must be given in seconds.

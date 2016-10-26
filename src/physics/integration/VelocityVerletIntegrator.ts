@@ -2,7 +2,7 @@ import {vec2} from "gl-matrix";
 import StepIntegrator from "./StepIntegrator";
 import Body from "../bodies/Body";
 
-export default class VelocityVerlet implements StepIntegrator {
+export default class VelocityVerletIntegrator implements StepIntegrator {
     public integrate(body :Body, dt :number) {
        // Linear verlet.
        // update position.
