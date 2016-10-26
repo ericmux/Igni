@@ -6,6 +6,7 @@ import Circle from "./rendering/shapes/Circle";
 import Shape from "./rendering/shapes/Shape";
 import Camera from "./rendering/camera/Camera";
 import Body from "./physics/bodies/Body";
+import CircularBody from "./physics/bodies/CircularBody";
 import {vec2, vec3} from "gl-matrix";
 
 let canvas : HTMLCanvasElement;
@@ -74,8 +75,14 @@ window.onload = () => {
     body1.force = vec2.fromValues(0.0,-5.0);
     body1.velocity = vec2.fromValues(0.0, 50.0);
     body1.torque = 0.01;
-    
     game.addBody(body1);
+
+    // Add a circular body.
+    let body2 : Body = new CircularBody(vec2.fromValues(40,60), 10);
+    body2.force = vec2.fromValues(0.0,-10.0);
+    body2.velocity = vec2.fromValues(0.0, 50.0);
+    body2.torque = 0.01;
+    game.addBody(body2); 
 
     game.start();
 }
