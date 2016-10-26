@@ -4,7 +4,7 @@ import Body from "../bodies/Body";
 
 export default class VelocityVerlet implements StepIntegrator {
     public integrate(body :Body, dt :number) {
-       // Linear Verlet.
+       // Linear verlet.
        // update position.
        vec2.scaleAndAdd(body.position, body.position, vec2.clone(body.velocity), dt);
        vec2.scaleAndAdd(body.position, body.position, vec2.clone(body.acceleration), dt*dt/2);
@@ -19,7 +19,7 @@ export default class VelocityVerlet implements StepIntegrator {
        body.oldVelocity = vec2.clone(body.velocity);
        vec2.scaleAndAdd(body.velocity, body.velocity, avg_accel, dt);
 
-       // Angular verlet
+       // Angular verlet.
        // update angle. 
        body.angle += body.angularVelocity * dt + body.angularAcceleration*dt*dt/2;
 
