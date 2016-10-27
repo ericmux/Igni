@@ -12,6 +12,9 @@ import BodyDefinition from "./physics/bodies/BodyDefinition";
 import RectangularBodyDefinition from "./physics/bodies/RectangularBodyDefinition";
 import CircularBodyDefinition from "./physics/bodies/CircularBodyDefinition";
 import {vec2, vec3} from "gl-matrix";
+import VelocityVerletIntegrator from "./physics/integration/VelocityVerletIntegrator";
+import SemiImplicitEulerIntegrator from "./physics/integration/SemiImplicitEulerIntegrator";
+import ForwardEulerIntegrator from "./physics/integration/ForwardEulerIntegrator";
 
 let canvas : HTMLCanvasElement;
 let game : IgniEngine;
@@ -94,6 +97,17 @@ window.onload = () => {
         torque: 0.01
     });
     game.addBody(body2); 
+
+    // Add a circular body.
+    let body3 : Body = new CircularBody(<CircularBodyDefinition>{
+        position: vec2.fromValues(30,60),
+        radius: 10,
+        force: vec2.fromValues(0.0,-10.0),
+        velocity: vec2.fromValues(0.0, 50.0),
+        torque: 0.01,
+        stepIntegrator: new ForwardEulerIntegrator()
+    });
+    game.addBody(body3); 
 
     game.start();
 }
