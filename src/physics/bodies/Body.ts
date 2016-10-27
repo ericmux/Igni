@@ -59,7 +59,7 @@ export default class Body {
         this.angle = bodyDef.angle;
         this.velocity = vec2.clone(bodyDef.velocity);
         this.angularVelocity = bodyDef.angularVelocity;
-        this.force = vec2.create();
+        this.force = vec2.clone(bodyDef.force);
         this.torque = bodyDef.torque;
         this.mass = bodyDef.mass;
         this.restitutionCoefficient = bodyDef.restitutionCoefficient;
