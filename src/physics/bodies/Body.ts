@@ -6,7 +6,7 @@ import StepIntegrator from "../integration/StepIntegrator";
 import VelocityVerletIntegrator from "../integration/VelocityVerletIntegrator";
 import BodyDefinition from "./BodyDefinition";
 
-export default class Body {
+abstract class Body {
     // Incremented every time a new body is created.
     public static nextID :number = 0;
 
@@ -14,19 +14,21 @@ export default class Body {
     private _id :number;
     public position :vec2;
     public velocity :vec2;
-    private _acceleration :vec2;
-    private _oldAcceleration: vec2;
+    protected _acceleration :vec2;
+    protected _oldAcceleration: vec2;
     public oldPosition :vec2;
     public oldVelocity :vec2;
     public angle :number;
     public angularVelocity :number;
     public oldAngularVelocity :number;
-    private _angularAcceleration :number;
-    private _oldAngularAcceleration :number;
+    protected _angularAcceleration :number;
+    protected _oldAngularAcceleration :number;
     public torque :number;
     public force :vec2;
     public mass :number;
     public momentOfInertia :number;
+    protected _invMass :number;
+    protected _invMomentOfInertia :number;
     public restitutionCoefficient :number;
 
     // Shape representing the physical object graphically.
@@ -50,7 +52,7 @@ export default class Body {
         bodyDef.angularVelocity = bodyDef.angularVelocity || 0.0;
         bodyDef.force = bodyDef.force || vec2.create();
         bodyDef.torque = bodyDef.torque || 0.0;
-        bodyDef.mass = bodyDef.mass || 1.0;
+        bodyDef.mass = bodyDef.mass || 0.0;
         bodyDef.restitutionCoefficient = bodyDef.restitutionCoefficient || 1.0;
         bodyDef.updateCallback = bodyDef.updateCallback || ((body :Body, deltaTime :number) => {});
         bodyDef.stepIntegrator = bodyDef.stepIntegrator || new VelocityVerletIntegrator();
@@ -65,17 +67,23 @@ export default class Body {
         this.restitutionCoefficient = bodyDef.restitutionCoefficient;
         this.updateCallback = bodyDef.updateCallback;
         this.stepIntegrator = bodyDef.stepIntegrator;
-        this.momentOfInertia = 1; // TO DO: Make Body abstract and force every child class to implement moi() method.
-        this._acceleration = vec2.scale(vec2.create(), this.force, 1.0 / this.mass);
+
+        if (this.mass == 0.0) {
+            this._invMass = 0.0;
+        }
+        else {
+            this._invMass = 1 / this.mass;
+        }
+        this._acceleration = vec2.scale(vec2.create(), this.force, this._invMass);
         this._oldAcceleration = vec2.clone(this._acceleration);
-        this._angularAcceleration = this.torque / this.momentOfInertia;
-        this._oldAngularAcceleration = this._angularAcceleration;
-        this.shape = new Square(vec3.fromValues(this.position[0], this.position[1],0), 50, 50);
     }
 
+    // Calculates moment of intertia from the body's shape.
+    public abstract calculateMoI() :number;
+
     // Integrates body's state, updating position, velocities and rotation. Time must be given in seconds.
-    public integrate(dt: number) {
-        this.stepIntegrator.integrate(this, dt);
+    public integrate(time :number, dt: number) {
+        this.stepIntegrator.integrate(this, time, dt);
     }
 
     public update(deltaTime : number) {
@@ -125,5 +133,12 @@ export default class Body {
         this._oldAngularAcceleration = angular_acc;
     }
 
+    public get invMass() :number {
+        return this._invMass;
+    }
 
+    public get invMomentOfInertia() :number {
+        return this._invMomentOfInertia;
+    }
 }
+export default Body;

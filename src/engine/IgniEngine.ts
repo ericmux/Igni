@@ -74,7 +74,7 @@ export default class IgniEngine implements Engine {
             // Physics engine update loop.
             for (let i = 0; i < physicsTicks; ++i) {
                 this.lastPhysicsTick += this.physicsUpdatePeriod;
-                this.world.step(this.physicsUpdatePeriod/1000);
+                this.world.step(this.lastPhysicsTick/1000, this.physicsUpdatePeriod/1000);
             }
 
             // Draw

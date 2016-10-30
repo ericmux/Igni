@@ -3,7 +3,7 @@ import StepIntegrator from "./StepIntegrator";
 import Body from "../bodies/Body";
 
 export default class SemiImplicitEulerIntegrator implements StepIntegrator {
-    public integrate(body :Body, dt :number) {
+    public integrate(body :Body, time: number, dt :number) {
        // calculate acceleration.
        body.oldAcceleration = vec2.clone(body.acceleration);
        body.acceleration = vec2.scale(vec2.create(), body.force, 1/body.mass);

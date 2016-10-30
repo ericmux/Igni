@@ -19,8 +19,20 @@ export default class RectangularBody extends Body implements CollisionArea {
 
         this._width = bodyDef.width;
         this._height = bodyDef.height;
+        this.momentOfInertia = this.calculateMoI();
+        if (this.momentOfInertia == 0.0) {
+            this._invMomentOfInertia = 0.0;
+        } else {
+            this._invMomentOfInertia = 1 / this.momentOfInertia;
+        }
+        this._angularAcceleration = this.torque * this._invMomentOfInertia;
+        this._oldAngularAcceleration = this._angularAcceleration;
+
         this.shape = new Square(vec3.fromValues(this.position[0], this.position[1],1.0), this._width, this._height);
-        this.momentOfInertia = (this.mass / 12) * (this._height*this._height + this._width*this._width);
+    }
+
+    public calculateMoI() :number {
+        return (this.mass / 12) * (this._height*this._height + this._width*this._width);
     }
 
     public center() {

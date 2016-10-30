@@ -28,9 +28,9 @@ export default class World {
         }
     }
 
-    public step(dt :number) {
+    public step(time: number, dt :number) {
         for(let body of this._bodies) {
-            body.integrate(dt);
+            body.integrate(time, dt);
         }
     }
 }

@@ -3,7 +3,7 @@ import StepIntegrator from "./StepIntegrator";
 import Body from "../bodies/Body";
 
 export default class ForwardEulerIntegrator implements StepIntegrator {
-    public integrate(body :Body, dt :number) {
+    public integrate(body :Body, time: number, dt :number) {
        // update position.
        vec2.scaleAndAdd(body.position, body.position, vec2.clone(body.velocity), dt);
 

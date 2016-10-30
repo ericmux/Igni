@@ -16,8 +16,20 @@ export default class CircularBody extends Body implements CollisionArea {
         bodyDef.radius = bodyDef.radius || 0.0;
 
         this._radius = bodyDef.radius;
+        this.momentOfInertia = this.calculateMoI();
+        if (this.momentOfInertia == 0.0) {
+            this._invMomentOfInertia = 0.0;
+        } else {
+            this._invMomentOfInertia = 1 / this.momentOfInertia;
+        }
+        this._angularAcceleration = this.torque * this._invMomentOfInertia;
+        this._oldAngularAcceleration = this._angularAcceleration;
+
         this.shape = new Circle(vec3.fromValues(this.position[0], this.position[1],1.0), this._radius);
-        this.momentOfInertia = 0.5 * Math.PI * Math.pow(this._radius, 4);
+    }
+
+    public calculateMoI() :number {
+        return 0.5 * this.mass * Math.pow(this._radius, 2);
     }
 
     public center() {
