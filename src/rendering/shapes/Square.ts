@@ -15,7 +15,7 @@ export default class ColorSquare extends Shape {
         this._height = height;
     }
 
-    private calculateVertices () : vec4[] {
+    protected calculateVertices () : vec4[] {
         let vertices :vec4[] = [];
         let res : vec2 = vec2.create ();
 
@@ -57,5 +57,13 @@ export default class ColorSquare extends Shape {
 
     set width (newWidth :number) {
         this._width = newWidth;
+    }
+
+    get color () :vec4 {
+        return this._color;
+    }
+
+    set color (color :vec4) {
+        this._color = color;
     }
 }

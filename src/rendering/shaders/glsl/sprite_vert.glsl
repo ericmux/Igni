@@ -1,14 +1,14 @@
 precision mediump float;
 
 attribute vec4 vPosition;
-attribute vec2 vTexcoord;
+attribute vec2 vTexCoord;
 uniform mat4 projectionMatrix;
 uniform mat4 modelViewMatrix;
 
-varying vec2 fTexcoord;
+varying vec2 fTexCoord;
 
 void main() 
 {               
-	fTexcoord = vTexcoord;
+	fTexCoord = vTexCoord;
 	gl_Position = projectionMatrix * modelViewMatrix * vPosition;
 } 

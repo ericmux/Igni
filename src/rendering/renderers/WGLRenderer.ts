@@ -9,6 +9,7 @@ import Shader from "../shaders/Shader";
 import DrawCall from "../shaders/DrawCall";
 import {FlatColorShader, FlatColorDrawCall} from "../shaders/FlatColorShader";
 import {FlatColorCircleShader, FlatColorCircleDrawCall} from "../shaders/FlatColorCircleShader";
+import {SpriteShader, SpriteDrawCall} from "../shaders/SpriteShader";
 import {vec2, vec3, vec4, mat4} from "gl-matrix";
 import Camera from "../camera/Camera";
 
@@ -28,6 +29,7 @@ export class WGLRenderer implements Renderer {
 	private camera : Shape;
 	private squareShader : Shader;
 	private circleShader : Shader;
+	private spriteShader : Shader;
 
 	constructor (canvas : HTMLCanvasElement, opts?: WGLOptions) {
 		opts = opts || <WGLOptions>{ depth_test: false, blend: false };
@@ -56,6 +58,7 @@ export class WGLRenderer implements Renderer {
 		this.canvas = canvas;
 		this.squareShader = new FlatColorShader (WGLRenderer.gl, this.vVBO);
 		this.circleShader = new FlatColorCircleShader (WGLRenderer.gl, this.vVBO);
+		this.spriteShader = new SpriteShader (WGLRenderer.gl, this.vVBO);
 
 		//  Set up viewport and projection matrix
 		this.resizeToCanvas ();
@@ -98,6 +101,7 @@ export class WGLRenderer implements Renderer {
 		this.render(shape.toDrawCall(this.projection_matrix, this.camera.followShapeViewMatrix()));	
 	}
 
+	private render (drawCall: SpriteDrawCall) : void;
 	private render (drawCall: FlatColorCircleDrawCall) : void;
 	private render (drawCall: FlatColorDrawCall) : void;
 	private render (drawCall: DrawCall) : void;
@@ -109,6 +113,9 @@ export class WGLRenderer implements Renderer {
 		}
 		else if (drawCall instanceof FlatColorDrawCall) {
 			this.squareShader.render(drawCall);
+		}
+		else if (drawCall instanceof SpriteDrawCall) {
+			this.spriteShader.render(drawCall);
 		}
 		else if (typeof drawCall == "DrawCall") {
 			console.log ("It is drawcall");
