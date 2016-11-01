@@ -41,7 +41,7 @@ window.onload = () => {
         mass: 1.0,
         force: vec2.fromValues(0.0,-5.0),
         velocity: vec2.fromValues(0.0, 50.0),
-        torque: 0.1
+        torque: 5.0
     });
     game.addBody(body1);
 
@@ -51,8 +51,7 @@ window.onload = () => {
         radius: 10,
         mass: 1.0,
         force: vec2.fromValues(0.0,-10.0),
-        velocity: vec2.fromValues(0.0, 50.0),
-        torque: 0.01
+        velocity: vec2.fromValues(0.0, 50.0)
     });
     game.addBody(body2); 
 
@@ -62,8 +61,7 @@ window.onload = () => {
         radius: 10,
         mass: 0.5,
         force: vec2.fromValues(0.0,-10.0),
-        velocity: vec2.fromValues(0.0, 50.0),
-        torque: 0.01
+        velocity: vec2.fromValues(0.0, 50.0)
     });
     game.addBody(body3); 
 

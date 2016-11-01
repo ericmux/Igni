@@ -1,11 +1,12 @@
 import {vec2, vec3} from "gl-matrix";
 import Body from "./Body";
+import CircularBody from "./CircularBody";  
 import RectangularBodyDefinition from "./RectangularBodyDefinition";
 import Shape from "../../rendering/shapes/Shape";
 import Square from "../../rendering/shapes/Square";
 import CollisionArea from "../collision/CollisionArea";
-
-// TO DO: Make all constructors take body definitions. BODY FACTORY.
+import CollisionManifold from "../collision/CollisionManifold";
+import CollisionJumpTable from "../collision/CollisionJumpTable";
 
 export default class RectangularBody extends Body implements CollisionArea {
 
@@ -44,6 +45,16 @@ export default class RectangularBody extends Body implements CollisionArea {
                 point[0] <= this.position[0] + this._width/2 && 
                 point[1] >= this.position[1] - this._height/2 && 
                 point[1] <= this.position[1] + this._height/2);
+    }
+
+    public collide(body :Body) :CollisionManifold {
+        if(body instanceof CircularBody) {
+            return CollisionJumpTable.collideCircleRectangle(body, this);
+        } 
+        if(body instanceof RectangularBody) {
+            return CollisionJumpTable.collideRectangleRectangle(this, body);
+        }
+        return null;
     }
 
 }

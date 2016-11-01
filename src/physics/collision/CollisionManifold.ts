@@ -1,7 +1,7 @@
    import {vec2} from "gl-matrix";
    import Body from "../bodies/Body";
    
-   export default class Manifold {
+   export default class CollisionManifold {
       /**
        * The id of this collision contact.
        */

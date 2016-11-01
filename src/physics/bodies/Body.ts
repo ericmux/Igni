@@ -1,12 +1,13 @@
 import {vec2, vec3} from "gl-matrix";
 import CollisionArea from "../collision/CollisionArea";
+import CollisionManifold from "../collision/CollisionManifold";
 import Shape from "../../rendering/shapes/Shape";
 import Square from "../../rendering/shapes/Square";
 import StepIntegrator from "../integration/StepIntegrator";
 import VelocityVerletIntegrator from "../integration/VelocityVerletIntegrator";
 import BodyDefinition from "./BodyDefinition";
 
-abstract class Body {
+abstract class Body implements CollisionArea {
     // Incremented every time a new body is created.
     public static nextID :number = 0;
 
@@ -100,6 +101,12 @@ abstract class Body {
         this.shape.setRotation(this.angle);
         return this.shape;
     }
+
+    public abstract center() :vec2;
+
+    public abstract contains(point :vec2) :boolean;
+
+    public abstract collide(body :Body) :CollisionManifold;
 
     public get acceleration() :vec2 {
         return this._acceleration;
