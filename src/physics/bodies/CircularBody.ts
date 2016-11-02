@@ -53,4 +53,8 @@ export default class CircularBody extends Body implements CollisionArea {
         return null;
     }
 
+    public get radius() :number {
+        return this._radius;
+    }
+
 }

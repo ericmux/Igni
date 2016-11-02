@@ -40,7 +40,7 @@ export default class IgniEngine implements Engine {
     }
 
     private init () {
-        this.physicsUpdatePeriod = 1000/60; // in ms (~30fps)
+        this.physicsUpdatePeriod = 1000/60; // in ms (~60fps)
         this.lastPhysicsTick = performance.now (); 
         
         this.deltaTime = 0;
@@ -74,6 +74,8 @@ export default class IgniEngine implements Engine {
             // Physics engine update loop.
             for (let i = 0; i < physicsTicks; ++i) {
                 this.lastPhysicsTick += this.physicsUpdatePeriod;
+                this.world.detectCollisions();
+                // resolve collisions.
                 this.world.step(this.lastPhysicsTick/1000, this.physicsUpdatePeriod/1000);
             }
 
