@@ -1,10 +1,18 @@
 import Body from "./bodies/Body";
+import CollisionManifold from "./collision/CollisionManifold";
+import CollisionDetector from "./collision/CollisionDetector";
+import BruteForceCollisionDetector from "./collision/BruteForceCollisionDetector";
 
 export default class World {
-    private _bodies : Body[];
+    private _bodies :Body[];
+    private _collisionDetector :CollisionDetector;
+    private _collisionManifolds :CollisionManifold[];
+
 
     constructor() {
         this._bodies = [];
+        this._collisionDetector = new BruteForceCollisionDetector();
+        this._collisionManifolds = [];
     }
 
     public addBody(body :Body) {
@@ -18,19 +26,25 @@ export default class World {
         }
     }
 
-    public get bodies() :Body[] {
-        return this._bodies;
-    }
-
     public update(deltaTime :number) {
         for(let body of this._bodies){
             body.update(deltaTime);
         }
     }
 
-    public step(dt :number) {
+    public step(time: number, dt :number) {
         for(let body of this._bodies) {
-            body.integrate(dt);
+            body.integrate(time, dt);
         }
+    }
+
+    public detectCollisions() {
+        this._collisionManifolds = this._collisionDetector.detect(this._bodies);
+        console.log(this._collisionManifolds.length);
+    }
+
+
+    public get bodies() :Body[] {
+        return this._bodies;
     }
 }
