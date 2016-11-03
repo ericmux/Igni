@@ -4,7 +4,7 @@
 import setupWebGL from "../utils/webgl_utils";
 import Renderer from "./Renderer";
 import Shape from "../shapes/Shape";
-import Square from "../shapes/Square";
+import RectangleShape from "../shapes/RectangleShape";
 import Shader from "../shaders/Shader";
 import DrawCall from "../shaders/DrawCall";
 import {FlatColorShader, FlatColorDrawCall} from "../shaders/FlatColorShader";

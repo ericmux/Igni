@@ -2,7 +2,7 @@ import {vec2, vec3, mat4, quat} from "gl-matrix";
 import CollisionArea from "../collision/CollisionArea";
 import CollisionManifold from "../collision/CollisionManifold";
 import Shape from "../../rendering/shapes/Shape";
-import Square from "../../rendering/shapes/Square";
+import RectangleShape from "../../rendering/shapes/RectangleShape";
 import StepIntegrator from "../integration/StepIntegrator";
 import VelocityVerletIntegrator from "../integration/VelocityVerletIntegrator";
 import BodyDefinition from "./BodyDefinition";
@@ -32,8 +32,10 @@ abstract class Body implements CollisionArea {
     protected _invMomentOfInertia :number;
     public restitutionCoefficient :number;
 
-    // Transform to world coordinates.
+    // Transforms vertices and features to world coordinates.
     protected _transform :mat4;
+    // Transforms normals to world coordinates.
+    protected _inverseTranposeTransform :mat4;
 
     // Shape representing the physical object graphically.
     public shape :Shape;
@@ -81,7 +83,8 @@ abstract class Body implements CollisionArea {
         this._acceleration = vec2.scale(vec2.create(), this.force, this._invMass);
         this._oldAcceleration = vec2.clone(this._acceleration);
         this._transform = mat4.create();
-        this.updateTransform();
+        this._inverseTranposeTransform = mat4.create();
+        this.updateTransforms();
     }
 
     // Calculates moment of intertia from the body's shape.
@@ -115,18 +118,20 @@ abstract class Body implements CollisionArea {
 
     public abstract collide(body :Body) :CollisionManifold;
 
-    public abstract axes() :vec2[];
+    public abstract getWorldAxes() :vec2[];
 
     public abstract extremeVertex(direction :vec2) :vec2;
     
     public abstract project(direction :vec2) :[vec2, vec2];
 
-    protected updateTransform() :void {
+    protected updateTransforms() :void {
         let q : quat = quat.create ();
         quat.setAxisAngle (q, [0,0,1], this.angle);
 
         this._transform = mat4.fromRotationTranslationScale (this._transform,
             q, vec3.fromValues(this.position[0], this.position[1], 0.0), vec3.fromValues(1.0, 1.0, 1.0));
+        this._inverseTranposeTransform = mat4.invert(this._inverseTranposeTransform, 
+                                            mat4.transpose(this._inverseTranposeTransform, this._transform));
     }
 
     public get acceleration() :vec2 {

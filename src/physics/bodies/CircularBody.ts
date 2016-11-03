@@ -59,7 +59,8 @@ export default class CircularBody extends Body implements CollisionArea {
         return [];
     }
 
-    public axes() :vec2[] {
+    public getWorldAxes() :vec2[] {
+        // circles have an infinite amount of axes.
         return [];
     }
 

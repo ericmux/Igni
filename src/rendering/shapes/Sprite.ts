@@ -1,11 +1,11 @@
-import ColorSquare from "./Square";
+import RectangleShape from "./RectangleShape";
 import {vec2, vec3, vec4, mat4} from "gl-matrix"
 import DrawCall from "../shaders/DrawCall";
 import {SpriteDrawCall} from "../shaders/SpriteShader";
 import TextureManager from "../../loader/TextureManager";
 import {WGLTexture} from "../../loader/TextureManager";
 
-export default class Sprite extends ColorSquare {
+export default class Sprite extends RectangleShape {
     
     public static _textureManager : TextureManager;
     public static get TextureManager () {
