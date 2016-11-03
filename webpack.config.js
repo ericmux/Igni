@@ -24,7 +24,10 @@ module.exports = {
             { test: /\.glsl$/, loader: 'webpack-glsl' },
             // This is so the dev server is able to pick up and hot reload changes in the html files.
             // Otherwise, utterly unnecessary.
-            { test: /\.html$/, loader: "raw-loader"}
+            { test: /\.html$/, loader: "raw-loader"},
+            //  Use image-webpack-loader
+            { test: /.*\.(gif|png|jpe?g|svg)$/i, loaders: ['file?hash=sha512&digest=hex&name=images/[hash].[ext]',
+                                                          'image-webpack?bypassOnDebug&optimizationLevel=7&interlaced=false']}
         ],
 
         preLoaders: [

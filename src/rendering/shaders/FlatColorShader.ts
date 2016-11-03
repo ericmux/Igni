@@ -16,8 +16,8 @@ export class FlatColorDrawCall extends DrawCall {
 
 export class FlatColorShader extends Shader {
     constructor(gl_context: WebGLRenderingContext, targetVBO: WebGLBuffer) {
-        var vertex_shader = require("./glsl/flat_color_vert.glsl");
-        var fragment_shader = require("./glsl/flat_color_frag.glsl");
+        var vertex_shader = require("./glsl/flat_color_vert.glsl") as string;
+        var fragment_shader = require("./glsl/flat_color_frag.glsl") as string;
         super(gl_context, vertex_shader, fragment_shader);
         this.targetVBO = targetVBO;
     }

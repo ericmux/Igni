@@ -20,8 +20,8 @@ export class SpriteDrawCall extends DrawCall {
 
 export class SpriteShader extends Shader {
     constructor(gl_context: WebGLRenderingContext, targetVBO: WebGLBuffer) {
-        var vertex_shader = require("./glsl/sprite_vert.glsl");
-        var fragment_shader = require("./glsl/sprite_frag.glsl");
+        var vertex_shader = require("./glsl/sprite_vert.glsl") as string;
+        var fragment_shader = require("./glsl/sprite_frag.glsl") as string;
         super(gl_context, vertex_shader, fragment_shader);
         this.targetVBO = targetVBO;
     }
@@ -37,9 +37,9 @@ export class SpriteShader extends Shader {
             data[vertex_float_length*i + 2] =  draw_call.vertices[i][2];
             data[vertex_float_length*i + 3] =  draw_call.vertices[i][3];
         }
-        for(let i = draw_call.vertices.length; i < draw_call.uv.length; i++) {
-            data[uv_float_length*i] =  draw_call.uv[i][0];
-            data[uv_float_length*i + 1] =  draw_call.uv[i][1];
+        for(let i = 0; i < draw_call.uv.length; i++) {
+            data[vertex_float_length*draw_call.vertices.length + uv_float_length*i] =  draw_call.uv[i][0];
+            data[vertex_float_length*draw_call.vertices.length + uv_float_length*i + 1] =  draw_call.uv[i][1];
         }
         this.gl_context.bindBuffer(this.gl_context.ARRAY_BUFFER, this.targetVBO);
         this.gl_context.bufferData(this.gl_context.ARRAY_BUFFER, data, this.gl_context.STATIC_DRAW);
@@ -54,20 +54,16 @@ export class SpriteShader extends Shader {
         //  Bind VBO
         this.gl_context.bindBuffer(this.gl_context.ARRAY_BUFFER, this.targetVBO);
 
-        // Assigning position attribute.
-        let stride = vertex_float_length * Float32Array.BYTES_PER_ELEMENT;  //  size in bytes between consecutives attributes
-        let offset = 0;
-
+        // Assigning position attributes
         var vPosition = this.gl_context.getAttribLocation(this.program, "vPosition");
-        this.gl_context.vertexAttribPointer(vPosition, vertex_float_length, this.gl_context.FLOAT, false, stride, offset);
+        this.gl_context.vertexAttribPointer(vPosition, vertex_float_length, this.gl_context.FLOAT, false, 0, 0);
         this.gl_context.enableVertexAttribArray(vPosition);
 
-        // Assigning uv texture coordinates.
-        stride = uv_float_length * Float32Array.BYTES_PER_ELEMENT;
-        offset = draw_call.vertices.length * vertex_float_length * Float32Array.BYTES_PER_ELEMENT; // siez in bytes where to begin 
-
+        // Size in bytes where uv data begin
+        let offset = draw_call.vertices.length * vertex_float_length * Float32Array.BYTES_PER_ELEMENT;
+        // Assigning uv texture coordinates. 
         var vTexCoord = this.gl_context.getAttribLocation(this.program, "vTexCoord");
-        this.gl_context.vertexAttribPointer(vTexCoord, uv_float_length, this.gl_context.FLOAT, false, stride, offset);
+        this.gl_context.vertexAttribPointer(vTexCoord, uv_float_length, this.gl_context.FLOAT, false, 0, offset);
         this.gl_context.enableVertexAttribArray(vTexCoord);
 
         //  Bind Texture
