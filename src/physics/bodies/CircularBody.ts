@@ -53,6 +53,25 @@ export default class CircularBody extends Body implements CollisionArea {
         return null;
     }
 
+
+    public getWorldVertices() :vec2[] {
+        // circles have no vertices.
+        return [];
+    }
+
+    public axes() :vec2[] {
+        return [];
+    }
+
+    public extremeVertex(direction :vec2) {
+        return vec2.create();
+    }
+
+    public project(direction :vec2) :[vec2, vec2] {
+        return [vec2.create(), vec2.create()];
+    }
+
+
     public get radius() :number {
         return this._radius;
     }
