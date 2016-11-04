@@ -2,7 +2,7 @@ require("../dist/index.html");
 import {WGLRenderer} from "./rendering/renderers/WGLRenderer";
 import IgniEngine from "./engine/IgniEngine";
 import RectangleShape from "./rendering/shapes/RectangleShape";
-import Circle from "./rendering/shapes/Circle";
+import CircleShape from "./rendering/shapes/CircleShape";
 import Shape from "./rendering/shapes/Shape";
 import Camera from "./rendering/camera/Camera";
 import Body from "./physics/bodies/Body";

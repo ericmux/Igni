@@ -3,7 +3,7 @@ import Body from "./Body";
 import RectangularBody from "./RectangularBody";
 import CircularBodyDefinition from "./CircularBodyDefinition";
 import Shape from "../../rendering/shapes/Shape";
-import Circle from "../../rendering/shapes/Circle";
+import CircleShape from "../../rendering/shapes/CircleShape";
 import CollisionArea from "../collision/CollisionArea";
 import CollisionManifold from "../collision/CollisionManifold";
 import CollisionJumpTable from "../collision/CollisionJumpTable";
@@ -28,7 +28,7 @@ export default class CircularBody extends Body implements CollisionArea {
         this._angularAcceleration = this.torque * this._invMomentOfInertia;
         this._oldAngularAcceleration = this._angularAcceleration;
 
-        this.shape = new Circle(vec3.fromValues(this.position[0], this.position[1],1.0), this._radius);
+        this.shape = new CircleShape(vec3.fromValues(this.position[0], this.position[1],1.0), this._radius);
     }
 
     public calculateMoI() :number {
