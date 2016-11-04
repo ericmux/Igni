@@ -59,7 +59,7 @@ export default class CircularBody extends Body {
     }
 
     public extremeVertex(direction :vec2) {
-        return vec2.create();
+        return vec2.scaleAndAdd(vec2.create(), this.position, vec2.clone(direction), this._radius);
     }
 
     public project(direction :vec2) :[vec2, vec2] {

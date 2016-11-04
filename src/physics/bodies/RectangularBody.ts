@@ -97,7 +97,19 @@ export default class RectangularBody extends Body {
     }
 
     public extremeVertex(direction :vec2) {
-        return vec2.create();
+        let vertices :vec2[] = this.getWorldVertices();
+        if (vertices.length === 0) return null;
+
+        let max_dot :number = Number.NEGATIVE_INFINITY;
+        let max_vertex :vec2 = null;
+        vertices.forEach((vertex :vec2) => {
+            let dot :number = vec2.dot(vertex, direction);
+            if (dot > max_dot) {
+                max_dot = dot;
+                max_vertex = vertex;
+            }
+        });
+        return vec2.clone(max_vertex);
     }
 
     public project(direction :vec2) :[vec2, vec2] {
