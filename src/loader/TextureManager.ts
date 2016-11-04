@@ -3,7 +3,7 @@ import {IDictionary} from "../utils/Dictionary";
 import {Resource, ILoader} from "./Loader";
 import Sprite from "../rendering/shapes/Sprite";
 
-export default class TextureManager {
+export class TextureManager {
     
     protected _loader : ILoader;
     protected _textures : IDictionary<string, WGLTexture>;

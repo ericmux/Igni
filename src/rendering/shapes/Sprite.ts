@@ -2,7 +2,7 @@ import ColorSquare from "./Square";
 import {vec2, vec3, vec4, mat4} from "gl-matrix"
 import DrawCall from "../shaders/DrawCall";
 import {SpriteDrawCall} from "../shaders/SpriteShader";
-import TextureManager from "../../loader/TextureManager";
+import {TextureManager} from "../../loader/TextureManager";
 import {WGLTexture} from "../../loader/TextureManager";
 
 export default class Sprite extends ColorSquare {
@@ -20,12 +20,12 @@ export default class Sprite extends ColorSquare {
     private _texture : WGLTexture;
     private _maintainAspect : boolean; 
 
-    constructor (position :vec3, width : number, height : number, textureName : string, tintColor : vec4) {    
-        super (position, width, height);
+    constructor (position :vec3, textureName : string, width? : number, height? : number, tintColor? : vec4) {    
+        super (position, width || 100, height || 100);
         
         this._texture = Sprite.TextureManager.getTexture (textureName);
         this._texturePath = textureName;
-        this.color = tintColor;
+        this.color = tintColor || vec4.fromValues (1,1,1,1);
         this._maintainAspect = true;
 
         this._uv = [];
