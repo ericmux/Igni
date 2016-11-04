@@ -3,14 +3,12 @@ import Body from "./Body";
 import RectangularBody from "./RectangularBody";
 import CircularBodyDefinition from "./CircularBodyDefinition";
 import Shape from "../../rendering/shapes/Shape";
-import Circle from "../../rendering/shapes/Circle";
+import CircleShape from "../../rendering/shapes/CircleShape";
 import CollisionArea from "../collision/CollisionArea";
 import CollisionManifold from "../collision/CollisionManifold";
 import CollisionJumpTable from "../collision/CollisionJumpTable";
 
-// TO DO: Make all constructors take body definitions. BODY FACTORY.
-
-export default class CircularBody extends Body implements CollisionArea {
+export default class CircularBody extends Body {
 
     private _radius :number;
 
@@ -28,19 +26,15 @@ export default class CircularBody extends Body implements CollisionArea {
         this._angularAcceleration = this.torque * this._invMomentOfInertia;
         this._oldAngularAcceleration = this._angularAcceleration;
 
-        this.shape = new Circle(vec3.fromValues(this.position[0], this.position[1],1.0), this._radius);
+        this.shape = new CircleShape(vec3.fromValues(this.position[0], this.position[1],1.0), this._radius);
     }
 
     public calculateMoI() :number {
         return 0.5 * this.mass * Math.pow(this._radius, 2);
     }
 
-    public center() {
-        return this.position;
-    }
-
     public contains(point :vec2) :boolean {
-        return vec2.sqrLen(vec2.sub(vec2.create(), point, this.center())) <= this._radius*this._radius;
+        return vec2.sqrLen(vec2.sub(vec2.create(), point, this.position)) <= this._radius*this._radius;
     }
 
     public collide(body :Body) :CollisionManifold {
@@ -52,6 +46,26 @@ export default class CircularBody extends Body implements CollisionArea {
         }
         return null;
     }
+
+
+    public getWorldVertices() :vec2[] {
+        // circles have no vertices.
+        return [];
+    }
+
+    public getWorldAxes() :vec2[] {
+        // circles have an infinite amount of axes.
+        return [];
+    }
+
+    public extremeVertex(direction :vec2) {
+        return vec2.scaleAndAdd(vec2.create(), this.position, vec2.clone(direction), this._radius);
+    }
+
+    public project(direction :vec2) :[vec2, vec2] {
+        return [vec2.create(), vec2.create()];
+    }
+
 
     public get radius() :number {
         return this._radius;

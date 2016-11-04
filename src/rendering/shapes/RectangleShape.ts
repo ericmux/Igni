@@ -3,7 +3,7 @@ import {vec2, vec3, vec4, mat4} from "gl-matrix"
 import DrawCall from "../shaders/DrawCall";
 import {FlatColorDrawCall} from "../shaders/FlatColorShader";
 
-export default class ColorSquare extends Shape {
+export default class RectangleShape extends Shape {
     private _width  : number;
     private _height : number;
     private _color  : vec4;

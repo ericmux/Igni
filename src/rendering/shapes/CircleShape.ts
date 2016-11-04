@@ -3,7 +3,7 @@ import {vec2, vec3, vec4, mat4} from "gl-matrix"
 import DrawCall from "../shaders/DrawCall";
 import {FlatColorCircleDrawCall} from "../shaders/FlatColorCircleShader";
 
-export default class Circle extends Shape {
+export default class CircleShape extends Shape {
     private radius : number;
     private color  : vec4;
 
