@@ -8,7 +8,7 @@ import CollisionArea from "../collision/CollisionArea";
 import CollisionManifold from "../collision/CollisionManifold";
 import CollisionJumpTable from "../collision/CollisionJumpTable";
 
-export default class RectangularBody extends Body implements CollisionArea {
+export default class RectangularBody extends Body {
 
     private _width :number;
     private _height :number;
@@ -49,10 +49,6 @@ export default class RectangularBody extends Body implements CollisionArea {
 
     public calculateMoI() :number {
         return (this.mass / 12) * (this._height*this._height + this._width*this._width);
-    }
-
-    public center() {
-        return this.position;
     }
 
     public contains(point :vec2) :boolean {

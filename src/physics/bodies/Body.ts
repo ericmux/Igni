@@ -112,8 +112,6 @@ abstract class Body implements CollisionArea {
 
     public abstract getWorldVertices() :vec2[];
 
-    public abstract center() :vec2;
-
     public abstract contains(point :vec2) :boolean;
 
     public abstract collide(body :Body) :CollisionManifold;

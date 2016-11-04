@@ -8,9 +8,7 @@ import CollisionArea from "../collision/CollisionArea";
 import CollisionManifold from "../collision/CollisionManifold";
 import CollisionJumpTable from "../collision/CollisionJumpTable";
 
-// TO DO: Make all constructors take body definitions. BODY FACTORY.
-
-export default class CircularBody extends Body implements CollisionArea {
+export default class CircularBody extends Body {
 
     private _radius :number;
 
@@ -35,12 +33,8 @@ export default class CircularBody extends Body implements CollisionArea {
         return 0.5 * this.mass * Math.pow(this._radius, 2);
     }
 
-    public center() {
-        return this.position;
-    }
-
     public contains(point :vec2) :boolean {
-        return vec2.sqrLen(vec2.sub(vec2.create(), point, this.center())) <= this._radius*this._radius;
+        return vec2.sqrLen(vec2.sub(vec2.create(), point, this.position)) <= this._radius*this._radius;
     }
 
     public collide(body :Body) :CollisionManifold {
