@@ -51,6 +51,8 @@ export class WGLRenderer implements Renderer {
 
 		//  Setup VBO.
         this.vVBO = WGLRenderer.gl.createBuffer();
+		//  Bind VBO
+        WGLRenderer.gl.bindBuffer(WGLRenderer.gl.ARRAY_BUFFER, this.vVBO);
 
 		// Set up default static camera.
 		this.camera = new Camera (vec3.fromValues(0,0,0), 1,1);
