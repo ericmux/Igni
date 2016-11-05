@@ -1,14 +1,15 @@
 import {vec2, vec4, mat4} from "gl-matrix";
 import Shader from "./Shader";
 import DrawCall from "./DrawCall";
+import {WGLTexture} from "../../loader/TextureManager";
 
 export class SpriteDrawCall extends DrawCall {
     public color: vec4;
     public vertices: vec4[]; // data to draw (must have length 4).
     public uv: vec2[];
-    public texture: WebGLTexture;
+    public texture: WGLTexture;
 
-    constructor (projection : mat4, view : mat4, model : mat4, color : vec4, vertices : vec4[], uv : vec2[], texture : WebGLTexture) {
+    constructor (projection : mat4, view : mat4, model : mat4, color : vec4, vertices : vec4[], uv : vec2[], texture : WGLTexture) {
         super (projection, view, model);
 
         this.color = color;
@@ -67,9 +68,8 @@ export class SpriteShader extends Shader {
         this.gl_context.enableVertexAttribArray(vTexCoord);
 
         //  Bind Texture
-        this.gl_context.activeTexture(this.gl_context.TEXTURE0);
-        this.gl_context.bindTexture(this.gl_context.TEXTURE_2D, draw_call.texture);
-        this.gl_context.uniform1i(this.gl_context.getUniformLocation(this.program, "texture"), 0);
+        this.gl_context.activeTexture (this.gl_context.TEXTURE0 + draw_call.texture.imageUnit);
+        this.gl_context.uniform1i(this.gl_context.getUniformLocation(this.program, "texture"), draw_call.texture.imageUnit);
 
         // Execute draw call.
         this.gl_context.drawArrays(this.gl_context.TRIANGLE_FAN, 0, draw_call.vertices.length);

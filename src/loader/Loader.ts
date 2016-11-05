@@ -36,7 +36,8 @@ export class Resource implements IDisposable {
     disposed : boolean;
     public dispose () : void {
         if (this.disposed) return;
-        this._data = null;   
+        this._data = null;
+        this.disposed = true;   
     }
 
     public onComplete (callback : (loaded : {[propName : string] : Resource}) => void) : void {
@@ -69,7 +70,6 @@ export class Resource implements IDisposable {
 
     //  Private loader functions
     private _loadImage (path : string) {
-        console.log ("_loadIMage" + path);
         let imageHash : any = require.context('../../images', true, /.(gif|png|jpe?g|svg)$/) (path);
 
         this._data = new Image ();

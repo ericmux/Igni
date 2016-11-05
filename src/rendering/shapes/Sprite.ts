@@ -46,6 +46,8 @@ export default class Sprite extends RectangleShape {
             }
         }
 
+        Sprite.TextureManager.updateTextureImageUnit (this._texturePath);
+
         //  TODO Make it use a default all white texture instead of returning
         if (this._texture == null) return;
 
