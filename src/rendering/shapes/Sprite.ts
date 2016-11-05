@@ -46,6 +46,7 @@ export default class Sprite extends RectangleShape {
             if (this._texture != null && this._maintainAspect) {
                 this.width = this._texture.rawWidthPx / this._texture.pixelsPerUnit;
                 this.height = this._texture.rawHeightPx / this._texture.pixelsPerUnit;
+                this.calculateVertices ();
             }
         }
 
@@ -58,7 +59,7 @@ export default class Sprite extends RectangleShape {
         this._spriteDrawCall.view = view;
         this._spriteDrawCall.model = this.modelMatrix;
         this._spriteDrawCall.color = this.color;
-        this._spriteDrawCall.vertices = this.calculateVertices ();
+        this._spriteDrawCall.vertices = this._vertices;
         this._spriteDrawCall.uv = this._uv;
         this._spriteDrawCall.texture = this._texture;
 
