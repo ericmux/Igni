@@ -7,12 +7,16 @@ export default class RectangleShape extends Shape {
     private _width  : number;
     private _height : number;
     private _color  : vec4;
+    private _flatColorDrawCall : FlatColorDrawCall;
 
     constructor (position :vec3, width : number, height : number) {
         super(position);
+        
         this._color = vec4.fromValues (1.0, 0.0, 0.0, 1.0);
         this._width = width;
         this._height = height;
+
+        this._flatColorDrawCall = new FlatColorDrawCall (null, null, null, null, null);
     }
 
     protected calculateVertices () : vec4[] {
@@ -35,11 +39,14 @@ export default class RectangleShape extends Shape {
     }
 
     public toDrawCall (projection : mat4, view : mat4) : DrawCall {
-            return new FlatColorDrawCall (projection,
-                                          view,
-                                          this.modelMatrix,
-                                          this._color,
-                                          this.calculateVertices());
+            
+        this._flatColorDrawCall.projection = projection;
+        this._flatColorDrawCall.view = view;
+        this._flatColorDrawCall.model = this.modelMatrix;
+        this._flatColorDrawCall.color = this._color;
+        this._flatColorDrawCall.vertices = this.calculateVertices();
+
+        return this._flatColorDrawCall;
     }
 
 

@@ -18,7 +18,8 @@ export default class Sprite extends RectangleShape {
     private _texturePath : string;
     private _uv : vec2[];
     private _texture : WGLTexture;
-    private _maintainAspect : boolean; 
+    private _maintainAspect : boolean;
+    private _spriteDrawCall : SpriteDrawCall;
 
     constructor (position :vec3, textureName : string, width? : number, height? : number, tintColor? : vec4) {    
         super (position, width || 100, height || 100);
@@ -33,6 +34,8 @@ export default class Sprite extends RectangleShape {
         this._uv.push (vec2.fromValues (0.0, 1.0));
         this._uv.push (vec2.fromValues (1.0, 1.0));
         this._uv.push (vec2.fromValues (1.0, 0.0));
+
+        this._spriteDrawCall = new SpriteDrawCall (null, null, null, null, null, null, null);
     }
 
     public toDrawCall (projection : mat4, view : mat4) : DrawCall {
@@ -51,13 +54,15 @@ export default class Sprite extends RectangleShape {
         //  TODO Make it use a default all white texture instead of returning
         if (this._texture == null) return;
 
-        return new SpriteDrawCall (projection,
-                                        view,
-                                        this.modelMatrix,
-                                        this.color,
-                                        this.calculateVertices(),
-                                        this._uv,
-                                        this._texture);
+        this._spriteDrawCall.projection = projection;
+        this._spriteDrawCall.view = view;
+        this._spriteDrawCall.model = this.modelMatrix;
+        this._spriteDrawCall.color = this.color;
+        this._spriteDrawCall.vertices = this.calculateVertices ();
+        this._spriteDrawCall.uv = this._uv;
+        this._spriteDrawCall.texture = this._texture;
+
+        return this._spriteDrawCall; 
     }
 
 }
