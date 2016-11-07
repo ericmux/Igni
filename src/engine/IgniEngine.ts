@@ -5,6 +5,7 @@ import Camera from "../rendering/camera/Camera";
 import {WGLRenderer, WGLOptions} from "../rendering/renderers/WGLRenderer";
 import Body from "../physics/bodies/Body";
 import World from "../physics/World";
+import {Loader} from "../loader/Loader";
 
 export default class IgniEngine implements Engine {
 
@@ -21,11 +22,16 @@ export default class IgniEngine implements Engine {
     private physicsUpdatePeriod : number;
     private lastPhysicsTick : number;
 
+    //  Resource Management
+    public loader : Loader; 
+
     constructor(canvas :HTMLCanvasElement, camera :Shape) {
         this.world = new World();
         this.renderer = new WGLRenderer (canvas, <WGLOptions> { depth_test: false, blend: true });
         this.renderer.setCamera(camera);
         
+        this.loader = new Loader ();
+
         if (this.bodylessShapes.indexOf(camera) === -1){
             this.addShape(camera);
         }

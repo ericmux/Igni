@@ -16,23 +16,64 @@ import VelocityVerletIntegrator from "./physics/integration/VelocityVerletIntegr
 import SemiImplicitEulerIntegrator from "./physics/integration/SemiImplicitEulerIntegrator";
 import ForwardEulerIntegrator from "./physics/integration/ForwardEulerIntegrator";
 
-let canvas : HTMLCanvasElement;
-let game : IgniEngine;
+import {TextureManager, WGLTexture} from "./loader/TextureManager";
+import {Loader} from "./loader/Loader";
+import {Dictionary} from "./utils/Dictionary";
+import Sprite from "./rendering/shapes/Sprite";
 
+//  Engine mandatory
+let canvas : HTMLCanvasElement;
+let IGNI : IgniEngine;
+
+//  Resource Management
+let textureManager : TextureManager;
+
+//  Global helping gizmos
 let yAxis : RectangleShape = new RectangleShape(vec3.fromValues(0,0,0.0), 1, 773);
 let xAxis : RectangleShape = new RectangleShape(vec3.fromValues(0,0,0.0), 773, 1);
 xAxis.onUpdate((shape: Shape) => {});
 yAxis.onUpdate((shape: Shape) => {});
 
-window.onload = () => {
-    canvas = <HTMLCanvasElement> document.getElementById("gl-canvas"); 
-    let camera : Camera = new Camera(vec3.fromValues(0,0,0), 1, 1);
-    camera.onUpdate((camera : Camera, deltaTime : number) => {});
 
-    game = new IgniEngine(canvas, camera);
-    game.addShape(xAxis);
-    game.addShape(yAxis);
 
+let loadAssets = function () {
+    
+    IGNI.loader.onLoadResource.add (textureManager.onLoadResource.bind (textureManager));
+    IGNI.loader.onCompleteSignal.once (onAssetsLoaded);
+
+    //  These images are 64x64 px
+    IGNI.loader.enqueue ("./1.png", {pixelsPerUnit : 6.4});
+    IGNI.loader.enqueue ("./2.png", {pixelsPerUnit : 3.2});
+    IGNI.loader.enqueue ("./3.png", {pixelsPerUnit : 1});
+
+    IGNI.loader.load ();
+};
+
+let onAssetsLoaded = function () {
+    //  Maybe do some level prepocessing ...
+
+    //  then,
+    setLevel ();
+};
+
+let setLevel = function () {
+
+    let circle = new CircleShape (vec3.fromValues (0,100,0), 10);
+    circle.onUpdate ((shape : Shape, deltaTime : number) => {});
+    IGNI.addShape (circle);
+
+    //  Add some sprites
+    let sprites : Sprite[] = [];
+    let bottom = -300;
+    let left = -300;
+    let passo = 300;
+    for (let i = 1; i <= 3; ++i) {
+        let path = "./"+i+".png";
+        let ii = i-1;
+        sprites.push (new Sprite (vec3.fromValues(left + ii * passo, bottom + ii * passo,0), path));
+        sprites[ii].onUpdate ((shape : Shape, deltaTime : number) => {});
+        IGNI.addShape (sprites[ii]);
+    }
 
     let checkContainmentFunction = (point :vec2) => {
         return (body: Body, deltaTime: number) => {
@@ -90,14 +131,29 @@ window.onload = () => {
         torque: 5.0
     });
     body4.onUpdate(checkContainmentFunction(vec2.fromValues(0,0)));
-    game.addBody(body4);
+    IGNI.addBody(body4);
+    IGNI.start ();
+};
 
-    game.start();
-}
+let onWindowLoad = function () {
+    canvas = <HTMLCanvasElement> document.getElementById("gl-canvas"); 
+    let camera : Camera = new Camera(vec3.fromValues(0,0,0), 1, 1);
+    camera.onUpdate((camera : Camera, deltaTime : number) => {});
 
-window.onresize = () => {
-    game.resizeToCanvas();
+    IGNI = new IgniEngine(canvas, camera);
+    IGNI.addShape(xAxis);
+    IGNI.addShape(yAxis);
+    
+    textureManager = new TextureManager (new Dictionary<string, WGLTexture> ());
+
+    loadAssets ();
+};
+
+let onWindowResize = function () {
+    IGNI.resizeToCanvas();
     xAxis.width = canvas.width;
     yAxis.height = canvas.height;
-}
+};
 
+window.addEventListener("load", onWindowLoad, false);
+window.addEventListener ("resize", onWindowResize, false);

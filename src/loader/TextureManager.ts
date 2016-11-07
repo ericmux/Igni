@@ -82,10 +82,10 @@ export class TextureManager {
         }
 
         let resourceArgs = resource.args;
-
+    
         //  Prefer more specific pixelPerUnit
         let opts = <TextureOptions> {
-            pixelsPerUnit : resourceArgs.pixelPerUnit || this._defaultOpts.pixelsPerUnit,
+            pixelsPerUnit : resourceArgs.pixelsPerUnit || this._defaultOpts.pixelsPerUnit,
             colorMode : this._defaultOpts.colorMode,
             dataType : this._defaultOpts.dataType,
             minFilter : this._defaultOpts.minFilter,

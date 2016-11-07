@@ -19,6 +19,7 @@ export default class Sprite extends RectangleShape {
     private _uv : vec2[];
     private _texture : WGLTexture;
     private _maintainAspect : boolean;
+    private _aspectSet : boolean;
     private _spriteDrawCall : SpriteDrawCall;
 
     constructor (position :vec3, textureName : string, width? : number, height? : number, tintColor? : vec4) {    
@@ -28,6 +29,7 @@ export default class Sprite extends RectangleShape {
         this._texturePath = textureName;
         this.color = tintColor || vec4.fromValues (1,1,1,1);
         this._maintainAspect = true;
+        this._aspectSet = false;
 
         this._uv = [];
         this._uv.push (vec2.fromValues (0.0, 0.0));
@@ -39,21 +41,17 @@ export default class Sprite extends RectangleShape {
     }
 
     public toDrawCall (projection : mat4, view : mat4) : DrawCall {
-        //  TODO Refactor engine so DrawCalls are possible just after loading resources
-        if (this._texture == null) {
-            this._texture = Sprite.TextureManager.getTexture (this._texturePath);
-            
-            if (this._texture != null && this._maintainAspect) {
-                this.width = this._texture.rawWidthPx / this._texture.pixelsPerUnit;
-                this.height = this._texture.rawHeightPx / this._texture.pixelsPerUnit;
-                this.calculateVertices ();
-            }
+        if (!this._aspectSet && this._maintainAspect && this._texture != null) {
+            this.width = this._texture.rawWidthPx / this._texture.pixelsPerUnit;
+            this.height = this._texture.rawHeightPx / this._texture.pixelsPerUnit;
+            this.calculateVertices ();
+            this._aspectSet = true;
         }
 
         Sprite.TextureManager.updateTextureImageUnit (this._texturePath);
 
         //  TODO Make it use a default all white texture instead of returning
-        if (this._texture == null) return;
+        // if (this._texture == null) return;
 
         this._spriteDrawCall.projection = projection;
         this._spriteDrawCall.view = view;

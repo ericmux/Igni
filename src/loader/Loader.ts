@@ -126,6 +126,10 @@ export class Loader implements ILoader {
     private _resources : {[propName : string] : Resource};
     private _resourcesNumber : number;
 
+    public get loading () : boolean {
+        return this._loading;
+    }
+
     /**
      * When Loader finishes all resources 
      */
