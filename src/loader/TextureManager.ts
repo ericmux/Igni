@@ -1,27 +1,25 @@
 import {WGLRenderer} from "../rendering/renderers/WGLRenderer";
 import {IDictionary} from "../utils/Dictionary";
-import {Resource, ILoader} from "./Loader";
+import {Resource, RESOURCE_TYPE} from "./Loader";
 import Sprite from "../rendering/shapes/Sprite";
 
 //  TODO Refactor texture caching in a external API
+//  TODO The way it access gl context ACTIVE_TEXTURE, it should be a singleton.. 
 export class TextureManager {
     
-    protected _loader : ILoader;
     protected _textures : IDictionary<string, WGLTexture>;
-    private _loaded : boolean;
     private _defaultOpts : TextureOptions;
+    
     private _maxTextureImageUnits : number;
-
     private _texImageUnits : WGLTexture [];
     private _currentImageUnit : number;
 
     private _imageUnitOverflow : boolean;
 
-    constructor (initialState : IDictionary<string, WGLTexture>,
-                 loader : ILoader) {
+    constructor (initialState : IDictionary<string, WGLTexture>) {
         
         if (initialState == null) throw new Error ("TextureManager can't be initialized with null texture Dictionary");
-        
+
         Sprite.TextureManager = this;
 
         //  Query for maximum WebGL imeplementation image units supported
@@ -30,7 +28,6 @@ export class TextureManager {
         this._maxTextureImageUnits =  queriedUnits > 8 ?
             queriedUnits : 8; 
 
-
         //  Texture caching
         this._currentImageUnit = 0;
         this._texImageUnits = Array(this._maxTextureImageUnits);
@@ -38,8 +35,6 @@ export class TextureManager {
             this._texImageUnits.push (null);
 
 
-        this._loader = loader;
-        this._loaded = false;
         this._textures = initialState;
         this._defaultOpts = <TextureOptions> {
                               pixelsPerUnit : 10,
@@ -74,28 +69,30 @@ export class TextureManager {
         return  this._textures.getValue (path);
     }
 
-    public queueResource (path : string, opts? : TextureOptions) {
-        if (this._textures.contains (path))
-            alert ("You are overrinding texture " + path + " at TextureManager");
+    public onLoadResource (args : {resource : Resource, [propName : string] : any}) {
 
-        opts = opts || this._defaultOpts;
+        let resource = args.resource;
+    
+        if (resource.type != RESOURCE_TYPE.IMAGE || resource.data == null || resource.disposed) {
+            return;
+        }
 
-        this._loader.enqueue (path);
-    }
+        if (this._textures.contains (resource.path)) {
+            alert ("You are overrinding texture " + resource.path + " at TextureManager");
+        }
 
-    public loadTextures (opts? : TextureOptions) {
-        let self = this;
+        let resourceArgs = resource.args;
 
-        opts = opts || this._defaultOpts;
+        //  Prefer more specific pixelPerUnit
+        let opts = <TextureOptions> {
+            pixelsPerUnit : resourceArgs.pixelPerUnit || this._defaultOpts.pixelsPerUnit,
+            colorMode : this._defaultOpts.colorMode,
+            dataType : this._defaultOpts.dataType,
+            minFilter : this._defaultOpts.minFilter,
+            magFilter : this._defaultOpts.magFilter
+        };
 
-        this._loader.onComplete ( (resources : {[propName : string] : Resource}) : void => {
-            
-            for (var prop in resources) {
-                self.createTexture (prop, resources[prop].data, opts);
-            }
-        });
-
-        this._loader.load ();
+        this.createTexture (resource.path, resource.data, opts);      
     }
 
     private createTexture (path : string, image : HTMLImageElement, opts : TextureOptions) : WGLTexture {

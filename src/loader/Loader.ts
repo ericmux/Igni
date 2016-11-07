@@ -2,9 +2,10 @@ import IDisposable from "../utils/IDisposable";
 import {Signal} from "../utils/Signal";
 
 export interface ILoader {
-    enqueue (path : string) : void;
-    onComplete (callback : (resources : {[propName : string] : Object}) => void) : void;
+    enqueue (path : string, args? : any) : void;
     load () : void;
+    onLoadResource : Signal;
+    onCompleteSignal : Signal;
 }
 
 export enum RESOURCE_TYPE {
@@ -15,33 +16,43 @@ export class Resource implements IDisposable {
     private _data : HTMLImageElement; // | HtmlAudioElement | HTMLsomething
     private _path : string;
     private _isComplete : boolean;
-    private _onCompleteSignal : Signal;
     private _type : RESOURCE_TYPE;
+    private _args : any;
 
-    constructor (path : string) {
+    //  Signal dispatched when resource is completed
+    public onCompleteResource : Signal;
+
+    constructor (path : string, args? : any) {
         this._data = null;
         this._isComplete = false;
         this._path = path;
-        this._onCompleteSignal = new Signal ();
+        this._args = args;
         this.disposed = false;
+        this.onCompleteResource = new Signal ();
     }
     
+    public get path () : string {
+        return this._path;
+    }
+
     public get data () : HTMLImageElement {
         return this._data;
     }
     
+    public get args () : any {
+        return this._args;
+    }
+
+    public get type () : RESOURCE_TYPE {
+        return this._type;
+    }
 
     //  IDisposable 
-
     disposed : boolean;
     public dispose () : void {
         if (this.disposed) return;
         this._data = null;
         this.disposed = true;   
-    }
-
-    public onComplete (callback : (loaded : {[propName : string] : Resource}) => void) : void {
-        this._onCompleteSignal.once (callback);
     }
 
     public load () {
@@ -83,7 +94,7 @@ export class Resource implements IDisposable {
 
     private _complete () {
         this._isComplete = true;
-        this._onCompleteSignal.dispatch ({resource : this});
+        this.onCompleteResource.dispatch ({resource : this});
     }
 
     private _error () {
@@ -109,23 +120,33 @@ export class Resource implements IDisposable {
 
 export class Loader implements ILoader {
 
-    private _queue : {path : string} [];
+    private _queue : {path : string, args : any} [];
     private _loading : boolean;
     private _completed : boolean;
-    private _completeLoadSignal : Signal;
     private _resources : {[propName : string] : Resource};
     private _resourcesNumber : number;
+
+    /**
+     * When Loader finishes all resources 
+     */
+    public onCompleteSignal : Signal;
+
+    /**
+     * When Loader finishes a single resource 
+     */  
+    public onLoadResource : Signal;
 
     constructor () {
         this._queue = [];
         this._completed = false;
         this._loading = false;
-        this._completeLoadSignal = new Signal ();
         this._resources = {};
         this._resourcesNumber = 0;
+        this.onCompleteSignal = new Signal ();
+        this.onLoadResource = new Signal ();
     }
 
-    public enqueue (path : string) : void {
+    public enqueue (path : string, args? : any) : void {
     
         if (this._loading || this._completed) throw new Error ("Can't enqueue resources while loading or after completed");
 
@@ -136,11 +157,7 @@ export class Loader implements ILoader {
             return;
         }
 
-        this._queue.push ({"path" : path});
-    }
-
-    public onComplete (callback : (resources : {[propName : string] : Object}) => void) : void {
-        this._completeLoadSignal.once (callback);
+        this._queue.push ({"path" : path, "args" : args});
     }
 
     public reset (keepCache = false) {
@@ -148,7 +165,8 @@ export class Loader implements ILoader {
         this._completed = false;
         this._loading = false;
         this._resourcesNumber = 0;
-        this._completeLoadSignal.detachAll ();
+        this.onCompleteSignal.detachAll ();
+        this.onLoadResource.detachAll ();
 
         if (!keepCache) {
             for (var prop in this._resources) {
@@ -169,18 +187,23 @@ export class Loader implements ILoader {
         for (let i = 0; i < this._queue.length; ++i) {
 
             let queued = this._queue[i];
-            this._resources[queued.path] = new Resource (queued.path);
-            this._resources[queued.path].onComplete (this._onLoadResource.bind (this));
+            this._resources[queued.path] = new Resource (queued.path, queued.args);
+            this._resources[queued.path].onCompleteResource.once (this._onLoadResource.bind (this));
             this._resources[queued.path].load ();
         }
     }
 
-    private _onLoadResource (loaded : {resource : Resource}) {
-        --this._resourcesNumber;        
-        
+    private _onLoadResource (loaded : {resource :  Resource, [propName : string] : any}) {
+        --this._resourcesNumber;
+
+        //  Run resource consumers
+        if (this.onLoadResource.hasBindings ()) {
+            this.onLoadResource.dispatch (loaded);
+        }
+
         if (this._resourcesNumber == 0) {
-            
-            this._completeLoadSignal.dispatch (this._resources);
+            if (this.onCompleteSignal.hasBindings ())
+                this.onCompleteSignal.dispatch (this._resources);
             this._completed = true;
             this._loading = false;
         }
