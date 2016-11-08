@@ -120,7 +120,7 @@ abstract class Body implements CollisionArea {
 
     public abstract extremeVertex(direction :vec2) :vec2;
     
-    public abstract project(direction :vec2) :[vec2, vec2];
+    public abstract project(direction :vec2) :[number, number];
 
     protected updateTransforms() :void {
         let q : quat = quat.create ();
