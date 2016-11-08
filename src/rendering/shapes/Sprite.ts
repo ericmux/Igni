@@ -2,7 +2,7 @@ import RectangleShape from "./RectangleShape";
 import {vec2, vec3, vec4, mat4} from "gl-matrix"
 import DrawCall from "../shaders/DrawCall";
 import {SpriteDrawCall} from "../shaders/SpriteShader";
-import TextureManager from "../../loader/TextureManager";
+import {TextureManager} from "../../loader/TextureManager";
 import {WGLTexture} from "../../loader/TextureManager";
 
 export default class Sprite extends RectangleShape {
@@ -18,44 +18,50 @@ export default class Sprite extends RectangleShape {
     private _texturePath : string;
     private _uv : vec2[];
     private _texture : WGLTexture;
-    private _maintainAspect : boolean; 
+    private _maintainAspect : boolean;
+    private _aspectSet : boolean;
+    private _spriteDrawCall : SpriteDrawCall;
 
-    constructor (position :vec3, width : number, height : number, textureName : string, tintColor : vec4) {    
-        super (position, width, height);
+    constructor (position :vec3, textureName : string, width? : number, height? : number, tintColor? : vec4) {    
+        super (position, width || 100, height || 100);
         
         this._texture = Sprite.TextureManager.getTexture (textureName);
         this._texturePath = textureName;
-        this.color = tintColor;
+        this.color = tintColor || vec4.fromValues (1,1,1,1);
         this._maintainAspect = true;
+        this._aspectSet = false;
 
         this._uv = [];
         this._uv.push (vec2.fromValues (0.0, 0.0));
         this._uv.push (vec2.fromValues (0.0, 1.0));
         this._uv.push (vec2.fromValues (1.0, 1.0));
         this._uv.push (vec2.fromValues (1.0, 0.0));
+
+        this._spriteDrawCall = new SpriteDrawCall (null, null, null, null, null, null, null);
     }
 
     public toDrawCall (projection : mat4, view : mat4) : DrawCall {
-        //  TODO Refactor engine so DrawCalls are possible just after loading resources
-        if (this._texture == null) {
-            this._texture = Sprite.TextureManager.getTexture (this._texturePath);
-            
-            if (this._texture != null && this._maintainAspect) {
-                this.width = this._texture.rawWidthPx / this._texture.pixelsPerUnit;
-                this.height = this._texture.rawHeightPx / this._texture.pixelsPerUnit;
-            }
+        if (!this._aspectSet && this._maintainAspect && this._texture != null) {
+            this.width = this._texture.rawWidthPx / this._texture.pixelsPerUnit;
+            this.height = this._texture.rawHeightPx / this._texture.pixelsPerUnit;
+            this.calculateVertices ();
+            this._aspectSet = true;
         }
 
-        //  TODO Make it use a default all white texture instead of returning
-        if (this._texture == null) return;
+        Sprite.TextureManager.updateTextureImageUnit (this._texturePath);
 
-        return new SpriteDrawCall (projection,
-                                        view,
-                                        this.modelMatrix,
-                                        this.color,
-                                        this.calculateVertices(),
-                                        this._uv,
-                                        this._texture);
+        //  TODO Make it use a default all white texture instead of returning
+        // if (this._texture == null) return;
+
+        this._spriteDrawCall.projection = projection;
+        this._spriteDrawCall.view = view;
+        this._spriteDrawCall.model = this.modelMatrix;
+        this._spriteDrawCall.color = this.color;
+        this._spriteDrawCall.vertices = this._vertices;
+        this._spriteDrawCall.uv = this._uv;
+        this._spriteDrawCall.texture = this._texture;
+
+        return this._spriteDrawCall; 
     }
 
 }

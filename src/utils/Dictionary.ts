@@ -7,7 +7,7 @@ export interface IDictionary<K extends number | string, V> {
     getValue (key : K) : V;
 }
 
-export default class Dictionary<K extends number | string, V> implements IDictionary<K, V>  {
+export class Dictionary<K extends number | string, V> implements IDictionary<K, V>  {
 
     private _keys : K[];
     private _values : V[];

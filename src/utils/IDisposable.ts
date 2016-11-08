@@ -1,6 +1,6 @@
 interface IDisposable {
     dispose () : void;
-    _disposed : boolean;
+    disposed : boolean;
 }
 
 export default IDisposable;

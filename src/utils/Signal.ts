@@ -10,7 +10,7 @@ export class SignalBind {
     private _dispatched : boolean;
 
     public dispatch (owner : Signal, args? : {[propName : string] : Object}) : boolean {
-        if (this._dispatched) return false;
+        if (this._once && this._dispatched) return false;
         if (owner !== this._owner) throw new Error ("SignalBind dispatched not by its owner");
         
         this._eventHandler(args);
@@ -148,7 +148,7 @@ export class Signal {
             bind.next = this._bindingsTail.next;
             this._bindingsTail = bind;
         }
-        
+
         bind.once = once; 
         bind.owner = this;
 
