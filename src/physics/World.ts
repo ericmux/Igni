@@ -40,9 +40,7 @@ export default class World {
 
     public detectCollisions() {
         this._collisionManifolds = this._collisionDetector.detect(this._bodies);
-        console.log(this._collisionManifolds.length);
     }
-
 
     public get bodies() :Body[] {
         return this._bodies;

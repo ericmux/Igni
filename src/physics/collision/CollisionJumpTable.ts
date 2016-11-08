@@ -5,7 +5,6 @@ import CollisionManifold from "./CollisionManifold";
 
 export default class CollisionJumpTable {
     public static collideCircleCircle(bodyA :CircularBody, bodyB :CircularBody) :CollisionManifold {
-
             let max_distance : number = bodyA.radius + bodyB.radius;
             let posA : vec2 = vec2.clone(bodyA.position);
             let posB : vec2 = vec2.clone(bodyB.position);

@@ -16,6 +16,7 @@ import VelocityVerletIntegrator from "./physics/integration/VelocityVerletIntegr
 import SemiImplicitEulerIntegrator from "./physics/integration/SemiImplicitEulerIntegrator";
 import ForwardEulerIntegrator from "./physics/integration/ForwardEulerIntegrator";
 import ContainmentTestScene from "./scenes/ContainmentTestScene";
+import CollisiontestScene from "./scenes/CollisiontestScene";
 
 let canvas : HTMLCanvasElement;
 let game : IgniEngine;
@@ -29,10 +30,10 @@ window.onload = () => {
     game = new IgniEngine(canvas, camera);
 
     // Add axes for easy visualization.
-    axes = ContainmentTestScene.addAxes(game);
+    axes = CollisiontestScene.addAxes(game);
 
     // Containment test scene.
-    ContainmentTestScene.build(game);
+    CollisiontestScene.build(game);
 
     game.start();
 }
