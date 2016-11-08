@@ -85,6 +85,7 @@ export default class RectangularBody extends Body {
         return world_vertices;
     }
 
+    // TO DO(econrado): make it more generic to work for any polygon.
     public getWorldAxes() :vec2[] {
         this.updateTransforms();
         let world_axes :vec2[] = [];
@@ -112,8 +113,15 @@ export default class RectangularBody extends Body {
         return vec2.clone(max_vertex);
     }
 
-    public project(direction :vec2) :[vec2, vec2] {
-        return [vec2.create(), vec2.create()];
+    public project(direction :vec2) :[number, number] {
+        let world_vertices : vec2[] = this.getWorldVertices();
+        let min :number = Number.POSITIVE_INFINITY, max :number = Number.NEGATIVE_INFINITY;
+        world_vertices.forEach((vertex : vec2) => {
+            let dot_product :number = vec2.dot(vertex, direction);
+            max = Math.max(max, dot_product);
+            min = Math.min(min, dot_product);
+        });
+        return [min, max];
     }
 
 }

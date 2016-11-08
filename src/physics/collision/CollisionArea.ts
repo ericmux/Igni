@@ -8,7 +8,7 @@ interface CollisionArea {
     collide: (body :Body) => CollisionManifold;
     getWorldAxes: () => vec2[];
     extremeVertex: (direction :vec2) => vec2;
-    project: (direction :vec2) => [vec2, vec2];
+    project: (direction :vec2) => [number, number];
     getWorldVertices: () => vec2[];
 }
 export default CollisionArea;

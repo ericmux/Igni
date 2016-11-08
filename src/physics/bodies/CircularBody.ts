@@ -62,8 +62,9 @@ export default class CircularBody extends Body {
         return vec2.scaleAndAdd(vec2.create(), this.position, vec2.clone(direction), this._radius);
     }
 
-    public project(direction :vec2) :[vec2, vec2] {
-        return [vec2.create(), vec2.create()];
+    public project(direction :vec2) :[number, number] {
+        let dot_product :number = vec2.dot(this.position, direction);
+        return [dot_product - this._radius, dot_product + this._radius];
     }
 
 
