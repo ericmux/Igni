@@ -2,6 +2,7 @@ import {vec2} from "gl-matrix";
 import CircularBody from "../bodies/CircularBody";
 import RectangularBody from "../bodies/RectangularBody";
 import CollisionManifold from "./CollisionManifold";
+import SAT from "./SAT";
 
 export default class CollisionJumpTable {
     public static collideCircleCircle(bodyA :CircularBody, bodyB :CircularBody) :CollisionManifold {
@@ -28,6 +29,6 @@ export default class CollisionJumpTable {
     }
 
     public static collideRectangleRectangle(bodyA :RectangularBody, bodyB :RectangularBody) :CollisionManifold {
-        return null;
+        return SAT.testCollisionPolygonPolygon(bodyA, bodyB);
     }
 }
