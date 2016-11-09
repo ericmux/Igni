@@ -17,6 +17,7 @@ import SemiImplicitEulerIntegrator from "./physics/integration/SemiImplicitEuler
 import ForwardEulerIntegrator from "./physics/integration/ForwardEulerIntegrator";
 import ContainmentTestScene from "./scenes/ContainmentTestScene";
 import CollisiontestScene from "./scenes/CollisiontestScene";
+import TestScene from "./scenes/TestScene";
 
 import {TextureManager, WGLTexture} from "./loader/TextureManager";
 import {Loader} from "./loader/Loader";
@@ -79,8 +80,8 @@ let onWindowLoad = function () {
     IGNI = new IgniEngine(canvas, camera);
 
     // Add axes for easy visualization.
-    axes = CollisiontestScene.addAxes(IGNI);
-    
+    axes = TestScene.addAxes(IGNI);
+
     textureManager = new TextureManager (new Dictionary<string, WGLTexture> ());
 
     loadAssets ();
