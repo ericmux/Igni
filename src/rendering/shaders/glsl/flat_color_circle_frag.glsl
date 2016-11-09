@@ -8,8 +8,6 @@ varying vec4 fPosition;
 
 void main()
 {
-    if (length(fPosition.xyz) < radius)
-	    gl_FragColor = fColor;
-    else
-        gl_FragColor = vec4 (0.0, 0.0, 0.0, 0.0);
+    vec4 color = vec4(fColor.xyz,  1.0 - step(radius, length(fPosition.xy)));
+	gl_FragColor = color;
 }

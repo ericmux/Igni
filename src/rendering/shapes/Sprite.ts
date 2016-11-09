@@ -16,49 +16,36 @@ export default class Sprite extends RectangleShape {
     }
 
     private _texturePath : string;
-    private _uv : vec2[];
     private _texture : WGLTexture;
     private _maintainAspect : boolean;
-    private _aspectSet : boolean;
     private _spriteDrawCall : SpriteDrawCall;
 
-    constructor (position :vec3, textureName : string, width? : number, height? : number, tintColor? : vec4) {    
-        super (position, width || 100, height || 100);
+    constructor (position :vec3, textureName : string, width? : number, height? : number, tintColor? : vec4, maintainAspect? : boolean) {    
         
-        this._texture = Sprite.TextureManager.getTexture (textureName);
+        let texture = Sprite.TextureManager.getTexture (textureName);
+
+        //  If user did not passed {maintainAspect}, then consider it is true
+        if (maintainAspect === undefined || maintainAspect) {
+            width = texture.rawWidthPx / texture.pixelsPerUnit;
+            height = texture.rawHeightPx / texture.pixelsPerUnit;
+        }
+
+        super (position, width || 100, height || 100);
+
+        this._texture = texture;
         this._texturePath = textureName;
         this.color = tintColor || vec4.fromValues (1,1,1,1);
-        this._maintainAspect = true;
-        this._aspectSet = false;
-
-        this._uv = [];
-        this._uv.push (vec2.fromValues (0.0, 0.0));
-        this._uv.push (vec2.fromValues (0.0, 1.0));
-        this._uv.push (vec2.fromValues (1.0, 1.0));
-        this._uv.push (vec2.fromValues (1.0, 0.0));
-
-        this._spriteDrawCall = new SpriteDrawCall (null, null, null, null, null, null, null);
+        this._maintainAspect = maintainAspect === undefined || maintainAspect;
+        this._spriteDrawCall = new SpriteDrawCall (null, null, null, null, null);
     }
 
     public toDrawCall (projection : mat4, view : mat4) : DrawCall {
-        if (!this._aspectSet && this._maintainAspect && this._texture != null) {
-            this.width = this._texture.rawWidthPx / this._texture.pixelsPerUnit;
-            this.height = this._texture.rawHeightPx / this._texture.pixelsPerUnit;
-            this.calculateVertices ();
-            this._aspectSet = true;
-        }
-
         Sprite.TextureManager.updateTextureImageUnit (this._texturePath);
-
-        //  TODO Make it use a default all white texture instead of returning
-        // if (this._texture == null) return;
 
         this._spriteDrawCall.projection = projection;
         this._spriteDrawCall.view = view;
         this._spriteDrawCall.model = this.modelMatrix;
         this._spriteDrawCall.color = this.color;
-        this._spriteDrawCall.vertices = this._vertices;
-        this._spriteDrawCall.uv = this._uv;
         this._spriteDrawCall.texture = this._texture;
 
         return this._spriteDrawCall; 

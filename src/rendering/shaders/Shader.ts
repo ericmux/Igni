@@ -44,6 +44,18 @@ abstract class Shader {
         return this.program;
     }
 
-    abstract render(draw_call: DrawCall) :void;
+    public render(draw_call: DrawCall, activeShader? : Shader, activeVBO? : WebGLBuffer) :void {
+
+        //  If activeShader not passed, or activeShader is not this shader, use {this}
+        if (activeShader === undefined || activeShader != this) {
+            this.gl_context.useProgram(this.program);
+        }
+
+        //  If activeVBO not passed, or activeVBO is not {this.targetVBO}
+        if (activeVBO === undefined || activeVBO != this.targetVBO) {
+            this.gl_context.bindBuffer (this.gl_context.ARRAY_BUFFER, this.targetVBO);
+        }
+        
+    }
 }
 export default Shader;

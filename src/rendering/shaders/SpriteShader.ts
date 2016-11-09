@@ -5,16 +5,12 @@ import {WGLTexture} from "../../loader/TextureManager";
 
 export class SpriteDrawCall extends DrawCall {
     public color: vec4;
-    public vertices: vec4[]; // data to draw (must have length 4).
-    public uv: vec2[];
     public texture: WGLTexture;
 
-    constructor (projection : mat4, view : mat4, model : mat4, color : vec4, vertices : vec4[], uv : vec2[], texture : WGLTexture) {
+    constructor (projection : mat4, view : mat4, model : mat4, color : vec4, texture : WGLTexture) {
         super (projection, view, model);
 
         this.color = color;
-        this.vertices = vertices;
-        this.uv = uv;
         this.texture = texture;
     }
 }
@@ -33,7 +29,6 @@ export class SpriteShader extends Shader {
     //  Avoid unnecessary GC
     private _vertex_float_length :number;
     private _uv_float_length : number;
-    private _vboData : Float32Array;
     private _uvVboDataOffset : number;
     
     constructor(gl_context: WebGLRenderingContext, targetVBO: WebGLBuffer) {
@@ -47,10 +42,7 @@ export class SpriteShader extends Shader {
 
         this._vertex_float_length = 4;
         this._uv_float_length = 2;
-        // 4 = draw_call.vertices.length = 4
-        // 4 = draw_call.uv.length
-        this._vboData= new Float32Array (this._vertex_float_length*4 + this._uv_float_length*4);
-
+        
         this.gl_context.useProgram(this.program);
 
         //  Get unifoms location
@@ -69,26 +61,11 @@ export class SpriteShader extends Shader {
         this._uvVboDataOffset = 4 * this._vertex_float_length * Float32Array.BYTES_PER_ELEMENT;
     }
 
-    public render(draw_call :SpriteDrawCall) :void {
+    public render(draw_call :SpriteDrawCall, activeShader? : Shader, activeVBO? : WebGLBuffer) :void {
 
-        if (draw_call.vertices.length != draw_call.uv.length) 
-            throw new Error ("Each vertex must have just one uv attribute");
-
-        for(let i = 0; i < draw_call.vertices.length; i++) {
-            this._vboData[this._vertex_float_length*i] =  draw_call.vertices[i][0];
-            this._vboData[this._vertex_float_length*i + 1] =  draw_call.vertices[i][1];
-            this._vboData[this._vertex_float_length*i + 2] =  draw_call.vertices[i][2];
-            this._vboData[this._vertex_float_length*i + 3] =  draw_call.vertices[i][3];
-
-            this._vboData[this._vertex_float_length*draw_call.vertices.length + this._uv_float_length*i] =  draw_call.uv[i][0];
-            this._vboData[this._vertex_float_length*draw_call.vertices.length + this._uv_float_length*i + 1] =  draw_call.uv[i][1];
-        }
-
-        // Load the data into the VBO.
-        this.gl_context.bufferData(this.gl_context.ARRAY_BUFFER, this._vboData, this.gl_context.STATIC_DRAW);
+        super.render(draw_call, activeShader, activeVBO);
 
         // Assign uniform variables.
-        this.gl_context.useProgram(this.program);
         this.gl_context.uniformMatrix4fv(this._projectionMatrixLocation, false, draw_call.projection); 
         this.gl_context.uniformMatrix4fv(this._viewMatrixLocation, false, draw_call.view);
         this.gl_context.uniformMatrix4fv(this._modelMatrixLocation, false, draw_call.model); 
@@ -107,6 +84,6 @@ export class SpriteShader extends Shader {
         this.gl_context.uniform1i(this._textureLocation, draw_call.texture.imageUnit);
 
         // Execute draw call.
-        this.gl_context.drawArrays(this.gl_context.TRIANGLE_FAN, 0, draw_call.vertices.length);
+        this.gl_context.drawArrays(this.gl_context.TRIANGLE_FAN, 0, 4);
     }
 }

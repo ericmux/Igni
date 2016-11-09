@@ -24,9 +24,11 @@ export class WGLRenderer implements Renderer {
 	public static gl : WebGLRenderingContext;
 
 	private projection_matrix : mat4;
-	private vVBO : WebGLBuffer;
+	private currentVBO : WebGLBuffer;
+	private quadVBO : WebGLBuffer;
 	private canvas : HTMLCanvasElement;
 	private camera : Shape;
+	private currentShader : Shader;
 	private squareShader : Shader;
 	private circleShader : Shader;
 	private spriteShader : Shader;
@@ -50,17 +52,25 @@ export class WGLRenderer implements Renderer {
 		}
 
 		//  Setup VBO.
-        this.vVBO = WGLRenderer.gl.createBuffer();
+        this.quadVBO = WGLRenderer.gl.createBuffer();
 		//  Bind VBO
-        WGLRenderer.gl.bindBuffer(WGLRenderer.gl.ARRAY_BUFFER, this.vVBO);
+        WGLRenderer.gl.bindBuffer(WGLRenderer.gl.ARRAY_BUFFER, this.quadVBO);
+		//  Buffer data:
+		//  4 vertex attributes positions (4 componentes each).
+		//  4 vetex attributes uv (2 componentes each)
+		//  total length: 4 * 4 + 4 * 2 = 24 floats buffer size
+		let data = [-1.0, - 1.0, 0, 1, -1.0, 1.0, 0, 1, 1.0, 1.0, 0 ,1, 1.0, -1.0, 0, 1,
+		             0, 0, 0, 1, 1, 1, 1, 0];
+		let quadVertices = new Float32Array (data);
+		WGLRenderer.gl.bufferData (WGLRenderer.gl.ARRAY_BUFFER, quadVertices, WGLRenderer.gl.STATIC_DRAW);
 
 		// Set up default static camera.
 		this.camera = new Camera (vec3.fromValues(0,0,0), 1,1);
 
 		this.canvas = canvas;
-		this.squareShader = new FlatColorShader (WGLRenderer.gl, this.vVBO);
-		this.circleShader = new FlatColorCircleShader (WGLRenderer.gl, this.vVBO);
-		this.spriteShader = new SpriteShader (WGLRenderer.gl, this.vVBO);
+		this.squareShader = new FlatColorShader (WGLRenderer.gl, this.quadVBO);
+		this.circleShader = new FlatColorCircleShader (WGLRenderer.gl, this.quadVBO);
+		this.spriteShader = new SpriteShader (WGLRenderer.gl, this.quadVBO);
 
 		//  Set up viewport and projection matrix
 		this.resizeToCanvas ();
@@ -111,13 +121,25 @@ export class WGLRenderer implements Renderer {
 		if (!drawCall) return;
 		
 		if (drawCall instanceof FlatColorCircleDrawCall) {
-			this.circleShader.render(drawCall);
+			
+			this.circleShader.render(drawCall, this.currentShader, this.currentVBO);
+
+			this.currentVBO = this.quadVBO;
+			this.currentShader = this.circleShader;
 		}
 		else if (drawCall instanceof FlatColorDrawCall) {
-			this.squareShader.render(drawCall);
+
+			this.squareShader.render(drawCall, this.currentShader, this.currentVBO);
+
+			this.currentVBO = this.quadVBO;
+			this.currentShader = this.squareShader;
 		}
 		else if (drawCall instanceof SpriteDrawCall) {
-			this.spriteShader.render(drawCall);
+
+			this.spriteShader.render(drawCall, this.currentShader, this.currentVBO);
+
+			this.currentVBO = this.quadVBO;
+			this.currentShader = this.spriteShader;
 		}
 		else if (typeof drawCall == "DrawCall") {
 			console.log ("It is drawcall");
