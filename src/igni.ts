@@ -50,7 +50,6 @@ let onWindowLoad = function () {
     // Collision test scene.
     CollisiontestScene.build(game);
 
-
     game.start();
 };
 

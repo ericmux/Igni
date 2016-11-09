@@ -5,6 +5,7 @@ abstract class Shape {
     public abstract toDrawCall(projection: mat4, view : mat4) :DrawCall;
 
     private _modelMatrix: mat4;
+    private _invModelMatrix: mat4;
     private _size : vec3;
     protected position : vec3; 
     protected rotation : number;
@@ -17,6 +18,7 @@ abstract class Shape {
         this._size = size || vec3.fromValues (1,1,1);
         this.scale = vec3.fromValues (1,1,1);
         this._modelMatrix = mat4.create();
+        this._invModelMatrix = mat4.invert(mat4.create(), this._modelMatrix);
     }
 
     public update(deltaTime : number) {
@@ -72,9 +74,8 @@ abstract class Shape {
     // A matrix which sets the camera reference to this shape's object coordinates.
     public followShapeViewMatrix () : mat4 {
         this.updateModelMatrix();
-        let viewMatrix : mat4 = mat4.create();
-        mat4.invert(viewMatrix, this._modelMatrix);
-        return viewMatrix;    
+        mat4.invert(this._invModelMatrix, this._modelMatrix);
+        return this._invModelMatrix;    
     }
 }
 export default Shape;
