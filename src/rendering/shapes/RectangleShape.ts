@@ -8,36 +8,16 @@ export default class RectangleShape extends Shape {
     private _width  : number;
     private _height : number;
     private _color  : vec4;
-    protected _vertices : vec4[];
     private _flatColorDrawCall : FlatColorDrawCall;
 
     constructor (position :vec3, width : number, height : number) {
-        super(position);
+        super(position, vec3.fromValues (width/2, height/2, 1));
         
         this._color = vec4.fromValues (1.0, 0.0, 0.0, 1.0);
         this._width = width;
         this._height = height;
 
-        this._flatColorDrawCall = new FlatColorDrawCall (null, null, null, null, null);
-        this.calculateVertices ();
-    }
-        
-    protected calculateVertices () : void {
-        //  Create vertices
-        this._vertices = [];
-        let res : vec2 = vec2.create ();
-
-        vec2.add (res, vec2.create(), [-this._width/2.0, -this._height/2.0]);  
-        this._vertices.push(vec4.fromValues(res[0], res[1], 0.0, 1.0));
-
-        vec2.add (res, res, [0, this._height]);  
-        this._vertices.push(vec4.fromValues(res[0], res[1], 0.0, 1.0));
-
-        vec2.add (res, res, [this._width, 0]);  
-        this._vertices.push(vec4.fromValues(res[0], res[1], 0.0, 1.0));
-
-        vec2.add (res, res, [0, -this._height]);  
-        this._vertices.push(vec4.fromValues(res[0], res[1], 0.0, 1.0));
+        this._flatColorDrawCall = new FlatColorDrawCall (null, null, null, null);
     }
 
     public toDrawCall (projection : mat4, view : mat4) : DrawCall {
@@ -46,7 +26,6 @@ export default class RectangleShape extends Shape {
         this._flatColorDrawCall.view = view;
         this._flatColorDrawCall.model = this.modelMatrix;
         this._flatColorDrawCall.color = this._color;
-        this._flatColorDrawCall.vertices = this._vertices;
 
         return this._flatColorDrawCall;
     }
@@ -56,18 +35,22 @@ export default class RectangleShape extends Shape {
         return this._height;
     }
 
+    /**
+     * @deprecated Should not try to change vertices. Instead, use {@link Shape.setScale}
+     */
     set height (newHeight :number) {
-        this._height = newHeight;
-        this.calculateVertices();
+        // this._height = newHeight;
     }
 
     get width () {
         return this._width;
     }
 
+    /**
+     * @deprecated Should not try to change vertices. Instead, use {@link Shape.setScale}
+     */
     set width (newWidth :number) {
-        this._width = newWidth;
-        this.calculateVertices();
+        // this._width = newWidth;
     }
 
     get color () :vec4 {

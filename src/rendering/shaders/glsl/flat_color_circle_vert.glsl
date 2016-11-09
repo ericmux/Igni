@@ -11,8 +11,9 @@ uniform float radius;
 
 varying vec4 fPosition;
 
-void main ()
+void main ()    
 {
-    fPosition = vPosition;
+    //  This expects vPosition to have uniraty abs value on each x,y components
+    fPosition = vPosition * radius;
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vPosition;
 }
