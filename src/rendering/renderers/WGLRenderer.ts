@@ -59,7 +59,7 @@ export class WGLRenderer implements Renderer {
 		//  4 vertex attributes positions (4 componentes each).
 		//  4 vetex attributes uv (2 componentes each)
 		//  total length: 4 * 4 + 4 * 2 = 24 floats buffer size
-		let data = [-1.0, - 1.0, 0, 1, -1.0, 1.0, 0, 1, 1.0, 1.0, 0 ,1, 1.0, -1.0, 0, 1,
+		let data = [-1.0, -1.0, 0, 1, -1.0, 1.0, 0, 1, 1.0, 1.0, 0 , 1, 1.0, -1.0, 0, 1,
 		             0, 0, 0, 1, 1, 1, 1, 0];
 		let quadVertices = new Float32Array (data);
 		WGLRenderer.gl.bufferData (WGLRenderer.gl.ARRAY_BUFFER, quadVertices, WGLRenderer.gl.STATIC_DRAW);
