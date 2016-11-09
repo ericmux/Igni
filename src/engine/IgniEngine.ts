@@ -3,15 +3,18 @@ import Shape from "../rendering/shapes/Shape";
 import Renderer from "../rendering/renderers/Renderer";
 import Camera from "../rendering/camera/Camera";
 import {WGLRenderer, WGLOptions} from "../rendering/renderers/WGLRenderer";
+import {TextureManager, WGLTexture} from "../loader/TextureManager";
 import Body from "../physics/bodies/Body";
 import World from "../physics/World";
 import {Loader} from "../loader/Loader";
+import {Dictionary} from "../utils/Dictionary";
 
 export default class IgniEngine implements Engine {
 
     private bodylessShapes: Shape[] = [];
     private world: World;
     private renderer: Renderer;
+    private _textureManager: TextureManager; 
     private lastFrameID: number;
 
     //  Frame timers
@@ -31,6 +34,7 @@ export default class IgniEngine implements Engine {
         this.renderer.setCamera(camera);
         
         this.loader = new Loader ();
+        this._textureManager = new TextureManager (new Dictionary<string, WGLTexture> ());
 
         if (this.bodylessShapes.indexOf(camera) === -1){
             this.addShape(camera);
@@ -115,5 +119,9 @@ export default class IgniEngine implements Engine {
         if (this.bodylessShapes.indexOf(camera) === -1){
             this.addShape(camera);
         }
+    }
+
+    public get textureManager() :TextureManager {
+        return this._textureManager;
     }
 }
