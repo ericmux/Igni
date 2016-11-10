@@ -39,7 +39,8 @@ export default class RectangleShape extends Shape {
      * @deprecated Should not try to change vertices. Instead, use {@link Shape.setScale}
      */
     set height (newHeight :number) {
-        // this._height = newHeight;
+        this._height = newHeight;
+        this.updateDimensions();
     }
 
     get width () {
@@ -50,7 +51,8 @@ export default class RectangleShape extends Shape {
      * @deprecated Should not try to change vertices. Instead, use {@link Shape.setScale}
      */
     set width (newWidth :number) {
-        // this._width = newWidth;
+        this._width = newWidth;
+        this.updateDimensions();
     }
 
     get color () :vec4 {
@@ -59,5 +61,9 @@ export default class RectangleShape extends Shape {
 
     set color (color :vec4) {
         this._color = color;
+    }
+
+    private updateDimensions() {
+        this.setScale(vec2.fromValues(this._width/2, this._height/2));
     }
 }
