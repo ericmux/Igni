@@ -52,19 +52,39 @@ export default class IgniEngine implements Engine {
      * but frames continue to be processed.
      * 
      */
-    public timeScale : number;
+    public set timeScale (timeScale : number) {
+        if (timeScale > 1.0) {
+            this._timeScale = 1.0;
+        }
+        else if (timeScale >= 0) {
+            this._timeScale = timeScale;
+        }
+        else {
+            this._timeScale = 0;
+        }
+    }
+
+    /**
+     * Value that scales the frame's delta time
+     */
+    public get timeScale () {
+        return this._timeScale;
+    }
     
     /** 
      * Resource Loader. 
      */
     public loader : Loader; 
 
+    private _timeScale : number;
 
     constructor(canvas :HTMLCanvasElement, camera :Shape, opts? : EngineOptions) {
         this.world = new World();
         this.renderer = new WGLRenderer (canvas, <WGLOptions> { depth_test: false, blend: true });
         this.renderer.setCamera(camera);
         
+        this.timeScale = 1;
+
         this.loader = new Loader ();
 
         if (this.bodylessShapes.indexOf(camera) === -1){
@@ -116,7 +136,7 @@ export default class IgniEngine implements Engine {
     private prepareProcessFrame () {
 
         return (frameTime : number) => {
-            this.clock.deltaTime = frameTime - this.clock.lastFrameTime;
+            this.clock.deltaTime = (frameTime - this.clock.lastFrameTime) * this.timeScale;
 
             let physicsTicks : number = 0;
             let nextPhysTick : number = this.clock.lastPhysicsTick + this.clock.physicsUpdatePeriod;
@@ -139,7 +159,7 @@ export default class IgniEngine implements Engine {
                 this.clock.lastPhysicsTick += this.clock.physicsUpdatePeriod;
                 this.world.detectCollisions();
                 // resolve collisions.
-                this.world.step(this.clock.lastPhysicsTick/1000, this.clock.physicsUpdatePeriod/1000);
+                this.world.step(this.clock.lastPhysicsTick/1000, this.timeScale * this.clock.physicsUpdatePeriod/1000);
             }
 
             // Draw
@@ -271,6 +291,15 @@ function debugFrameInput (stopKey : number, resumeKey : number, resumeFrameKey :
         } break;
         case resumeFrameKey: {
             this.resumeFrame ();
+        } break;
+        case 52: {
+            this.timeScale = 1;
+        } break;
+        case 53: {
+            this.timeScale = 0.5; 
+        } break;
+        case 54: {
+            this.timeScale = 0;
         } break;
     }
 }
