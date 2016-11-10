@@ -1,4 +1,4 @@
-import Engine from "./Engine";
+import {Engine, EngineOptions} from "./Engine";
 import Shape from "../rendering/shapes/Shape";
 import Renderer from "../rendering/renderers/Renderer";
 import Camera from "../rendering/camera/Camera";
@@ -15,18 +15,30 @@ export default class IgniEngine implements Engine {
     private renderer: Renderer;
     private lastFrameID: number;
     
+    private running : boolean;
+
     /**
-     * Reference to the Game Loop function. Grab it to use it in
-     * a context safe manner.
+     * Reference to the Game Loop function. It invokes {processFrame}.
+     * The difference is {gameLoop} schedules the next raF.
      */
     private gameLoop : (frameTime : number) => void;
+    
+    /**
+     * Single frame code, with no raF callback
+     */
+    private processFrame : (frameTime : number) => void;
     
     /**
      * Reference to the restart function. When restarting, we wait one
      * to be fired, catch that frameTime, and use it to update Clock's 
      * timing.
      */
-    private restartInternal : (frameTime : number) => void;
+    private scheduleGameLoop : (frameTime : number) => void;
+
+    /**
+     * The same as {scheduleGameLoop}, but it schedules only one frame.
+     */
+    private scheduleFrame : (frameTime : number) => void;
 
     /**
      * Keep timing and framing info centralized
@@ -47,7 +59,8 @@ export default class IgniEngine implements Engine {
      */
     public loader : Loader; 
 
-    constructor(canvas :HTMLCanvasElement, camera :Shape) {
+
+    constructor(canvas :HTMLCanvasElement, camera :Shape, opts? : EngineOptions) {
         this.world = new World();
         this.renderer = new WGLRenderer (canvas, <WGLOptions> { depth_test: false, blend: true });
         this.renderer.setCamera(camera);
@@ -56,6 +69,13 @@ export default class IgniEngine implements Engine {
 
         if (this.bodylessShapes.indexOf(camera) === -1){
             this.addShape(camera);
+        }
+
+        //  If bindings not supplied, map to 1,2 and 3 keyboard keys
+        if (opts !== undefined && opts.frameControl) {
+            window.document.addEventListener("keydown", debugFrameInput.bind (this, opts.stopKeyBinding || 49, 
+                                                                                    opts.resumeKeyBinding || 50,
+                                                                                    opts.resumeFrameKeyBinding || 51));
         }
     }
 
@@ -68,7 +88,6 @@ export default class IgniEngine implements Engine {
     }
 
     private init () {
-
         let performanceNow = performance.now ();
 
         this.clock = <IClock> {
@@ -81,13 +100,22 @@ export default class IgniEngine implements Engine {
             pausedAt : 0,
             framePhysicsSteps : 0
         };
+    }
 
+    private prepareGameLoop () {
         /*
         *  FrameTime is a browser passed parameter in ms
         */
         return (frameTime : number) => {
             this.lastFrameID = window.requestAnimationFrame(this.gameLoop);
             
+            this.processFrame (frameTime);
+        };
+    }
+
+    private prepareProcessFrame () {
+
+        return (frameTime : number) => {
             this.clock.deltaTime = frameTime - this.clock.lastFrameTime;
 
             let physicsTicks : number = 0;
@@ -127,23 +155,27 @@ export default class IgniEngine implements Engine {
             this.clock.framePhysicsSteps = physicsTicks;
 
             this.clock.lastFrameTime = frameTime;
+
+            if (!this.running) this.clock.pausedAt = frameTime;
         };
     }
-    
+
     /**
-     * Use this function's return to catch a frame, and then pass 
-     * to other parts of the loop the correct frameTime 
+     * Use this function's return to catch a frame, get the correct frameTime
+     * and then schedule {resume} with the correct frameTime. 
+     * @param resume It is the callback to be called after catching the correct frameTime
+     * @param additionalTime? Used for debugging resume with some delta time between frames (additionalTime)
      */
-    private prepareRestart () {
+    private prepareResume (resume : (frameTime : number) => void, additionalTime? : number) {
 
         return (frameTime : number) => {
             
-            this.clock.pausedTime = frameTime - this.clock.pausedAt;
+            this.clock.pausedTime = frameTime - this.clock.pausedAt - (additionalTime || 0);
             
             this.clock.lastFrameTime += this.clock.pausedTime;
             this.clock.lastPhysicsTick += this.clock.pausedTime;
 
-            this.gameLoop (frameTime);
+            resume (frameTime);
         }
     }
 
@@ -151,20 +183,20 @@ export default class IgniEngine implements Engine {
      * IgniEngine begins here
      */
     public start() {
-        
+
+        this.init ();
+
         //  Grab references to these functions on context safe way
-        this.gameLoop = this.init ();
-        this.restartInternal = this.prepareRestart ();
+        this.gameLoop = this.prepareGameLoop ();
+        this.processFrame = this.prepareProcessFrame ();
+        
+        this.scheduleGameLoop = this.prepareResume (this.gameLoop);
+        this.scheduleFrame = this.prepareResume (this.processFrame, this.clock.physicsUpdatePeriod);
 
         //  Start 
         this.gameLoop(performance.now ());
-    }
 
-    /**
-     * Continue to request Animation Frames
-     */
-    public resume () {
-         window.requestAnimationFrame(this.restartInternal);
+        this.running = true;
     }
 
     /**
@@ -173,8 +205,34 @@ export default class IgniEngine implements Engine {
      * simulation, set {timeScale} to zero, instead. 
      */
     public stop() {
-        window.cancelAnimationFrame(this.lastFrameID);
-        this.clock.pausedAt = this.clock.lastFrameTime;
+        if (this.running) {
+            window.cancelAnimationFrame(this.lastFrameID);
+            this.clock.pausedAt = this.clock.lastFrameTime;
+
+            this.running = false;
+        }
+    }
+
+    /**
+     * Continue to request Animation Frames
+     */
+    public resume () {
+        if (!this.running) {
+            window.requestAnimationFrame(this.scheduleGameLoop);
+            this.running = true;
+        }
+    }
+
+    /**
+     * Process one more frame. Used only for debug.
+     */
+    private resumeFrame () {
+        this.running = true;
+
+        this.stop ();
+        window.requestAnimationFrame(this.scheduleFrame);
+        
+        this.running = false;
     }
 
     /**
@@ -190,5 +248,29 @@ export default class IgniEngine implements Engine {
         if (this.bodylessShapes.indexOf(camera) === -1){
             this.addShape(camera);
         }
+    }
+}
+
+/**
+ * Use this for debugging frames.
+ * Press keyboard One to stop.
+ * Press keyboard Two to resume.
+ * Press keyboard Three to process a single frame
+ */
+function debugFrameInput (stopKey : number, resumeKey : number, resumeFrameKey : number, e : any) {
+    
+    var event = e || window.event;
+    var key = event.keyCode;
+
+    switch (key) {
+        case stopKey: {
+            this.stop ();
+        } break;
+        case resumeKey: {
+            this.resume ();
+        } break;
+        case resumeFrameKey: {
+            this.resumeFrame ();
+        } break;
     }
 }
