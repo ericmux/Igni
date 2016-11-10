@@ -34,12 +34,12 @@ export default class CollisionTestScene extends TestScene {
         });
         let t1 :number = 0;
         body1.onUpdate((body: Body, deltaTime: number) => {
-            if (t1 === 200) {
+            if (t1 > 3) {
                 t1 = 0;
                 body.velocity = vec2.negate(vec2.create(), body.velocity);
                 body.oldVelocity = vec2.clone(body.velocity);
             }
-            t1++;
+            t1 += deltaTime;
             checkCollisionFunction(body2)(body, deltaTime);
         });
         game.addBody(body1);
@@ -53,12 +53,12 @@ export default class CollisionTestScene extends TestScene {
         });
         let t2 :number = 0;
         body2.onUpdate((body: Body, deltaTime: number) => {
-            if (t2 === 200) {
+            if (t2 > 3) {
                 t2 = 0;
                 body.velocity = vec2.negate(vec2.create(), body.velocity);
                 body.oldVelocity = vec2.clone(body.velocity);
             }
-            t2++;
+            t2 += deltaTime;
             checkCollisionFunction(body1)(body, deltaTime);
         });
         game.addBody(body2);  
