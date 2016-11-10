@@ -24,13 +24,13 @@ export default class SAT {
                 return null;
             }
 
-            let overlap :number;
-            if (proj1[1] >= proj2[0]){
-                overlap = proj1[1] - proj2[0]; 
-            }
-            else {
-                overlap = proj2[1] - proj1[0]; 
-            }   
+            let min1min2 : number = Math.abs(proj1[0] - proj2[0]);
+            let min1max2 : number = Math.abs(proj1[0] - proj2[1]);
+            let max1min2 : number = Math.abs(proj1[1] - proj2[0]);
+            let max1max2 : number = Math.abs(proj1[1] - proj2[1]);
+
+            // Overlap is the distance between the two closest points.
+            let overlap :number = Math.min(min1min2, min1max2, max1min2, min1max2); 
             if(overlap < min_overlap) {
                 min_overlap = overlap;
                 min_normal = vec2.normalize(vec2.create(), axis);
@@ -41,7 +41,12 @@ export default class SAT {
             return null;
         }
 
-        // TO DO(econrado): sort out contact point and penetration.
-        return null;
+        let penetration_vector :vec2 = vec2.scale(vec2.create(), min_normal, min_overlap);
+        
+        // TODO(muxa): figure out contact point generation.
+        // TODO(muxa): make sure normal points from A to B.
+        let contact_point :vec2 = vec2.create();
+
+        return new CollisionManifold(polygonBody, polygonBody2, penetration_vector, contact_point, min_normal);
     }
 }

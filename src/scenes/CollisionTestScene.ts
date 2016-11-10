@@ -11,7 +11,6 @@ import Engine from "../engine/Engine";
 
 export default class CollisionTestScene extends TestScene {
     public static build(game :Engine) :void {
-
         let checkCollisionFunction = (otherBody :Body) => {
             return (body: Body, deltaTime: number) => {
                 let shape :RectangleShape = <RectangleShape> body.shape;
@@ -24,43 +23,66 @@ export default class CollisionTestScene extends TestScene {
             };
         };
 
+        let backAndForthUpdateCallback = (amplitude :number, targetBody :Body) => {
+            let t = amplitude/2;
+            return (body: Body, deltaTime: number) => {
+                if (t === amplitude) {
+                    t = 0;
+                    body.velocity = vec2.negate(vec2.create(), body.velocity);
+                    body.oldVelocity = vec2.clone(body.velocity);
+                }
+                t++;
+                checkCollisionFunction(targetBody)(body, deltaTime);
+            };
+        };
+
         // Add a circular body.
         let body1 : Body = new CircularBody(<CircularBodyDefinition>{
             radius: 30,
-            position: vec2.fromValues(60,60),
+            position: vec2.fromValues(0,60),
             mass: 1.0,
             velocity: vec2.fromValues(-30.0, 0),
             torque: 5.0
-        });
-        let t1 :number = 0;
-        body1.onUpdate((body: Body, deltaTime: number) => {
-            if (t1 === 200) {
-                t1 = 0;
-                body.velocity = vec2.negate(vec2.create(), body.velocity);
-                body.oldVelocity = vec2.clone(body.velocity);
-            }
-            t1++;
-            checkCollisionFunction(body2)(body, deltaTime);
         });
         game.addBody(body1);
 
         // Add a circular body.
         let body2 : Body = new CircularBody(<CircularBodyDefinition>{
-            position: vec2.fromValues(-60,60),
+            position: vec2.fromValues(0,60),
             radius: 10,
             mass: 1.0,
-            velocity: vec2.fromValues(40.0, 0.0)
-        });
-        let t2 :number = 0;
-        body2.onUpdate((body: Body, deltaTime: number) => {
-            if (t2 === 200) {
-                t2 = 0;
-                body.velocity = vec2.negate(vec2.create(), body.velocity);
-                body.oldVelocity = vec2.clone(body.velocity);
-            }
-            t2++;
-            checkCollisionFunction(body1)(body, deltaTime);
+            velocity: vec2.fromValues(30.0, 0.0)
         });
         game.addBody(body2);  
+
+        body1.onUpdate(backAndForthUpdateCallback(200, body2));
+        body2.onUpdate(backAndForthUpdateCallback(400, body1));
+
+
+        // Add a rectangular body.
+        let body3 : Body = new RectangularBody(<RectangularBodyDefinition>{
+            position: vec2.fromValues(0,-60),
+            width: 20,
+            height: 20,
+            mass: 1.0,
+            velocity: vec2.fromValues(-30.0, 0),
+            torque: 5.0
+        });
+        game.addBody(body3);
+
+      // Add a rectangular body.
+        let body4 : Body = new RectangularBody(<RectangularBodyDefinition>{
+            position: vec2.fromValues(0,-60),
+            width: 20,
+            height: 20,
+            mass: 1.0,
+            velocity: vec2.fromValues(30.0, 0.0)
+        });
+        game.addBody(body4);  
+
+        body1.onUpdate(backAndForthUpdateCallback(200, body2));
+        body2.onUpdate(backAndForthUpdateCallback(400, body1));
+        body3.onUpdate(backAndForthUpdateCallback(400, body4));
+        body4.onUpdate(backAndForthUpdateCallback(400, body3));
     }
 }
