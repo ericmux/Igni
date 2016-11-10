@@ -1,23 +1,73 @@
 import {vec2} from "gl-matrix";
+import Body from "../bodies/Body";
 import CircularBody from "../bodies/CircularBody";
 import RectangularBody from "../bodies/RectangularBody";
 import CollisionManifold from "./CollisionManifold";
-
 
 // The SAT class provides static methods for collision tests between various types of shapes using
 // the Separating Axis Theorem.
 export default class SAT {
     public static testCollisionPolygonCircle(polygonBody :RectangularBody, circularBody :CircularBody) :CollisionManifold {
-        return null;
+        let axes :vec2[] = polygonBody.getWorldAxes(); 
+        
+        // Extra axis from the vertex-based voronoi regions.
+        let closest_point_to_circle :vec2 = polygonBody.extremeVertex(vec2.sub(vec2.create(), circularBody.position, polygonBody.position));
+        let point_axis :vec2 = vec2.sub(vec2.create(), circularBody.position, closest_point_to_circle);
+        vec2.normalize(point_axis, point_axis);
+
+        axes.push(point_axis);
+
+        let overlap_normal :[number, vec2] = this.testAxes(polygonBody, circularBody, axes);
+        if(!overlap_normal) return null;
+        
+        let min_overlap :number = overlap_normal[0];
+        let min_normal :vec2 = overlap_normal[1];
+
+        let penetration_vector :vec2 = vec2.scale(vec2.create(), min_normal, min_overlap);
+        let fromAtoB :vec2 = vec2.sub(vec2.create(), circularBody.position, polygonBody.position);
+        if (vec2.dot(fromAtoB, penetration_vector) < 0) {
+            vec2.negate(penetration_vector, penetration_vector);
+        }
+        
+        // Contact point generation.
+        let extremeVertexInA :vec2 = polygonBody.extremeVertex(penetration_vector);
+        let extremeVertexInB :vec2 = circularBody.extremeVertex(vec2.negate(vec2.create(), penetration_vector));
+        let contact_point :vec2 = vec2.add(vec2.create(), extremeVertexInA, extremeVertexInB);
+        vec2.scale(contact_point, contact_point, 0.5);
+
+        return new CollisionManifold(polygonBody, circularBody, penetration_vector, contact_point, min_normal);
     }
-    public static testCollisionPolygonPolygon(polygonBody :RectangularBody, polygonBody2 :RectangularBody) :CollisionManifold {
-        let axes :vec2[] = polygonBody.getWorldAxes().concat(polygonBody2.getWorldAxes());
+    public static testCollisionPolygonPolygon(polygonBodyA :RectangularBody, polygonBodyB :RectangularBody) :CollisionManifold {
+        let axes :vec2[] = polygonBodyA.getWorldAxes().concat(polygonBodyB.getWorldAxes());
+
+        let overlap_normal :[number, vec2] = this.testAxes(polygonBodyA, polygonBodyB, axes);
+        if(!overlap_normal) return null;
+
+        let min_overlap :number = overlap_normal[0];
+        let min_normal :vec2 = overlap_normal[1];
+
+        let penetration_vector :vec2 = vec2.scale(vec2.create(), min_normal, min_overlap);
+        let fromAtoB :vec2 = vec2.sub(vec2.create(), polygonBodyB.position, polygonBodyA.position);
+        if (vec2.dot(fromAtoB, penetration_vector) < 0) {
+            vec2.negate(penetration_vector, penetration_vector);
+        }
+        
+        // Contact point generation.
+        let extremeVertexInA :vec2 = polygonBodyA.extremeVertex(penetration_vector);
+        let extremeVertexInB :vec2 = polygonBodyB.extremeVertex(vec2.negate(vec2.create(), penetration_vector));
+        let contact_point :vec2 = vec2.add(vec2.create(), extremeVertexInA, extremeVertexInB);
+        vec2.scale(contact_point, contact_point, 0.5);
+
+        return new CollisionManifold(polygonBodyA, polygonBodyB, penetration_vector, contact_point, min_normal);
+    }
+
+    // return null or a pair with [minimum overlap, minimum normal].
+    private static testAxes(bodyA :Body, bodyB :Body, axes :vec2[]) :[number, vec2]{
         let min_overlap :number = Number.POSITIVE_INFINITY;
         let min_normal :vec2 = null;
-
         for(let axis of axes) {
-            let proj1 : [number, number] = polygonBody.project(axis);
-            let proj2 : [number, number] = polygonBody2.project(axis);
+            let proj1 : [number, number] = bodyA.project(axis);
+            let proj2 : [number, number] = bodyB.project(axis);
 
             // Check if there is no overlap.
             if (proj1[1] < proj2[0] || proj2[1] < proj1[0]) {
@@ -36,17 +86,6 @@ export default class SAT {
                 min_normal = vec2.normalize(vec2.create(), axis);
             }
         }
-
-        if (!min_normal) {
-            return null;
-        }
-
-        let penetration_vector :vec2 = vec2.scale(vec2.create(), min_normal, min_overlap);
-        
-        // TODO(muxa): figure out contact point generation.
-        // TODO(muxa): make sure normal points from A to B.
-        let contact_point :vec2 = vec2.create();
-
-        return new CollisionManifold(polygonBody, polygonBody2, penetration_vector, contact_point, min_normal);
+        return [min_overlap, min_normal];
     }
 }
