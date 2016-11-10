@@ -39,7 +39,12 @@ let onWindowLoad = function () {
     camera.onUpdate((camera : Camera, deltaTime : number) => {});
 
 
-    game = new IgniEngine(canvas, camera);
+    game = new IgniEngine(canvas, camera, <EngineOptions> {
+        frameControl : true,
+        stopKeyBinding : 49,
+        resumeKeyBinding : 50,
+        resumeFrameKeyBinding : 51
+     });
 
     // Add axes for easy visualization.
     axes = TestScene.addAxes(game);
