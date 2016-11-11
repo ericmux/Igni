@@ -1,5 +1,5 @@
 import {vec4, mat4} from "gl-matrix";
-import Shader from "./Shader";
+import {Shader, VertexAttrInfo} from "./Shader";
 import {FlatColorDrawCall} from "./FlatColorShader";
 
 export class FlatColorCircleDrawCall extends FlatColorDrawCall {
@@ -16,19 +16,6 @@ export class FlatColorCircleDrawCall extends FlatColorDrawCall {
 
 export class FlatColorCircleShader extends Shader {
     
-    //  Avoid unncecesary calls that blocks GPU
-    private _projectionMatrixLocation : WebGLUniformLocation;
-    private _viewMatrixLocation : WebGLUniformLocation;
-    private _modelMatrixLocation : WebGLUniformLocation;
-    private _fColorLocation : WebGLUniformLocation;
-    private _centerLocation : WebGLUniformLocation;
-    private _radiusLocation : WebGLUniformLocation;
-    private _vPositionLocation : number;
-
-    //  Avoid unnecessary GC
-    private _vertex_float_length :number;
-    private _vboData : Float32Array;
-    
     constructor(gl_context: WebGLRenderingContext, targetVBO : WebGLBuffer) {
         
         var vertex_shader = require("./glsl/flat_color_circle_vert.glsl") as string;
@@ -38,38 +25,20 @@ export class FlatColorCircleShader extends Shader {
 
         this.targetVBO = targetVBO;
 
-        this._vertex_float_length = 4;
+        let vertex_float_length = 4;
 
-        this.gl_context.useProgram(this.program);
-
-        //  Get unifoms location
-        this._projectionMatrixLocation = this.gl_context.getUniformLocation(this.program, "projectionMatrix");
-        this._viewMatrixLocation = this.gl_context.getUniformLocation(this.program, "viewMatrix");
-        this._modelMatrixLocation = this.gl_context.getUniformLocation(this.program, "modelMatrix");
-        this._fColorLocation = this.gl_context.getUniformLocation(this.program, "fColor");
-        this._centerLocation = this.gl_context.getUniformLocation(this.program, "center");
-        this._radiusLocation = this.gl_context.getUniformLocation(this.program, "radius");
-
-        //  Get attribute locations
-        this._vPositionLocation = this.gl_context.getAttribLocation(this.program, "vPosition");
+        this.attrInfos = {
+            "position" : <VertexAttrInfo> {
+                dimension : vertex_float_length,  // dimension of each vertex attribute
+                type : this.gl_context.FLOAT,
+                normalized : false
+            }
+        };
     }
 
     public render(draw_call: FlatColorCircleDrawCall, activeShader? : Shader, activeVBO? : WebGLBuffer) :void {
 
         super.render(draw_call, activeShader, activeVBO);
-    
-
-        // Assign uniform variables.
-        this.gl_context.uniformMatrix4fv(this._projectionMatrixLocation, false, draw_call.projection); 
-        this.gl_context.uniformMatrix4fv(this._viewMatrixLocation, false, draw_call.view);
-        this.gl_context.uniformMatrix4fv(this._modelMatrixLocation, false, draw_call.model); 
-        this.gl_context.uniform4fv(this._fColorLocation, draw_call.color);
-        this.gl_context.uniform4fv(this._centerLocation, draw_call.center);
-        this.gl_context.uniform1f(this._radiusLocation, draw_call.radius);
-
-        // Assigning position attributes
-        this.gl_context.vertexAttribPointer(this._vPositionLocation, this._vertex_float_length, this.gl_context.FLOAT, false, 0, 0);
-        this.gl_context.enableVertexAttribArray(this._vPositionLocation);
 
         // Execute draw call.
         this.gl_context.drawArrays(this.gl_context.TRIANGLE_FAN, 0, 4);

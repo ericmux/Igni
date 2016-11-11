@@ -1,19 +1,19 @@
 precision mediump float;
 
-attribute vec4 vPosition;
+attribute vec4 position;
 
-uniform mat4 projectionMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 modelMatrix;
-uniform vec4 fColor;
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
+uniform vec4 color;
 uniform vec4 center;
 uniform float radius;
 
-varying vec4 fPosition;
+varying vec4 f_position;
 
 void main ()    
 {
     //  This expects vPosition to have uniraty abs value on each x,y components
-    fPosition = vPosition * radius;
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vPosition;
+    fPosition = f_position * radius;
+    gl_Position = projection * view * model * position;
 }
