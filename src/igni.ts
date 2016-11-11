@@ -1,6 +1,7 @@
 require("../dist/index.html");
 import {WGLRenderer} from "./rendering/renderers/WGLRenderer";
 import IgniEngine from "./engine/IgniEngine";
+import {EngineOptions} from "./engine/Engine";
 import RectangleShape from "./rendering/shapes/RectangleShape";
 import CircleShape from "./rendering/shapes/CircleShape";
 import Shape from "./rendering/shapes/Shape";
@@ -32,11 +33,18 @@ let game : IgniEngine;
 let axes :[RectangleShape, RectangleShape];
 
 let onWindowLoad = function () {
-    canvas = <HTMLCanvasElement> document.getElementById("gl-canvas"); 
+    canvas = <HTMLCanvasElement> document.getElementById("gl-canvas");
+
     let camera : Camera = new Camera(vec3.fromValues(0,0,0), 1, 1);
     camera.onUpdate((camera : Camera, deltaTime : number) => {});
 
-    game = new IgniEngine(canvas, camera);
+
+    game = new IgniEngine(canvas, camera, <EngineOptions> {
+        frameControl : true,
+        stopKeyBinding : 49,
+        resumeKeyBinding : 50,
+        resumeFrameKeyBinding : 51
+     });
 
     // Add axes for easy visualization.
     axes = TestScene.addAxes(game);
@@ -58,5 +66,6 @@ let onWindowResize = function () {
     axes[0].width = canvas.width;
     axes[1].height = canvas.height;
 };
+
 window.addEventListener("load", onWindowLoad, false);
 window.addEventListener ("resize", onWindowResize, false);
