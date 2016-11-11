@@ -1,4 +1,5 @@
 import {vec2, vec3, mat4} from "gl-matrix";
+import {perpendicularize} from "../utils/utils";
 import Body from "./Body";
 import CircularBody from "./CircularBody";  
 import RectangularBodyDefinition from "./RectangularBodyDefinition";
@@ -90,7 +91,7 @@ export default class RectangularBody extends Body {
         this._axes.length = 0;
         for(let i = 0; i < this._vertices.length; i++) {
             let world_axis2d = vec2.sub(vec2.create(), this._vertices[(i+1) % this._vertices.length], this._vertices[i % this._vertices.length]);
-            this.perpendicularize(world_axis2d);
+            perpendicularize(world_axis2d);
             let world_axis = vec3.fromValues(world_axis2d[0], world_axis2d[1], 0);
 
             vec3.transformMat4(world_axis, world_axis, this._inverseTranposeTransform);
@@ -126,14 +127,6 @@ export default class RectangularBody extends Body {
             min = Math.min(min, dot_product);
         });
         return [min, max];
-    }
-
-    // In-place perpendicularization of a vector. (x,y) => (y, -x)
-    // TO DO(econrado) : move to some utils.
-    private perpendicularize(vector :vec2) {
-        let x :number = vector[0];
-        vector[0] = vector[1];
-        vector[1] = -x;
     }
 
 }

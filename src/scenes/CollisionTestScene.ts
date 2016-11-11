@@ -56,9 +56,6 @@ export default class CollisionTestScene extends TestScene {
         });
         game.addBody(body2);  
 
-        body1.onUpdate(backAndForthUpdateCallback(200, body2));
-        body2.onUpdate(backAndForthUpdateCallback(400, body1));
-
         // PAIR 2
         // Add a rectangular body.
         let body3 : Body = new RectangularBody(<RectangularBodyDefinition>{
@@ -100,7 +97,36 @@ export default class CollisionTestScene extends TestScene {
             velocity: vec2.fromValues(30.0, 0.0),
             torque: 5.0
         });
-        game.addBody(body6);  
+        game.addBody(body6);
+
+
+        // Add ground.
+        let ground : Body = new RectangularBody(<RectangularBodyDefinition>{
+            position: vec2.fromValues(0,-100),
+            width: 2000,
+            height: 20,
+            mass: 100000.0
+        });
+        game.addBody(ground);
+
+        // Add falling balls.
+        let ball1 : Body = new CircularBody(<CircularBodyDefinition>{
+            position: vec2.fromValues(-190,90),
+            radius: 10,
+            mass: 1.0,
+            force: vec2.fromValues(0.0, -10.0)
+        });
+        game.addBody(ball1);
+        let ball2 : Body = new CircularBody(<CircularBodyDefinition>{
+            position: vec2.fromValues(190,90),
+            radius: 10,
+            mass: 1.0,
+            force: vec2.fromValues(0.0, -10.0)
+        });
+        game.addBody(ball2);
+
+        ball1.onUpdate(checkCollisionFunction(ground));
+        ball2.onUpdate(checkCollisionFunction(ground));
 
         body1.onUpdate(backAndForthUpdateCallback(200, body2));
         body2.onUpdate(backAndForthUpdateCallback(400, body1));
