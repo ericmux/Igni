@@ -37,10 +37,10 @@ export class FlatColorCircleShader extends Shader {
     }
 
     public render(draw_call: FlatColorCircleDrawCall, activeShader? : Shader, activeVBO? : WebGLBuffer) :void {
-
         super.render(draw_call, activeShader, activeVBO);
+    }
 
-        // Execute draw call.
+    protected renderInternal () {
         this.gl_context.drawArrays(this.gl_context.TRIANGLE_FAN, 0, 4);
     }
 }

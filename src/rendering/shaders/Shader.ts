@@ -154,6 +154,11 @@ export abstract class Shader {
         this.setAttributes (activeVBO);
         
         this.setUniforms (draw_call);
+
+        this.renderInternal ();        
     }
+
+    protected abstract renderInternal () : void;
+
 }
 export default Shader;

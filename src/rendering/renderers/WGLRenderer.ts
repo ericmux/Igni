@@ -7,6 +7,8 @@ import Shape from "../shapes/Shape";
 import RectangleShape from "../shapes/RectangleShape";
 import Shader from "../shaders/Shader";
 import DrawCall from "../shaders/DrawCall";
+import {WireCircleShader, WireCircleDrawCall} from "../shaders/debug/WireCircleShader";
+import {WireQuadShader, WireQuadDrawCall} from "../shaders/debug/WireQuadShader";
 import {FlatColorShader, FlatColorDrawCall} from "../shaders/FlatColorShader";
 import {FlatColorCircleShader, FlatColorCircleDrawCall} from "../shaders/FlatColorCircleShader";
 import {SpriteShader, SpriteDrawCall} from "../shaders/SpriteShader";
@@ -28,10 +30,13 @@ export class WGLRenderer implements Renderer {
 	private quadVBO : WebGLBuffer;
 	private canvas : HTMLCanvasElement;
 	private camera : Shape;
+
 	private currentShader : Shader;
 	private squareShader : Shader;
 	private circleShader : Shader;
 	private spriteShader : Shader;
+	private wireQuadShader : Shader;
+	private wireCircleShader : Shader;
 
 	constructor (canvas : HTMLCanvasElement, opts?: WGLOptions) {
 		opts = opts || <WGLOptions>{ depth_test: false, blend: false };
@@ -71,6 +76,8 @@ export class WGLRenderer implements Renderer {
 		this.squareShader = new FlatColorShader (WGLRenderer.gl, this.quadVBO);
 		this.circleShader = new FlatColorCircleShader (WGLRenderer.gl, this.quadVBO);
 		this.spriteShader = new SpriteShader (WGLRenderer.gl, this.quadVBO);
+		this.wireQuadShader = new WireQuadShader (WGLRenderer.gl, this.quadVBO);
+		this.wireCircleShader = new WireCircleShader (WGLRenderer.gl, this.quadVBO);
 
 		//  Set up viewport and projection matrix
 		this.resizeToCanvas ();
@@ -113,6 +120,8 @@ export class WGLRenderer implements Renderer {
 		this.render(shape.toDrawCall(this.projection_matrix, this.camera.followShapeViewMatrix()));	
 	}
 
+	private render (drawCall: WireCircleDrawCall) : void;
+	private render (drawCall: WireQuadDrawCall) : void;
 	private render (drawCall: SpriteDrawCall) : void;
 	private render (drawCall: FlatColorCircleDrawCall) : void;
 	private render (drawCall: FlatColorDrawCall) : void;
@@ -120,7 +129,19 @@ export class WGLRenderer implements Renderer {
 	private render (drawCall: any) : void {
 		if (!drawCall) return;
 		
-		if (drawCall instanceof FlatColorCircleDrawCall) {
+		if (drawCall instanceof WireQuadDrawCall) {
+			this.wireQuadShader.render(drawCall, this.currentShader, this.currentVBO);
+
+			this.currentVBO = this.quadVBO;
+			this.currentShader = this.spriteShader;
+		}
+		else if (drawCall instanceof WireCircleDrawCall) {
+			this.wireCircleShader.render (drawCall, this.currentShader, this.currentVBO);
+
+			this.currentVBO = this.quadVBO;
+			this.currentShader = this.spriteShader;
+		}
+		else if (drawCall instanceof FlatColorCircleDrawCall) {
 			
 			this.circleShader.render(drawCall, this.currentShader, this.currentVBO);
 
