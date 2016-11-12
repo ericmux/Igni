@@ -1,7 +1,7 @@
 import {vec2, vec3, mat4, quat} from "gl-matrix";
-import DrawCall from "../shaders/DrawCall";
+import {DrawCall, Renderable} from "../shaders/DrawCall";
 
-abstract class Shape {
+abstract class Shape implements Renderable {
     public abstract toDrawCall(projection: mat4, view : mat4) :DrawCall;
 
     private _modelMatrix: mat4;

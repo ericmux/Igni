@@ -20,5 +20,6 @@ export interface EngineOptions {
     frameControl : boolean, //  Allows binding of three keyboard keys to stop, resume and resumeFrame
     stopKeyBinding : number,
     resumeKeyBinding : number,
-    resumeFrameKeyBinding : number
+    resumeFrameKeyBinding : number,
+    debugDraw : boolean
 }

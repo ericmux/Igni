@@ -2,14 +2,14 @@ import Body from "./bodies/Body";
 import CollisionManifold from "./collision/CollisionManifold";
 import CollisionDetector from "./collision/CollisionDetector";
 import BruteForceCollisionDetector from "./collision/BruteForceCollisionDetector";
+import {Renderable} from "../rendering/shaders/DrawCall";
 
 export default class World {
     private _bodies :Body[];
     private _collisionDetector :CollisionDetector;
     private _collisionManifolds :CollisionManifold[];
 
-
-    constructor() {
+    constructor () {
         this._bodies = [];
         this._collisionDetector = new BruteForceCollisionDetector();
         this._collisionManifolds = [];
@@ -38,8 +38,14 @@ export default class World {
         }
     }
 
-    public detectCollisions() {
+    public detectCollisions(debug? : boolean, debugOut? : Renderable[]) {
         this._collisionManifolds = this._collisionDetector.detect(this._bodies);
+
+        if (debug && debugOut !== undefined && debugOut != null) {            
+            for (let i = 0; i < this._collisionManifolds.length; ++i) {
+                this._collisionManifolds[i].debugRenderables (debugOut);
+            }
+        }
     }
 
     public get bodies() :Body[] {

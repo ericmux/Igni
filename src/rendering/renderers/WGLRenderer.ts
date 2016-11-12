@@ -6,7 +6,7 @@ import Renderer from "./Renderer";
 import Shape from "../shapes/Shape";
 import RectangleShape from "../shapes/RectangleShape";
 import Shader from "../shaders/Shader";
-import DrawCall from "../shaders/DrawCall";
+import {DrawCall, Renderable} from "../shaders/DrawCall";
 import {WireCircleShader, WireCircleDrawCall} from "../shaders/debug/WireCircleShader";
 import {WireQuadShader, WireQuadDrawCall} from "../shaders/debug/WireQuadShader";
 import {FlatColorShader, FlatColorDrawCall} from "../shaders/FlatColorShader";
@@ -111,6 +111,36 @@ export class WGLRenderer implements Renderer {
 							this.canvas.height/2, 
 							-1,
 							1);
+	}
+
+	public debugDraw (renderable : Renderable) {
+		this.render(this.toDebugDrawCall (
+			renderable.toDrawCall(this.projection_matrix, this.camera.followShapeViewMatrix())
+		    )
+		);		
+	}
+
+	private toDebugDrawCall (drawCall: SpriteDrawCall) : DrawCall;
+	private toDebugDrawCall (drawCall: FlatColorCircleDrawCall) : DrawCall;
+	private toDebugDrawCall (drawCall: FlatColorDrawCall) : DrawCall;
+	private toDebugDrawCall (drawCall: DrawCall) : DrawCall;
+	private toDebugDrawCall (drawCall: any) : DrawCall {
+
+		if (drawCall instanceof FlatColorCircleDrawCall) {
+				
+			drawCall = drawCall as FlatColorCircleDrawCall;
+			
+			return new WireCircleDrawCall (drawCall.projection, drawCall.view, drawCall.model, vec4.fromValues (1,1,1,1), drawCall.center, drawCall.radius, drawCall.radius - 1);
+		}
+		else if (drawCall instanceof SpriteDrawCall ||
+		    drawCall instanceof FlatColorDrawCall)
+		{
+			drawCall = drawCall as FlatColorDrawCall;
+			
+			return new WireQuadDrawCall (drawCall.projection, drawCall.view, drawCall.model, vec4.fromValues (1,1,1,1), 1)
+		}  
+
+		return null;
 	}
 
 	/**

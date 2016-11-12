@@ -1,6 +1,7 @@
    import {vec2} from "gl-matrix";
    import Body from "../bodies/Body";
-   
+   import {Renderable} from "../../rendering/shaders/DrawCall";
+
    export default class CollisionManifold {
       /**
        * The id of this collision contact.
@@ -38,5 +39,12 @@
       
       resolve() {
           // TO DO: resolve collision.
+      }
+
+      public debugRenderables (out : Renderable[]) : Renderable[] {
+         out.push (this.bodyA.getLatestShape ());
+         out.push (this.bodyB.getLatestShape ());
+
+         return out; 
       }
    }

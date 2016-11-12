@@ -4,6 +4,7 @@ import Renderer from "../rendering/renderers/Renderer";
 import Camera from "../rendering/camera/Camera";
 import {WGLRenderer, WGLOptions} from "../rendering/renderers/WGLRenderer";
 import {TextureManager, WGLTexture} from "../loader/TextureManager";
+import {Renderable} from "../rendering/shaders/DrawCall";
 import Body from "../physics/bodies/Body";
 import World from "../physics/World";
 import {Loader} from "../loader/Loader";
@@ -13,11 +14,14 @@ import {Dictionary} from "../utils/Dictionary";
 export default class IgniEngine implements Engine {
 
     private bodylessShapes: Shape[] = [];
+    private debugRenderables: Renderable[] = [];
     private world: World;
     private renderer: Renderer;
     private _textureManager: TextureManager; 
     private lastFrameID: number;
     
+    private _debugDraw : boolean;
+
     private running : boolean;
 
     /**
@@ -95,11 +99,15 @@ export default class IgniEngine implements Engine {
             this.addShape(camera);
         }
 
-        //  If bindings not supplied, map to 1,2 and 3 keyboard keys
-        if (opts !== undefined && opts.frameControl) {
+        if (opts !== undefined) {
+            //  If bindings not supplied, map to 1,2 and 3 keyboard keys
+            if (opts.frameControl) {
             window.document.addEventListener("keydown", debugFrameInput.bind (this, opts.stopKeyBinding || 49, 
                                                                                     opts.resumeKeyBinding || 50,
                                                                                     opts.resumeFrameKeyBinding || 51));
+            }
+            
+            this._debugDraw = opts.debugDraw;
         }
     }
 
@@ -152,6 +160,9 @@ export default class IgniEngine implements Engine {
                                             this.clock.physicsUpdatePeriod);
             }
 
+            //  Renew debug renderables array each frame
+            this.debugRenderables.length = 0;
+
             //  Update Pattern
             for(let shape of this.bodylessShapes) {
                 shape.update(this.clock.deltaTime/1000);
@@ -161,7 +172,7 @@ export default class IgniEngine implements Engine {
             // Physics engine update loop.
             for (let i = 0; i < physicsTicks; ++i) {
                 this.clock.lastPhysicsTick += this.clock.physicsUpdatePeriod;
-                this.world.detectCollisions();
+                this.world.detectCollisions(this._debugDraw, this.debugRenderables);
                 // resolve collisions.
                 this.world.step(this.clock.lastPhysicsTick/1000, this.timeScale * this.clock.physicsUpdatePeriod/1000);
             }
@@ -173,6 +184,10 @@ export default class IgniEngine implements Engine {
             }
             for (let shape of this.bodylessShapes) {
                 this.renderer.drawShape(shape);
+            }
+            //  Debug Draw
+            for (let renderable of this.debugRenderables) {
+                this.renderer.debugDraw (renderable);        
             }
 
             ++this.clock.frameCount;

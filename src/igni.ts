@@ -43,7 +43,8 @@ let onWindowLoad = function () {
         frameControl : true,
         stopKeyBinding : 49,
         resumeKeyBinding : 50,
-        resumeFrameKeyBinding : 51
+        resumeFrameKeyBinding : 51,
+        debugDraw : true
      });
 
     // Add axes for easy visualization.
