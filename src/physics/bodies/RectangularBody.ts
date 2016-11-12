@@ -1,4 +1,5 @@
 import {vec2, vec3, mat4} from "gl-matrix";
+import {perpendicularize} from "../utils/utils";
 import Body from "./Body";
 import CircularBody from "./CircularBody";  
 import RectangularBodyDefinition from "./RectangularBodyDefinition";
@@ -33,9 +34,9 @@ export default class RectangularBody extends Body {
 
         this._vertices = [
             vec2.fromValues(this._width/2, this._height/2),
-            vec2.fromValues(this._width/2, -this._height/2),
             vec2.fromValues(-this._width/2, this._height/2),
-            vec2.fromValues(-this._width/2, -this._height/2)
+            vec2.fromValues(-this._width/2, -this._height/2),
+            vec2.fromValues(this._width/2, -this._height/2)
         ];
         this._axes = [
             vec2.fromValues(1.0,0.0),
@@ -85,16 +86,20 @@ export default class RectangularBody extends Body {
         return world_vertices;
     }
 
-    // TO DO(econrado): make it more generic to work for any polygon.
     public getWorldAxes() :vec2[] {
         this.updateTransforms();
-        let world_axes :vec2[] = [];
-        for(let axis of this._axes) {
-            let world_axis = vec3.create();
-            vec3.transformMat4(world_axis, vec3.fromValues(axis[0],axis[1], 0), this._inverseTranposeTransform);
-            world_axes.push(vec2.fromValues(world_axis[0], world_axis[1]));
+        this._axes.length = 0;
+        for(let i = 0; i < this._vertices.length; i++) {
+            let world_axis2d = vec2.sub(vec2.create(), this._vertices[(i+1) % this._vertices.length], this._vertices[i % this._vertices.length]);
+            perpendicularize(world_axis2d);
+            let world_axis = vec3.fromValues(world_axis2d[0], world_axis2d[1], 0);
+
+            vec3.transformMat4(world_axis, world_axis, this._inverseTranposeTransform);
+            vec2.set(world_axis2d, world_axis[0], world_axis[1]);
+            vec2.normalize(world_axis2d, world_axis2d);
+            this._axes.push(world_axis2d);
         }
-        return world_axes;
+        return this._axes;
     }
 
     public extremeVertex(direction :vec2) {

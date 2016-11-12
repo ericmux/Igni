@@ -26,6 +26,7 @@ import Sprite from "./rendering/shapes/Sprite";
 import ContainmentTestScene from "./scenes/ContainmentTestScene";
 import CollisiontestScene from "./scenes/CollisiontestScene";
 import TextureLoadingTestScene from "./scenes/TextureLoadingTestScene";
+import GravityTestScene from "./scenes/GravityTestScene";
 
 //  Game, canvas and a reference to the axis shapes.
 let canvas : HTMLCanvasElement;
@@ -56,8 +57,11 @@ let onWindowLoad = function () {
     //// Containment test scene.
     //ContainmentTestScene.build(game);
 
-    // Collision test scene.
-    CollisiontestScene.build(game);
+    // // Collision test scene.
+    // CollisiontestScene.build(game);
+
+    // Gravity test scene.
+    GravityTestScene.build(game);
 
     game.start();
 };

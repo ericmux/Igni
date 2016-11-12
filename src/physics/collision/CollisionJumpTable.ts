@@ -25,7 +25,7 @@ export default class CollisionJumpTable {
     }
 
     public static collideCircleRectangle(bodyA :CircularBody, bodyB :RectangularBody) :CollisionManifold {
-        return null;
+        return SAT.testCollisionPolygonCircle(bodyB, bodyA);
     }
 
     public static collideRectangleRectangle(bodyA :RectangularBody, bodyB :RectangularBody) :CollisionManifold {

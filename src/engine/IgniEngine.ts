@@ -172,8 +172,11 @@ export default class IgniEngine implements Engine {
             // Physics engine update loop.
             for (let i = 0; i < physicsTicks; ++i) {
                 this.clock.lastPhysicsTick += this.clock.physicsUpdatePeriod;
-                this.world.detectCollisions(this._debugDraw, this.debugRenderables);
+
                 // resolve collisions.
+                this.world.detectCollisions(this._debugDraw, this.debugRenderables);
+                this.world.resolveCollisions();
+
                 this.world.step(this.clock.lastPhysicsTick/1000, this.timeScale * this.clock.physicsUpdatePeriod/1000);
             }
 
