@@ -110,9 +110,12 @@ export default class World {
             bodyB.angularVelocity -= impulse * bodyB.invMomentOfInertia * cross(vec2.negate(rb, rb), normal);
             bodyA.angularVelocity += impulse * bodyA.invMomentOfInertia * cross(vec2.negate(ra, ra), normal);
             
-            // Separate them back.
-            let depen_vector :vec2 = vec2.scale(mtv, mtv, 0.5);
+            // Separate them back according to their masses.
+            let percent :number = 1.0 
+            let depen_vector :vec2 = vec2.scale(mtv, mtv, percent / (bodyA.invMass + bodyB.invMass));
+            vec2.scale(depen_vector, depen_vector, bodyB.invMass);
             vec2.add(bodyB.position, bodyB.position, depen_vector);
+            vec2.scale(depen_vector, depen_vector, bodyA.invMass / bodyB.invMass);
             vec2.negate(depen_vector, depen_vector);
             vec2.add(bodyA.position, bodyA.position, depen_vector);
         }
