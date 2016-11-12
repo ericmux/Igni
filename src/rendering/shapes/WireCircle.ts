@@ -1,21 +1,15 @@
-import Shape from "./Shape";
 import {vec2, vec3, vec4, mat4} from "gl-matrix"
 import DrawCall from "../shaders/DrawCall";
 import {WireCircleDrawCall} from "../shaders/debug/WireCircleShader";
+import CircleShape from "../shapes/CircleShape";
 
-export default class WireCircle extends Shape {
+export default class WireCircle extends CircleShape {
     
-    private _centerPosition : vec4;
-    private _radius : number;
-    private _color  : vec4;
     private _wireCircleDrawCall : WireCircleDrawCall;
 
     constructor (position :vec3, radius : number) {
-        super(position, vec3.fromValues (radius, radius, 1));
+        super(position, radius);
         
-        this._color = vec4.fromValues (0.0, 0.0, 1.0, 1.0);
-        this._radius = radius;
-        this._centerPosition = vec4.fromValues (this.position[0], this.position[1], 0, 1);
         this._wireCircleDrawCall = new WireCircleDrawCall (null,null,null,null,null,null, null);
     }
 
@@ -30,13 +24,5 @@ export default class WireCircle extends Shape {
         this._wireCircleDrawCall.innerRadius = this._radius - 1;
 
         return this._wireCircleDrawCall;
-    }
-
-    get color () :vec4 {
-        return this._color;
-    }
-
-    set color (color :vec4) {
-        this._color = color;
     }
 }

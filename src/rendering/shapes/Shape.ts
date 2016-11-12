@@ -12,7 +12,12 @@ abstract class Shape implements Renderable {
     protected scale : vec3;
     protected updateCallback: (shape : Shape, deltaTime : number) => void;
 
+    //  TODO (igor) Move this to a util object later
+    protected deg2Rad : number;
+
     constructor(position :vec3, size? : vec3) {
+        this.deg2Rad = Math.PI/180;
+        
         this.position = position;
         this.rotation = 0;
         this._size = size || vec3.fromValues (1,1,1);
@@ -38,7 +43,7 @@ abstract class Shape implements Renderable {
      * @param angle angle degrees
      */
     public rotate (angle : number) {
-        this.rotation += angle;
+        this.rotation += angle*this.deg2Rad;
     }
 
     /**
@@ -52,8 +57,20 @@ abstract class Shape implements Renderable {
         this.position = vec3.fromValues(newPos[0], newPos[1], 0);
     }
 
+    public getPosition() {
+        return this.position;
+    } 
+
+    /**
+     * Set rotation around z axis in degrees
+     * @param angle angle degrees
+     */
     public setRotation(angle : number) {
-        this.rotation = angle;
+        this.rotation = angle * this.deg2Rad;
+    }
+
+    public getRotation() {
+        return this.rotation;
     }
 
     protected updateModelMatrix () {

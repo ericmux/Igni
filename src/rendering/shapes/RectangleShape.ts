@@ -5,9 +5,9 @@ import {FlatColorDrawCall} from "../shaders/FlatColorShader";
 
 export default class RectangleShape extends Shape {
     
-    private _width  : number;
-    private _height : number;
-    private _color  : vec4;
+    protected _width  : number;
+    protected _height : number;
+    protected _color  : vec4;
     private _flatColorDrawCall : FlatColorDrawCall;
 
     constructor (position :vec3, width : number, height : number) {

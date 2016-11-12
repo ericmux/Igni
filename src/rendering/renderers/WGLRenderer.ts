@@ -12,6 +12,7 @@ import {WireQuadShader, WireQuadDrawCall} from "../shaders/debug/WireQuadShader"
 import {FlatColorShader, FlatColorDrawCall} from "../shaders/FlatColorShader";
 import {FlatColorCircleShader, FlatColorCircleDrawCall} from "../shaders/FlatColorCircleShader";
 import {SpriteShader, SpriteDrawCall} from "../shaders/SpriteShader";
+import {LineShader, LineDrawCall} from "../shaders/LineShader";
 import {vec2, vec3, vec4, mat4} from "gl-matrix";
 import Camera from "../camera/Camera";
 
@@ -28,6 +29,7 @@ export class WGLRenderer implements Renderer {
 	private projection_matrix : mat4;
 	private currentVBO : WebGLBuffer;
 	private quadVBO : WebGLBuffer;
+	private lineVBO : WebGLBuffer;
 	private canvas : HTMLCanvasElement;
 	private camera : Shape;
 
@@ -37,6 +39,7 @@ export class WGLRenderer implements Renderer {
 	private spriteShader : Shader;
 	private wireQuadShader : Shader;
 	private wireCircleShader : Shader;
+	private lineShader : Shader;
 
 	constructor (canvas : HTMLCanvasElement, opts?: WGLOptions) {
 		opts = opts || <WGLOptions>{ depth_test: false, blend: false };
@@ -56,7 +59,28 @@ export class WGLRenderer implements Renderer {
 			WGLRenderer.gl.blendFunc (WGLRenderer.gl.SRC_ALPHA, WGLRenderer.gl.ONE_MINUS_SRC_ALPHA);
 		}
 
-		//  Setup VBO.
+		this.setupDefaultVBOS ();
+
+		// Set up default static camera.
+		this.camera = new Camera (vec3.fromValues(0,0,0), 1,1);
+
+		this.canvas = canvas;
+		this.squareShader = new FlatColorShader (WGLRenderer.gl, this.quadVBO);
+		this.circleShader = new FlatColorCircleShader (WGLRenderer.gl, this.quadVBO);
+		this.spriteShader = new SpriteShader (WGLRenderer.gl, this.quadVBO);
+		this.wireQuadShader = new WireQuadShader (WGLRenderer.gl, this.quadVBO);
+		this.wireCircleShader = new WireCircleShader (WGLRenderer.gl, this.quadVBO);
+		this.lineShader = new LineShader (WGLRenderer.gl, this.lineVBO);
+
+		//  Set up viewport and projection matrix
+		this.resizeToCanvas ();
+		
+		WGLRenderer.gl.bindFramebuffer (WGLRenderer.gl.FRAMEBUFFER, null);
+		this.clear();
+	}
+
+	private setupDefaultVBOS () {
+		//  Setup Quad VBO.
         this.quadVBO = WGLRenderer.gl.createBuffer();
 		//  Bind VBO
         WGLRenderer.gl.bindBuffer(WGLRenderer.gl.ARRAY_BUFFER, this.quadVBO);
@@ -69,21 +93,16 @@ export class WGLRenderer implements Renderer {
 		let quadVertices = new Float32Array (data);
 		WGLRenderer.gl.bufferData (WGLRenderer.gl.ARRAY_BUFFER, quadVertices, WGLRenderer.gl.STATIC_DRAW);
 
-		// Set up default static camera.
-		this.camera = new Camera (vec3.fromValues(0,0,0), 1,1);
-
-		this.canvas = canvas;
-		this.squareShader = new FlatColorShader (WGLRenderer.gl, this.quadVBO);
-		this.circleShader = new FlatColorCircleShader (WGLRenderer.gl, this.quadVBO);
-		this.spriteShader = new SpriteShader (WGLRenderer.gl, this.quadVBO);
-		this.wireQuadShader = new WireQuadShader (WGLRenderer.gl, this.quadVBO);
-		this.wireCircleShader = new WireCircleShader (WGLRenderer.gl, this.quadVBO);
-
-		//  Set up viewport and projection matrix
-		this.resizeToCanvas ();
-		
-		WGLRenderer.gl.bindFramebuffer (WGLRenderer.gl.FRAMEBUFFER, null);
-		this.clear();
+		//  Setup Quad VBO.
+        this.lineVBO = WGLRenderer.gl.createBuffer();
+		//  Bind VBO
+        WGLRenderer.gl.bindBuffer(WGLRenderer.gl.ARRAY_BUFFER, this.lineVBO);
+		//  Buffer data:
+		//  4 vertex attributes positions (4 componentes each).
+		//  total length: 2 * 4
+		data = [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0];
+		let lineVertices = new Float32Array (data);
+		WGLRenderer.gl.bufferData (WGLRenderer.gl.ARRAY_BUFFER, lineVertices, WGLRenderer.gl.STATIC_DRAW);
 	}
 
 	// Clears the canvas for the next frame.
@@ -126,6 +145,9 @@ export class WGLRenderer implements Renderer {
 	private toDebugDrawCall (drawCall: DrawCall) : DrawCall;
 	private toDebugDrawCall (drawCall: any) : DrawCall {
 
+		if (drawCall instanceof LineDrawCall) { 
+			return drawCall;
+		}
 		if (drawCall instanceof FlatColorCircleDrawCall) {
 				
 			drawCall = drawCall as FlatColorCircleDrawCall;
@@ -140,7 +162,7 @@ export class WGLRenderer implements Renderer {
 			return new WireQuadDrawCall (drawCall.projection, drawCall.view, drawCall.model, vec4.fromValues (1,1,1,1), 1)
 		}  
 
-		return null;
+		return drawCall;
 	}
 
 	/**
@@ -152,6 +174,7 @@ export class WGLRenderer implements Renderer {
 
 	private render (drawCall: WireCircleDrawCall) : void;
 	private render (drawCall: WireQuadDrawCall) : void;
+	private render (drawCall: LineDrawCall) : void;
 	private render (drawCall: SpriteDrawCall) : void;
 	private render (drawCall: FlatColorCircleDrawCall) : void;
 	private render (drawCall: FlatColorDrawCall) : void;
@@ -170,6 +193,12 @@ export class WGLRenderer implements Renderer {
 
 			this.currentVBO = this.quadVBO;
 			this.currentShader = this.spriteShader;
+		}
+		else if (drawCall instanceof LineDrawCall) {
+			this.lineShader.render (drawCall, this.currentShader, this.currentVBO);
+
+			this.currentVBO = this.lineVBO;
+			this.currentShader = this.lineShader;
 		}
 		else if (drawCall instanceof FlatColorCircleDrawCall) {
 			

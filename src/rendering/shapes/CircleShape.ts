@@ -5,9 +5,9 @@ import {FlatColorCircleDrawCall} from "../shaders/FlatColorCircleShader";
 
 export default class CircleShape extends Shape {
     
-    private _centerPosition : vec4;
-    private _radius : number;
-    private _color  : vec4;
+    protected _centerPosition : vec4;
+    protected _radius : number;
+    protected _color  : vec4;
     private _flatColorCircleDrawCall : FlatColorCircleDrawCall;
 
     constructor (position :vec3, radius : number) {
