@@ -27,6 +27,7 @@ export default class SAT {
         let fromAtoB :vec2 = vec2.sub(vec2.create(), circularBody.position, polygonBody.position);
         if (vec2.dot(fromAtoB, penetration_vector) < 0) {
             vec2.negate(penetration_vector, penetration_vector);
+            vec2.negate(min_normal, min_normal);
         }
         
         // Contact point generation.
@@ -60,6 +61,7 @@ export default class SAT {
         let fromAtoB :vec2 = vec2.sub(vec2.create(), polygonBodyB.position, polygonBodyA.position);
         if (vec2.dot(fromAtoB, penetration_vector) < 0) {
             vec2.negate(penetration_vector, penetration_vector);
+            vec2.negate(min_normal, min_normal);
         }
         
         // Contact point generation.
@@ -85,6 +87,7 @@ export default class SAT {
     private static testAxes(bodyA :Body, bodyB :Body, axes :vec2[]) :[number, vec2]{
         let min_overlap :number = Number.POSITIVE_INFINITY;
         let min_normal :vec2 = null;
+
         for(let axis of axes) {
             let proj1 : [number, number] = bodyA.project(axis);
             let proj2 : [number, number] = bodyB.project(axis);
@@ -94,13 +97,29 @@ export default class SAT {
                 return null;
             }
 
-            let min1min2 : number = Math.abs(proj1[0] - proj2[0]);
-            let min1max2 : number = Math.abs(proj1[0] - proj2[1]);
-            let max1min2 : number = Math.abs(proj1[1] - proj2[0]);
-            let max1max2 : number = Math.abs(proj1[1] - proj2[1]);
-
             // Overlap is the distance between the two closest points.
-            let overlap :number = Math.min(min1min2, min1max2, max1min2, min1max2); 
+            let overlap :number;
+
+            if((proj2[0] >= proj1[0] && proj2[0] <= proj1[1]) &&
+               (proj2[1] >= proj1[0] && proj2[1] <= proj1[1])) {
+                // Both endpoints are inside 1 (containment).
+                overlap = proj2[1] - proj2[0] + Math.min(Math.abs(proj2[0] - proj1[0]), Math.abs(proj2[1] - proj1[1]));
+            }
+            else if (proj2[0] < proj1[0] && proj2[1] > proj1[1]) {
+                // Both endpoints are outside 1, on opposite sides (containment).
+                overlap = proj1[1] - proj1[0] + Math.min(Math.abs(proj2[0] - proj1[0]), Math.abs(proj2[1] - proj1[1]));
+            }
+            else {
+                // Average case overlap.
+                // 2's endpoint is inside 1.
+                let min1max2: number = Math.abs(proj2[1] - proj1[0]);
+
+                // 2's start point is inside 1.
+                let max1min2: number = Math.abs(proj1[1] - proj2[0]);
+
+                overlap = Math.min(min1max2, max1min2);
+            }
+
             if(overlap < min_overlap) {
                 min_overlap = overlap;
                 min_normal = vec2.normalize(vec2.create(), axis);

@@ -65,7 +65,7 @@ export default class CollisionTestScene extends TestScene {
 
       // Add a rectangular body.
         let body4 : Body = new RectangularBody(<RectangularBodyDefinition>{
-            position: vec2.fromValues(-30,-60),
+            position: vec2.fromValues(-60,-60),
             width: 20,
             height: 20,
             mass: 1.0,
@@ -106,23 +106,23 @@ export default class CollisionTestScene extends TestScene {
         });
         game.addBody(ground);
 
-        // Add falling balls.
-        let ball1 : Body = new CircularBody(<CircularBodyDefinition>{
-            position: vec2.fromValues(-190,90),
-            radius: 10,
-            mass: 1.0,
-            force: vec2.fromValues(0.0, -10.0),
-            collisionCallback: checkCollisionCallback
-        });
-        game.addBody(ball1);
-        let ball2 : Body = new CircularBody(<CircularBodyDefinition>{
-            position: vec2.fromValues(190,90),
-            radius: 10,
-            mass: 1.0,
-            force: vec2.fromValues(0.0, -10.0),
-            collisionCallback: checkCollisionCallback
-        });
-        game.addBody(ball2);
+        // // Add falling balls.
+        // let ball1 : Body = new CircularBody(<CircularBodyDefinition>{
+        //     position: vec2.fromValues(-190,90),
+        //     radius: 10,
+        //     mass: 1.0,
+        //     force: vec2.fromValues(0.0, -10.0),
+        //     collisionCallback: checkCollisionCallback
+        // });
+        // game.addBody(ball1);
+        // let ball2 : Body = new CircularBody(<CircularBodyDefinition>{
+        //     position: vec2.fromValues(190,90),
+        //     radius: 10,
+        //     mass: 1.0,
+        //     force: vec2.fromValues(0.0, -10.0),
+        //     collisionCallback: checkCollisionCallback
+        // });
+        // game.addBody(ball2);
 
         // body1.onUpdate(backAndForthUpdateCallback(200, body2));
         // body2.onUpdate(backAndForthUpdateCallback(400, body1));
