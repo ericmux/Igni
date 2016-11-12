@@ -105,7 +105,7 @@ export default class World {
             
             
             vec2.add(bodyB.velocity, bodyB.velocity, vec2.scale(vec2.create(), normal, impulse * bodyB.invMass));
-            vec2.add(bodyA.velocity, bodyA.velocity, vec2.scale(vec2.create(), normal, impulse * bodyA.invMass));
+            vec2.add(bodyA.velocity, bodyA.velocity, vec2.scale(vec2.create(), normal, -impulse * bodyA.invMass));
 
             bodyB.angularVelocity -= impulse * bodyB.invMomentOfInertia * cross(vec2.negate(rb, rb), normal);
             bodyA.angularVelocity += impulse * bodyA.invMomentOfInertia * cross(vec2.negate(ra, ra), normal);

@@ -49,7 +49,7 @@ export default class CollisionTestScene extends TestScene {
 
         // Add a circular body.
         let body2 : Body = new CircularBody(<CircularBodyDefinition>{
-            position: vec2.fromValues(0,60),
+            position: vec2.fromValues(-50,60),
             radius: 10,
             mass: 1.0,
             velocity: vec2.fromValues(30.0, 0.0)
@@ -70,7 +70,7 @@ export default class CollisionTestScene extends TestScene {
 
       // Add a rectangular body.
         let body4 : Body = new RectangularBody(<RectangularBodyDefinition>{
-            position: vec2.fromValues(0,-60),
+            position: vec2.fromValues(-30,-60),
             width: 20,
             height: 20,
             mass: 1.0,
@@ -90,7 +90,7 @@ export default class CollisionTestScene extends TestScene {
 
       // Add a rectangular body.
         let body6 : Body = new RectangularBody(<RectangularBodyDefinition>{
-            position: vec2.fromValues(0,-90),
+            position: vec2.fromValues(-45,-90),
             width: 20,
             height: 20,
             mass: 1.0,
@@ -102,7 +102,7 @@ export default class CollisionTestScene extends TestScene {
 
         // Add ground.
         let ground : Body = new RectangularBody(<RectangularBodyDefinition>{
-            position: vec2.fromValues(0,-100),
+            position: vec2.fromValues(0,-150),
             width: 2000,
             height: 20,
             mass: 100000.0
