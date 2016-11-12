@@ -32,8 +32,18 @@ export default class SAT {
         // Contact point generation.
         let extremeVertexInA :vec2 = polygonBody.extremeVertex(penetration_vector);
         let extremeVertexInB :vec2 = circularBody.extremeVertex(vec2.negate(vec2.create(), penetration_vector));
-        let contact_point :vec2 = vec2.add(vec2.create(), extremeVertexInA, extremeVertexInB);
-        vec2.scale(contact_point, contact_point, 0.5);
+        let contact_point :vec2;
+
+        let penetrating_points :vec2[] = [];
+        if (polygonBody.contains(extremeVertexInB)) penetrating_points.push(extremeVertexInB);
+        if (circularBody.contains(extremeVertexInA)) penetrating_points.push(extremeVertexInA);
+
+        if(penetrating_points.length === 0) contact_point = extremeVertexInB;
+        else if(penetrating_points.length === 1) contact_point = penetrating_points[0];
+        else {
+            contact_point = vec2.add(vec2.create(), penetrating_points[0], penetrating_points[1]);
+            vec2.scale(contact_point, contact_point, 0.5);
+        }
 
         return new CollisionManifold(polygonBody, circularBody, penetration_vector, contact_point, min_normal);
     }

@@ -36,68 +36,68 @@ export default class CollisionTestScene extends TestScene {
             };
         };
 
-        // PAIR 1
-        // Add a circular body.
-        let body1 : Body = new CircularBody(<CircularBodyDefinition>{
-            radius: 30,
-            position: vec2.fromValues(0,60),
-            mass: 1.0,
-            velocity: vec2.fromValues(-30.0, 0),
-            torque: 5.0
-        });
-        game.addBody(body1);
+    //     // PAIR 1
+    //     // Add a circular body.
+    //     let body1 : Body = new CircularBody(<CircularBodyDefinition>{
+    //         radius: 30,
+    //         position: vec2.fromValues(0,60),
+    //         mass: 1.0,
+    //         velocity: vec2.fromValues(-30.0, 0),
+    //         torque: 5.0
+    //     });
+    //     game.addBody(body1);
 
-        // Add a circular body.
-        let body2 : Body = new CircularBody(<CircularBodyDefinition>{
-            position: vec2.fromValues(-50,60),
-            radius: 10,
-            mass: 1.0,
-            velocity: vec2.fromValues(30.0, 0.0)
-        });
-        game.addBody(body2);  
+    //     // Add a circular body.
+    //     let body2 : Body = new CircularBody(<CircularBodyDefinition>{
+    //         position: vec2.fromValues(-50,60),
+    //         radius: 10,
+    //         mass: 1.0,
+    //         velocity: vec2.fromValues(30.0, 0.0)
+    //     });
+    //     game.addBody(body2);  
 
-        // PAIR 2
-        // Add a rectangular body.
-        let body3 : Body = new RectangularBody(<RectangularBodyDefinition>{
-            position: vec2.fromValues(0,-60),
-            width: 20,
-            height: 20,
-            mass: 1.0,
-            velocity: vec2.fromValues(-30.0, 0),
-            torque: 5.0
-        });
-        game.addBody(body3);
+    //     // PAIR 2
+    //     // Add a rectangular body.
+    //     let body3 : Body = new RectangularBody(<RectangularBodyDefinition>{
+    //         position: vec2.fromValues(0,-60),
+    //         width: 20,
+    //         height: 20,
+    //         mass: 1.0,
+    //         velocity: vec2.fromValues(-30.0, 0),
+    //         torque: 5.0
+    //     });
+    //     game.addBody(body3);
 
-      // Add a rectangular body.
-        let body4 : Body = new RectangularBody(<RectangularBodyDefinition>{
-            position: vec2.fromValues(-30,-60),
-            width: 20,
-            height: 20,
-            mass: 1.0,
-            velocity: vec2.fromValues(30.0, 0.0)
-        });
-        game.addBody(body4);  
+    //   // Add a rectangular body.
+    //     let body4 : Body = new RectangularBody(<RectangularBodyDefinition>{
+    //         position: vec2.fromValues(-30,-60),
+    //         width: 20,
+    //         height: 20,
+    //         mass: 1.0,
+    //         velocity: vec2.fromValues(30.0, 0.0)
+    //     });
+    //     game.addBody(body4);  
 
-        // PAIR 3
-        // Add a rectangular body.
-        let body5 : Body = new CircularBody(<CircularBodyDefinition>{
-            position: vec2.fromValues(0,-90),
-            radius: 10,
-            mass: 1.0,
-            velocity: vec2.fromValues(-30.0, 0)
-        });
-        game.addBody(body5);
+    //     // PAIR 3
+    //     // Add a rectangular body.
+    //     let body5 : Body = new CircularBody(<CircularBodyDefinition>{
+    //         position: vec2.fromValues(0,-90),
+    //         radius: 10,
+    //         mass: 1.0,
+    //         velocity: vec2.fromValues(-30.0, 0)
+    //     });
+    //     game.addBody(body5);
 
-      // Add a rectangular body.
-        let body6 : Body = new RectangularBody(<RectangularBodyDefinition>{
-            position: vec2.fromValues(-45,-90),
-            width: 20,
-            height: 20,
-            mass: 1.0,
-            velocity: vec2.fromValues(30.0, 0.0),
-            torque: 5.0
-        });
-        game.addBody(body6);
+    //   // Add a rectangular body.
+    //     let body6 : Body = new RectangularBody(<RectangularBodyDefinition>{
+    //         position: vec2.fromValues(-45,-90),
+    //         width: 20,
+    //         height: 20,
+    //         mass: 1.0,
+    //         velocity: vec2.fromValues(30.0, 0.0),
+    //         torque: 5.0
+    //     });
+    //     game.addBody(body6);
 
 
         // Add ground.
@@ -128,11 +128,11 @@ export default class CollisionTestScene extends TestScene {
         ball1.onUpdate(checkCollisionFunction(ground));
         ball2.onUpdate(checkCollisionFunction(ground));
 
-        body1.onUpdate(backAndForthUpdateCallback(200, body2));
-        body2.onUpdate(backAndForthUpdateCallback(400, body1));
-        body3.onUpdate(backAndForthUpdateCallback(400, body4));
-        body4.onUpdate(backAndForthUpdateCallback(400, body3));
-        body5.onUpdate(backAndForthUpdateCallback(400, body6));
-        body6.onUpdate(backAndForthUpdateCallback(400, body5));
+        // body1.onUpdate(backAndForthUpdateCallback(200, body2));
+        // body2.onUpdate(backAndForthUpdateCallback(400, body1));
+        // body3.onUpdate(backAndForthUpdateCallback(400, body4));
+        // body4.onUpdate(backAndForthUpdateCallback(400, body3));
+        // body5.onUpdate(backAndForthUpdateCallback(400, body6));
+        // body6.onUpdate(backAndForthUpdateCallback(400, body5));
     }
 }
