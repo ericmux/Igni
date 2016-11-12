@@ -46,7 +46,6 @@ export default class World {
 
     public resolveCollisions() {
         for(let manifold of this._collisionManifolds) {
-            // perform collison on bounding areas
             var bodyA: Body = manifold.bodyA;
             var bodyB: Body = manifold.bodyB;
             var mtv :vec2 = manifold.mtv; 
@@ -55,6 +54,10 @@ export default class World {
             if (bodyA === bodyB) {
                 return;
             }
+
+            // Call pre-collision callbacks.
+            bodyA.preCollisionCallback(manifold);
+            bodyB.preCollisionCallback(manifold);
             
             // TODO(econrado): look up for more realistic "e".
             let restitutionCoefficient :number = 0.5*(bodyA.restitutionCoefficient + bodyB.restitutionCoefficient);

@@ -43,6 +43,9 @@ abstract class Body implements CollisionArea {
     // Update callback.
     protected updateCallback: (body : Body, deltaTime : number) => void;
 
+    // Collision callback.
+    protected collisionCallback: (collisionManifold :CollisionManifold) => void;
+
     // Step integration method to be used. 
     // TO DO: take method from World setting.
     private stepIntegrator :StepIntegrator;
@@ -61,6 +64,7 @@ abstract class Body implements CollisionArea {
         bodyDef.mass = bodyDef.mass || 0.0;
         bodyDef.restitutionCoefficient = bodyDef.restitutionCoefficient || 1.0;
         bodyDef.updateCallback = bodyDef.updateCallback || ((body :Body, deltaTime :number) => {});
+        bodyDef.collisionCallback = bodyDef.collisionCallback || ((collisionManifold :CollisionManifold) => {});
         bodyDef.stepIntegrator = bodyDef.stepIntegrator || new VelocityVerletIntegrator();
 
         this.position = vec2.clone(bodyDef.position);
@@ -72,6 +76,7 @@ abstract class Body implements CollisionArea {
         this.mass = bodyDef.mass;
         this.restitutionCoefficient = bodyDef.restitutionCoefficient;
         this.updateCallback = bodyDef.updateCallback;
+        this.collisionCallback = bodyDef.collisionCallback;
         this.stepIntegrator = bodyDef.stepIntegrator;
 
         if (this.mass == 0.0) {
@@ -97,6 +102,10 @@ abstract class Body implements CollisionArea {
 
     public update(deltaTime : number) {
         this.updateCallback(this, deltaTime);
+    }
+
+    public preCollisionCallback(collisionManifold :CollisionManifold) {
+        this.collisionCallback(collisionManifold);
     }
 
     public onUpdate(updateCallback :(body :Body, deltaTime : number) => void) {
