@@ -49,17 +49,27 @@
          out.push (new CircleShape (vec3.fromValues (this.point[0], this.point[1], 0), 3));
 
          //  begin of mtv and normal vectors
+         let normalScale = 10;
          let begin = vec3.fromValues (this.bodyA.position[0], this.bodyA.position[1], 0);
-         
+
          //  mtv debug
          let mtv = vec3.fromValues (this.mtv[0], this.mtv[1], 0);
-         let end = vec3.add (vec3.create (), begin, mtv);
-         out.push (new LineShape (begin, end));
-
+         let mtvEnd = vec3.add (vec3.create (), begin, mtv);
+         
          //  normal debug
          let normal = vec3.fromValues (this.normal[0], this.normal[1], 0);
-         end = vec3.add (vec3.create (), begin, normal);
-         out.push (new LineShape (begin, end, vec4.fromValues(0,1,1,1)));
+         let normalEnd = vec3.scaleAndAdd(vec3.create (), begin, normal, normalScale);
+
+         //  order mtv and normal accordingly to who is bigger
+         if (vec3.dist (begin, mtvEnd) < normalScale) {
+            out.push (new LineShape (begin, normalEnd, vec4.fromValues(0,0,0,1)));
+            out.push (new LineShape (begin, mtvEnd));
+         }
+         else {
+            out.push (new LineShape (begin, mtvEnd));
+            out.push (new LineShape (begin, normalEnd, vec4.fromValues(0,0,0,1)));
+         }
+         
 
          return out; 
       }
