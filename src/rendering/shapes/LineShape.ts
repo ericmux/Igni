@@ -17,15 +17,15 @@ export default class LineShape extends Shape {
 
             //  If degenerated LineShape
             if (begin[1] === end[1]){
-                rotation = 90;
+                rotation = 0;
             }
             //  If vertical line
             {
-                rotation = 90 * Math.abs (end[1] - begin[1]) / (end[1] - begin[1]);
+                rotation = (Math.PI / 2) * Math.abs (end[1] - begin[1]) / (end[1] - begin[1]);
             }
         }
         else {
-            rotation = 180 * Math.atan2(end[1] - begin[1], end[0] - begin[0]) / Math.PI;
+            rotation = Math.atan2(end[1] - begin[1], end[0] - begin[0]);
         }
 
         super(begin);
