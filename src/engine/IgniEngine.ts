@@ -183,7 +183,7 @@ export default class IgniEngine implements Engine {
             // Draw
             this.renderer.clear();
             for (let body of this.world.bodies) {
-                this.renderer.drawShape(body.getLatestShape());
+                this.renderer.drawShape(body.getLatestVisualShape());
             }
             for (let shape of this.bodylessShapes) {
                 this.renderer.drawShape(shape);

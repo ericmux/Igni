@@ -15,8 +15,8 @@ export default class GravityTestScene extends TestScene {
 
         let checkCollisionCallback = (collisionManifold :CollisionManifold) => {
             let color :vec4 = vec4.fromValues(Math.random(), Math.random(), Math.random(), 1.0);
-            (<RectangleShape>collisionManifold.bodyA.shape).color = color;
-            (<RectangleShape>collisionManifold.bodyB.shape).color = color;
+            (<RectangleShape>collisionManifold.bodyA.visualShape).color = color;
+            (<RectangleShape>collisionManifold.bodyB.visualShape).color = color;
         };
 
         // Add matrix of squares.
