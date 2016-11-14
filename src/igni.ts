@@ -27,6 +27,7 @@ import ContainmentTestScene from "./scenes/ContainmentTestScene";
 import CollisiontestScene from "./scenes/CollisiontestScene";
 import TextureLoadingTestScene from "./scenes/TextureLoadingTestScene";
 import GravityTestScene from "./scenes/GravityTestScene";
+import InclinedPlaneTestScene from "./scenes/InclinedPlaneTestScene";
 
 //  Game, canvas and a reference to the axis shapes.
 let canvas : HTMLCanvasElement;
@@ -62,6 +63,9 @@ let onWindowLoad = function () {
 
     // Gravity test scene.
     GravityTestScene.build(game);
+
+    // InclinedPlaneTestScene
+    // InclinedPlaneTestScene.build (game);
 
     game.start();
 };

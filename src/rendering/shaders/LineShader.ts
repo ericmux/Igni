@@ -14,8 +14,8 @@ export class LineShader extends FlatColorShader {
     constructor(gl_context: WebGLRenderingContext, targetVBO : WebGLBuffer) {
         super(gl_context, targetVBO);
     }
-
-    public render(draw_call: FlatColorDrawCall, activeShader? : Shader, activeVBO? : WebGLBuffer) :void {
+    
+    public render(draw_call: LineDrawCall, activeShader? : Shader, activeVBO? : WebGLBuffer) :void {    
         super.render(draw_call, activeShader, activeVBO);
     }
     protected renderInternal () {

@@ -14,6 +14,7 @@ abstract class Body implements CollisionArea {
     // TODO: units are still treated as px/sec. Fix
     private _id :number;
     public position :vec2;
+    public isStaticBody :boolean;
     public velocity :vec2;
     protected _acceleration :vec2;
     protected _oldAcceleration: vec2;
@@ -31,6 +32,8 @@ abstract class Body implements CollisionArea {
     protected _invMass :number;
     protected _invMomentOfInertia :number;
     public restitutionCoefficient :number;
+    public staticFrictionCoefficient :number;
+    public dynamicFrictionCoefficient :number;
 
     // Transforms vertices and features to world coordinates.
     protected _transform :mat4;
@@ -59,18 +62,22 @@ abstract class Body implements CollisionArea {
         if(!bodyDef) bodyDef = <BodyDefinition>{ position: vec2.create() };
 
         bodyDef.position = bodyDef.position || vec2.create();
+        bodyDef.isStaticBody = bodyDef.isStaticBody || false;
         bodyDef.angle = bodyDef.angle || 0.0;
         bodyDef.velocity = bodyDef.velocity || vec2.create();
         bodyDef.angularVelocity = bodyDef.angularVelocity || 0.0;
         bodyDef.force = bodyDef.force || vec2.create();
         bodyDef.torque = bodyDef.torque || 0.0;
         bodyDef.mass = bodyDef.mass || 0.0;
-        bodyDef.restitutionCoefficient = bodyDef.restitutionCoefficient || 1.0;
+        bodyDef.restitutionCoefficient = bodyDef.restitutionCoefficient || 1;
+        bodyDef.staticFrictionCoefficient = bodyDef.staticFrictionCoefficient || 0.25;
+        bodyDef.dynamicFrictionCoefficient = bodyDef.dynamicFrictionCoefficient || 0.20;
         bodyDef.updateCallback = bodyDef.updateCallback || ((body :Body, deltaTime :number) => {});
         bodyDef.collisionCallback = bodyDef.collisionCallback || ((collisionManifold :CollisionManifold) => {});
         bodyDef.stepIntegrator = bodyDef.stepIntegrator || new VelocityVerletIntegrator();
 
         this.position = vec2.clone(bodyDef.position);
+        this.isStaticBody = bodyDef.isStaticBody;
         this.angle = bodyDef.angle;
         this.velocity = vec2.clone(bodyDef.velocity);
         this.angularVelocity = bodyDef.angularVelocity;
@@ -78,6 +85,8 @@ abstract class Body implements CollisionArea {
         this.torque = bodyDef.torque;
         this.mass = bodyDef.mass;
         this.restitutionCoefficient = bodyDef.restitutionCoefficient;
+        this.staticFrictionCoefficient = bodyDef.staticFrictionCoefficient;
+        this.dynamicFrictionCoefficient = bodyDef.dynamicFrictionCoefficient;
         this.updateCallback = bodyDef.updateCallback;
         this.collisionCallback = bodyDef.collisionCallback;
         this.stepIntegrator = bodyDef.stepIntegrator;

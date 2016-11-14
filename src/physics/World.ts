@@ -42,7 +42,7 @@ export default class World {
 
     public detectCollisions(debug? : boolean, debugOut? : Renderable[]) {
         this._collisionManifolds = this._collisionDetector.detect(this._bodies);
-
+        
         if (debug && debugOut !== undefined && debugOut != null) {            
             for (let i = 0; i < this._collisionManifolds.length; ++i) {
                 this._collisionManifolds[i].debugRenderables (debugOut);
@@ -67,11 +67,13 @@ export default class World {
             
             // TODO(econrado): look up for more realistic "e".
             let restitutionCoefficient :number = 0.5*(bodyA.restitutionCoefficient + bodyB.restitutionCoefficient);
-            
+            let staticFrictionCoefficient :number = 0.5*(bodyA.staticFrictionCoefficient + bodyB.staticFrictionCoefficient);
+            let dynamicFrictionCoefficient :number = 0.5*(bodyA.dynamicFrictionCoefficient + bodyB.dynamicFrictionCoefficient);
+
             let tangent :vec2 = vec2.clone(normal);
             perpendicularize(tangent);
             vec2.normalize(tangent, tangent);
-            
+
             let ra :vec2 =  vec2.sub(vec2.create(), point, bodyA.position); // point relative to bodyA position
             let rb :vec2 =  vec2.sub(vec2.create(), point, bodyB.position); // point relative to bodyB position
             
@@ -80,17 +82,18 @@ export default class World {
             let va = vec2.clone(ra);
             perpendicularize(va);
             vec2.scale(va, va, bodyA.angularVelocity);
-            vec2.sub(va, 
+            vec2.add(va, 
                     bodyA.velocity, 
                     va);
 
            let vb = vec2.clone(rb);
             perpendicularize(vb);
             vec2.scale(vb, vb, bodyB.angularVelocity);
-            vec2.sub(vb, 
+            vec2.add(vb, 
                     bodyB.velocity, 
                     vb);
-            let rv : vec2 = vec2.sub(vb, vb, va);
+
+            let rv : vec2 = vec2.sub(vec2.create (), va, vb);
             let rvNormal = vec2.dot(rv, normal);
             let rvTangent = vec2.dot(rv, tangent); 
             
@@ -100,25 +103,41 @@ export default class World {
             let rbTangent = vec2.dot(rb, tangent); 
             let rbNormal = vec2.dot(rb, normal); 
             
-            
-            // If objects are moving away ignore
-            if (rvNormal >  0) {
-                return;   
-            }
-            
-            
             // Collision impulse formula from Chris Hecker
             // https://en.wikipedia.org/wiki/Collision_response
-            var impulse = - ((1 + restitutionCoefficient) * rvNormal) /
+            var impulseNormal = ((1 + restitutionCoefficient) * rvNormal) /
                 ((bodyA.invMass + bodyB.invMass) + bodyA.invMomentOfInertia * raTangent * raTangent + bodyB.invMomentOfInertia * rbTangent * rbTangent); 
             
+            if (!bodyA.isStaticBody) {
+                vec2.add(bodyA.velocity, bodyA.velocity, vec2.scale(vec2.create(), normal, -impulseNormal * bodyA.invMass));
+                bodyA.angularVelocity -= impulseNormal * bodyA.invMomentOfInertia * cross(ra, normal);
+            }
             
-            vec2.add(bodyB.velocity, bodyB.velocity, vec2.scale(vec2.create(), normal, impulse * bodyB.invMass));
-            vec2.add(bodyA.velocity, bodyA.velocity, vec2.scale(vec2.create(), normal, -impulse * bodyA.invMass));
+            if (!bodyB.isStaticBody) {
+                vec2.add(bodyB.velocity, bodyB.velocity, vec2.scale(vec2.create(), normal, impulseNormal * bodyB.invMass));
+                bodyB.angularVelocity += impulseNormal * bodyB.invMomentOfInertia * cross(rb, normal);
+            }
 
-            bodyB.angularVelocity -= impulse * bodyB.invMomentOfInertia * cross(vec2.negate(rb, rb), normal);
-            bodyA.angularVelocity += impulse * bodyA.invMomentOfInertia * cross(vec2.negate(ra, ra), normal);
-            
+            if (rvTangent !== 0) {
+                let maxImpulseFriction = Math.abs(impulseNormal) * dynamicFrictionCoefficient * Math.abs(rvTangent) / rvTangent;
+                let impulseFriction = rvTangent / (bodyA.invMass + bodyB.invMass + raNormal * raNormal * bodyA.invMomentOfInertia + rbNormal * rbNormal * bodyB.invMomentOfInertia);
+
+                if (Math.abs(impulseFriction) > Math.abs(maxImpulseFriction)) {
+                    impulseFriction = maxImpulseFriction;
+                }
+
+                if (!bodyA.isStaticBody) {
+                    vec2.add(bodyA.velocity, bodyA.velocity, vec2.scale(vec2.create(), tangent, -impulseFriction * bodyA.invMass));
+                    bodyA.angularVelocity -= impulseFriction * bodyA.invMomentOfInertia * cross(ra, tangent);                    
+                }
+
+                if (!bodyB.isStaticBody) { 
+                    vec2.add(bodyB.velocity, bodyB.velocity, vec2.scale(vec2.create(), tangent, impulseFriction * bodyB.invMass));
+                    bodyB.angularVelocity += impulseFriction * bodyB.invMomentOfInertia * cross(rb, tangent);
+                }
+            }
+
+
             // Separate them back according to their masses.
             let percent :number = 1.0;
             let depen_vector :vec2 = vec2.scale(mtv, mtv, percent / (bodyA.invMass + bodyB.invMass));
