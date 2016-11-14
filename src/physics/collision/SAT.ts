@@ -11,7 +11,7 @@ export default class SAT {
         let axes :vec2[] = polygonBody.getWorldAxes(); 
         
         // Extra axis from the vertex-based voronoi regions.
-        let closest_point_to_circle :vec2 = polygonBody.extremeVertex(vec2.sub(vec2.create(), circularBody.position, polygonBody.position));
+        let closest_point_to_circle :vec2 = polygonBody.extremeVertex(vec2.sub(vec2.create(), circularBody.position, polygonBody.position))[0];
         let point_axis :vec2 = vec2.sub(vec2.create(), circularBody.position, closest_point_to_circle);
         vec2.normalize(point_axis, point_axis);
 
@@ -31,15 +31,15 @@ export default class SAT {
         }
         
         // Contact point generation.
-        let extremeVertexInA :vec2 = polygonBody.extremeVertex(penetration_vector);
-        let extremeVertexInB :vec2 = circularBody.extremeVertex(vec2.negate(vec2.create(), penetration_vector));
+        let extremeVertexInA :[vec2,number] = polygonBody.extremeVertex(penetration_vector);
+        let extremeVertexInB :[vec2,number] = circularBody.extremeVertex(vec2.negate(vec2.create(), penetration_vector));
         let contact_point :vec2;
 
         let penetrating_points :vec2[] = [];
-        if (polygonBody.contains(extremeVertexInB)) penetrating_points.push(extremeVertexInB);
-        if (circularBody.contains(extremeVertexInA)) penetrating_points.push(extremeVertexInA);
+        if (polygonBody.contains(extremeVertexInB[0])) penetrating_points.push(extremeVertexInB[0]);
+        if (circularBody.contains(extremeVertexInA[0])) penetrating_points.push(extremeVertexInA[0]);
 
-        if(penetrating_points.length === 0) contact_point = extremeVertexInB;
+        if(penetrating_points.length === 0) contact_point = extremeVertexInB[0];
         else if(penetrating_points.length === 1) contact_point = penetrating_points[0];
         else {
             contact_point = vec2.add(vec2.create(), penetrating_points[0], penetrating_points[1]);
@@ -65,15 +65,15 @@ export default class SAT {
         }
         
         // Contact point generation.
-        let extremeVertexInA :vec2 = polygonBodyA.extremeVertex(penetration_vector);
-        let extremeVertexInB :vec2 = polygonBodyB.extremeVertex(vec2.negate(vec2.create(), penetration_vector));
+        let extremeVertexInA :[vec2,number] = polygonBodyA.extremeVertex(penetration_vector);
+        let extremeVertexInB :[vec2,number] = polygonBodyB.extremeVertex(vec2.negate(vec2.create(), penetration_vector));
         let contact_point :vec2;
 
         let penetrating_points :vec2[] = [];
-        if (polygonBodyA.contains(extremeVertexInB)) penetrating_points.push(extremeVertexInB);
-        if (polygonBodyB.contains(extremeVertexInA)) penetrating_points.push(extremeVertexInA);
+        if (polygonBodyA.contains(extremeVertexInB[0])) penetrating_points.push(extremeVertexInB[0]);
+        if (polygonBodyB.contains(extremeVertexInA[0])) penetrating_points.push(extremeVertexInA[0]);
 
-        if(penetrating_points.length === 0) contact_point = extremeVertexInB;
+        if(penetrating_points.length === 0) contact_point = extremeVertexInB[0];
         else if(penetrating_points.length === 1) contact_point = penetrating_points[0];
         else {
             contact_point = vec2.add(vec2.create(), penetrating_points[0], penetrating_points[1]);

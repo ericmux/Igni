@@ -127,7 +127,9 @@ abstract class Body implements CollisionArea {
 
     public abstract getWorldAxes() :vec2[];
 
-    public abstract extremeVertex(direction :vec2) :vec2;
+    public abstract extremeVertex(direction :vec2) :[vec2, number];
+
+    public abstract extremeEdge(direction :vec2) :[vec2, vec2];
     
     public abstract project(direction :vec2) :[number, number];
 

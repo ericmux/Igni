@@ -50,16 +50,21 @@ export default class CircularBody extends Body {
 
     public getWorldVertices() :vec2[] {
         // circles have no vertices.
-        return [];
+        return null;
     }
 
     public getWorldAxes() :vec2[] {
         // circles have an infinite amount of axes.
-        return [];
+        return null;
     }
 
-    public extremeVertex(direction :vec2) {
-        return vec2.scaleAndAdd(vec2.create(), this.position, vec2.normalize(vec2.create(), direction), this._radius);
+    public extremeVertex(direction :vec2) :[vec2, number] {
+        return [vec2.scaleAndAdd(vec2.create(), this.position, vec2.normalize(vec2.create(), direction), this._radius), -1];
+    }
+
+    public extremeEdge(direction :vec2) :[vec2, vec2] {
+        // circles have no edges.
+        return null;
     }
 
     public project(direction :vec2) :[number, number] {

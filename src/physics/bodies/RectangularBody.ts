@@ -102,20 +102,42 @@ export default class RectangularBody extends Body {
         return this._axes;
     }
 
-    public extremeVertex(direction :vec2) {
+    public extremeVertex(direction :vec2) :[vec2, number] {
         let vertices :vec2[] = this.getWorldVertices();
         if (vertices.length === 0) return null;
 
         let max_dot :number = Number.NEGATIVE_INFINITY;
         let max_vertex :vec2 = null;
-        vertices.forEach((vertex :vec2) => {
+        let max_index :number = -1;
+        vertices.forEach((vertex :vec2, index :number) => {
             let dot :number = vec2.dot(vertex, direction);
             if (dot > max_dot) {
                 max_dot = dot;
                 max_vertex = vertex;
+                max_index = index;
             }
         });
-        return vec2.clone(max_vertex);
+        return [vec2.clone(max_vertex), max_index];
+    }
+
+    public extremeEdge(direction :vec2) :[vec2, vec2] {
+        let vertices :vec2[] = this.getWorldVertices();
+        let extreme_vertex_pair :[vec2,number] = this.extremeVertex(direction);
+        let extreme_vertex :vec2 = extreme_vertex_pair[0];
+        let extreme_vertex_index :number = extreme_vertex_pair[1];
+
+        // Calculate candidate edges (poiting towards the extreme vertex).
+        let prev_vertex :vec2 = vertices[(extreme_vertex_index-1) % vertices.length];
+        let next_vertex :vec2 = vertices[(extreme_vertex_index+1) % vertices.length];
+
+        let prev_edge :vec2 = vec2.sub(vec2.create(), extreme_vertex, prev_vertex);
+        let next_edge :vec2 = vec2.sub(vec2.create(), extreme_vertex, next_vertex);
+
+        if (vec2.dot(prev_edge, direction) < vec2.dot(next_edge, direction)) {
+            return [prev_vertex, extreme_vertex];
+        }
+
+        return [extreme_vertex, next_vertex];
     }
 
     public project(direction :vec2) :[number, number] {
