@@ -6,6 +6,7 @@ import Shape from "../../rendering/shapes/Shape";
 
 interface BodyDefinition {
     position: vec2;
+    isStaticBody?: boolean,
     angle?: number;
     velocity?: vec2;
     angularVelocity?: number;
@@ -13,6 +14,8 @@ interface BodyDefinition {
     torque?: number;
     mass?: number;
     restitutionCoefficient?: number;
+    staticFrictionCoefficient?: number;
+    dynamicFrictionCoefficient?: number;
     updateCallback?: (body :Body, deltaTime :number) => void;
     collisionCallback?: (collisionManifold :CollisionManifold) => void;
     stepIntegrator?: StepIntegrator;

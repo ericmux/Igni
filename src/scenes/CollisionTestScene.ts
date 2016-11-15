@@ -21,7 +21,6 @@ export default class CollisionTestScene extends TestScene {
                     body.oldVelocity = vec2.clone(body.velocity);
                 }
                 t++;
-                console.log(body.angle);
             };
         };
 
@@ -66,10 +65,10 @@ export default class CollisionTestScene extends TestScene {
 
       // Add a rectangular body.
         let body4 : Body = new RectangularBody(<RectangularBodyDefinition>{
-            position: vec2.fromValues(-60,-90),
+            position: vec2.fromValues(-60,-70),
             width: 20,
             height: 20,
-            mass: 1.0,
+            mass: 10.0,
             velocity: vec2.fromValues(30.0, 0.0),
             collisionCallback: checkCollisionCallback
         });

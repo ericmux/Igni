@@ -45,7 +45,8 @@ export default class GravityTestScene extends TestScene {
             width: 2000,
             height: 20,
             mass: 100000.0,
-            collisionCallback: checkCollisionCallback
+            collisionCallback: checkCollisionCallback,
+            isStaticBody: true
         });
         game.addBody(ground);
 
@@ -55,7 +56,8 @@ export default class GravityTestScene extends TestScene {
             width: 20,
             height: 279.9,
             mass: 100000.0,
-            collisionCallback: checkCollisionCallback
+            collisionCallback: checkCollisionCallback,
+            isStaticBody: true
         });
         game.addBody(left_wall);
         let right_wall : Body = new RectangularBody(<RectangularBodyDefinition>{
@@ -63,7 +65,8 @@ export default class GravityTestScene extends TestScene {
             width: 20,
             height: 279.9,
             mass: 100000.0,
-            collisionCallback: checkCollisionCallback
+            collisionCallback: checkCollisionCallback,
+            isStaticBody: true
         });
         game.addBody(right_wall);
 
