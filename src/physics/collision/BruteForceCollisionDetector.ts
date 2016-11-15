@@ -7,10 +7,12 @@ export default class BruteForceCollisionDetector implements CollisionDetector {
         let contacts :CollisionManifold[] = [];
         for (let i = 0; i < bodies.length; i++) {
             for (let j = i+1; j < bodies.length; j++) {
-                let contact :CollisionManifold = bodies[i].collide(bodies[j]);
-                if(contact) {
-                    contacts.push(contact);
-                }
+                 if ( ! (bodies[i].isStaticBody && bodies[j].isStaticBody)) {
+                    let contact :CollisionManifold = bodies[i].collide(bodies[j]);
+                    if(contact) {
+                        contacts.push(contact);
+                    }
+                 }
             }
         }
         return contacts;
