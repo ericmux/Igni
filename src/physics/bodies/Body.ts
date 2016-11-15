@@ -32,6 +32,11 @@ abstract class Body implements CollisionArea {
     protected _invMomentOfInertia :number;
     public restitutionCoefficient :number;
 
+    // Accumulated deltas for collision resolution.
+    public dPosition :vec2;
+    public dVelocity :vec2;
+    public dAngularVelocity :number;
+
     // Transforms vertices and features to world coordinates.
     protected _transform :mat4;
     // Transforms normals to world coordinates.
@@ -88,6 +93,9 @@ abstract class Body implements CollisionArea {
         else {
             this._invMass = 1 / this.mass;
         }
+        this.dPosition = vec2.create();
+        this.dVelocity = vec2.create();
+        this.dAngularVelocity = 0.0;
         this._acceleration = vec2.scale(vec2.create(), this.force, this._invMass);
         this._oldAcceleration = vec2.clone(this._acceleration);
         this._transform = mat4.create();
@@ -155,6 +163,19 @@ abstract class Body implements CollisionArea {
             q, vec3.fromValues(this.position[0], this.position[1], 0.0), vec3.fromValues(1.0, 1.0, 1.0));
         this._inverseTranposeTransform = mat4.invert(this._inverseTranposeTransform, 
                                             mat4.transpose(this._inverseTranposeTransform, this._transform));
+    }
+
+    // Applies the accumulated collision-related changes in velocity and position to the body.
+    public applyResolution() {
+        // Apply deltas.
+        this.angularVelocity += this.dAngularVelocity;
+        vec2.add(this.position, this.position, this.dPosition);
+        vec2.add(this.velocity, this.velocity, this.dVelocity);
+
+        // Reset deltas.
+        vec2.set(this.dVelocity, 0.0, 0.0);
+        vec2.set(this.dPosition, 0.0, 0.0);
+        this.angularVelocity = 0.0;
     }
 
     public get acceleration() :vec2 {

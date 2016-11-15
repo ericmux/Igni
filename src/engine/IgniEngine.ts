@@ -124,8 +124,6 @@ export default class IgniEngine implements Engine {
 
             this._resetTimers = false;
         }
-        console.log("frameTime: " + frameTime);
-        console.log("lastFrameTime: " + this.clock.lastFrameTime);
 
         this.clock.deltaTime = (frameTime - this.clock.lastFrameTime);
 

@@ -51,7 +51,8 @@ export default class World {
     }
 
     public resolveCollisions() {
-        for(let manifold of this._collisionManifolds) {
+        for(let i = 0; i < this._collisionManifolds.length; i++) {
+            let manifold : CollisionManifold = this._collisionManifolds[i];
             var bodyA: Body = manifold.bodyA;
             var bodyB: Body = manifold.bodyB;
             var mtv :vec2 = manifold.mtv; 
@@ -103,7 +104,7 @@ export default class World {
             
             // If objects are moving away ignore
             if (rvNormal >  0) {
-                return;   
+                continue;   
             }
             
             
@@ -112,22 +113,26 @@ export default class World {
             var impulse = - ((1 + restitutionCoefficient) * rvNormal) /
                 ((bodyA.invMass + bodyB.invMass) + bodyA.invMomentOfInertia * raTangent * raTangent + bodyB.invMomentOfInertia * rbTangent * rbTangent); 
             
-            
-            vec2.add(bodyB.velocity, bodyB.velocity, vec2.scale(vec2.create(), normal, impulse * bodyB.invMass));
-            vec2.add(bodyA.velocity, bodyA.velocity, vec2.scale(vec2.create(), normal, -impulse * bodyA.invMass));
+            vec2.add(bodyB.dVelocity, bodyB.dVelocity, vec2.scale(vec2.create(), normal, impulse * bodyB.invMass));
+            vec2.add(bodyA.dVelocity, bodyA.dVelocity, vec2.scale(vec2.create(), normal, -impulse * bodyA.invMass));
 
-            bodyB.angularVelocity -= impulse * bodyB.invMomentOfInertia * cross(vec2.negate(rb, rb), normal);
-            bodyA.angularVelocity += impulse * bodyA.invMomentOfInertia * cross(vec2.negate(ra, ra), normal);
+            bodyB.dAngularVelocity -= impulse * bodyB.invMomentOfInertia * cross(vec2.negate(rb, rb), normal);
+            bodyA.dAngularVelocity += impulse * bodyA.invMomentOfInertia * cross(vec2.negate(ra, ra), normal);
             
             // Separate them back according to their masses.
             let percent :number = 1.0;
             let depen_vector :vec2 = vec2.scale(mtv, mtv, percent / (bodyA.invMass + bodyB.invMass));
             vec2.scale(depen_vector, depen_vector, bodyB.invMass);
-            vec2.add(bodyB.position, bodyB.position, depen_vector);
+            vec2.add(bodyB.dPosition, bodyB.dPosition, depen_vector);
             vec2.scale(depen_vector, depen_vector, bodyA.invMass / bodyB.invMass);
             vec2.negate(depen_vector, depen_vector);
-            vec2.add(bodyA.position, bodyA.position, depen_vector);
+            vec2.add(bodyA.dPosition, bodyA.dPosition, depen_vector);
         }
+        // Apply changes to bodies all at once in the end.
+        for(let body of this._bodies) {
+            body.applyResolution();
+        }
+
         this._collisionManifolds.length = 0;
     }
 
