@@ -103,6 +103,11 @@ export default class World {
             let rbTangent = vec2.dot(rb, tangent); 
             let rbNormal = vec2.dot(rb, normal); 
             
+            // If objects are moving away ignore
+            if (rvNormal <  0) {
+                continue;   
+            }
+
             // Collision impulse formula from Chris Hecker
             // https://en.wikipedia.org/wiki/Collision_response
             var impulseNormal = ((1 + restitutionCoefficient) * rvNormal) /
@@ -137,15 +142,26 @@ export default class World {
                 }
             }
 
-
+            //  There shall be no staticBody vs staticBody collisions
+            if (bodyA.isStaticBody) {
+                vec2.add(bodyB.position, bodyB.position, mtv);
+            }
+            else if (bodyB.isStaticBody) {
+                let depen_vector :vec2 = vec2.create ();
+                vec2.negate (depen_vector, mtv);
+                vec2.add(bodyA.position, bodyA.position, depen_vector);
+            }
             // Separate them back according to their masses.
-            let percent :number = 1.0;
-            let depen_vector :vec2 = vec2.scale(mtv, mtv, percent / (bodyA.invMass + bodyB.invMass));
-            vec2.scale(depen_vector, depen_vector, bodyB.invMass);
-            vec2.add(bodyB.position, bodyB.position, depen_vector);
-            vec2.scale(depen_vector, depen_vector, bodyA.invMass / bodyB.invMass);
-            vec2.negate(depen_vector, depen_vector);
-            vec2.add(bodyA.position, bodyA.position, depen_vector);
+            else {
+                let percent :number = 1.0;
+                let depen_vector :vec2 = vec2.create ();
+                depen_vector = vec2.scale(depen_vector, mtv, percent / (bodyA.invMass + bodyB.invMass));
+                vec2.scale(depen_vector, depen_vector, bodyB.invMass);
+                vec2.add(bodyB.position, bodyB.position, depen_vector);
+                vec2.scale(depen_vector, depen_vector, bodyA.invMass / bodyB.invMass);
+                vec2.negate(depen_vector, depen_vector);
+                vec2.add(bodyA.position, bodyA.position, depen_vector);
+            }
         }
         this._collisionManifolds.length = 0;
     }
