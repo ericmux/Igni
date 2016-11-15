@@ -37,8 +37,11 @@ abstract class Body implements CollisionArea {
     // Transforms normals to world coordinates.
     protected _inverseTranposeTransform :mat4;
 
-    // Shape representing the physical object graphically.
-    public shape :Shape;
+    // Shape representing the object graphically to rendering.
+    public visualShape :Shape;
+
+    // Shape representing the object physically to physics simulation.
+    public physicalShape :Shape;
 
     // Update callback.
     protected updateCallback: (body : Body, deltaTime : number) => void;
@@ -112,11 +115,22 @@ abstract class Body implements CollisionArea {
         this.updateCallback = updateCallback;
     }
 
-    // updates shape's transform and returns it. 
-    public getLatestShape() :Shape {
-        this.shape.setPosition(this.position);
-        this.shape.setRotation(this.angle);
-        return this.shape;
+    /**
+     * Update body's visual shape transform and returns it.
+     */  
+    public getLatestVisualShape() :Shape {
+        this.visualShape.setPosition(this.position);
+        this.visualShape.setRotation(this.angle);
+        return this.visualShape;
+    }
+
+    /**
+     * Update body's physical shape transform and returns it.
+     */
+    public getLatestPhysicalShape() :Shape {
+        this.physicalShape.setPosition(this.position);
+        this.physicalShape.setRotation(this.angle);
+        return this.physicalShape;
     }
 
     public abstract getWorldVertices() :vec2[];

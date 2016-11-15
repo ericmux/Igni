@@ -81,7 +81,7 @@ export class TextureManager {
             alert ("You are overrinding texture " + resource.path + " at TextureManager");
         }
 
-        let resourceArgs = resource.args;
+        let resourceArgs = resource.args || {};
     
         //  Prefer more specific pixelPerUnit
         let opts = <TextureOptions> {

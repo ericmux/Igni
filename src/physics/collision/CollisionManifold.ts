@@ -44,8 +44,8 @@
       }
 
       public debugRenderables (out : Renderable[]) : Renderable[] {
-         out.push (this.bodyA.getLatestShape ());
-         out.push (this.bodyB.getLatestShape ());
+         out.push (this.bodyA.getLatestPhysicalShape ());
+         out.push (this.bodyB.getLatestPhysicalShape ());
          out.push (new CircleShape (vec3.fromValues (this.point[0], this.point[1], 0), 3));
 
          //  begin of mtv and normal vectors

@@ -14,7 +14,7 @@ export default class ContainmentTestScene extends TestScene {
 
         let checkContainmentFunction = (point :vec2) => {
             return (body: Body, deltaTime: number) => {
-                let shape :RectangleShape = <RectangleShape> body.shape;
+                let shape :RectangleShape = <RectangleShape> body.visualShape;
                 if (body.contains(point)) {
                     shape.color = vec4.fromValues(Math.random(), Math.random(), Math.random(), 1.0)
                 } 

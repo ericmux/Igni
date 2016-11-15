@@ -2,6 +2,7 @@ import {vec2, vec3} from "gl-matrix";
 import Body from "../bodies/Body";
 import StepIntegrator from "../integration/StepIntegrator";
 import CollisionManifold from "../collision/CollisionManifold";
+import Shape from "../../rendering/shapes/Shape";
 
 interface BodyDefinition {
     position: vec2;
@@ -14,6 +15,7 @@ interface BodyDefinition {
     restitutionCoefficient?: number;
     updateCallback?: (body :Body, deltaTime :number) => void;
     collisionCallback?: (collisionManifold :CollisionManifold) => void;
-    stepIntegrator?: StepIntegrator; 
+    stepIntegrator?: StepIntegrator;
+    visualShape? : Shape
 }
 export default BodyDefinition;
