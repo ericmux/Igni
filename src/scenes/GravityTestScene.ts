@@ -33,6 +33,7 @@ export default class GravityTestScene extends TestScene {
                     force: vec2.fromValues(0, -30.0),
                     velocity: vec2.fromValues(0, 0),
                     restitutionCoefficient: 0.5,
+                    torque: 1.0,
                     collisionCallback: checkCollisionCallback
                 });
                 game.addBody(body);

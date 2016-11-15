@@ -74,7 +74,7 @@ abstract class Body implements CollisionArea {
         bodyDef.force = bodyDef.force || vec2.create();
         bodyDef.torque = bodyDef.torque || 0.0;
         bodyDef.mass = bodyDef.mass || 0.0;
-        bodyDef.restitutionCoefficient = bodyDef.restitutionCoefficient || 1.0;
+        bodyDef.restitutionCoefficient = bodyDef.restitutionCoefficient || 0.8;
         bodyDef.staticFrictionCoefficient = bodyDef.staticFrictionCoefficient || 0.25;
         bodyDef.dynamicFrictionCoefficient = bodyDef.dynamicFrictionCoefficient || 0.20;
         bodyDef.updateCallback = bodyDef.updateCallback || ((body :Body, deltaTime :number) => {});

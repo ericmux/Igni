@@ -46,6 +46,7 @@ export default class InclinedPlaneTestScene extends TestScene {
                 width: 20,
                 height: 20,
                 mass: 12.0,
+                restitutionCoefficient: 0.2,
                 force: vec2.fromValues(0, -30.0*12),
                 velocity: vec2.fromValues(0.0, 0.0)
             });
@@ -57,6 +58,7 @@ export default class InclinedPlaneTestScene extends TestScene {
                 width: 20,
                 height: 20,
                 mass: 10.0,
+                restitutionCoefficient: 0.2,
                 force: vec2.fromValues(0, -30.0*10),
                 velocity: vec2.fromValues(0.0, 0.0)
             });

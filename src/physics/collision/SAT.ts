@@ -49,6 +49,7 @@ export default class SAT {
 
         return new CollisionManifold(polygonBody, circularBody, penetration_vector, contact_point, min_normal);
     }
+
     public static testCollisionPolygonPolygon(polygonBodyA :RectangularBody, polygonBodyB :RectangularBody) :CollisionManifold {
         let axes :vec2[] = polygonBodyA.getWorldAxes().concat(polygonBodyB.getWorldAxes());
 
@@ -70,45 +71,47 @@ export default class SAT {
         let extremeEdgeInA :[vec2, vec2] = polygonBodyA.extremeEdge(min_normal);
         let extremeEdgeInB :[vec2, vec2] = polygonBodyB.extremeEdge(vec2.negate(vec2.create(), min_normal));
 
-        let edgeDirectionA :vec2 = vec2.sub(vec2.create(), extremeEdgeInA[1], extremeEdgeInA[0]);
-        let edgeDirectionB :vec2 = vec2.sub(vec2.create(), extremeEdgeInB[1], extremeEdgeInB[0]);
+        // let edgeDirectionA :vec2 = vec2.sub(vec2.create(), extremeEdgeInA[1], extremeEdgeInA[0]);
+        // vec2.normalize(edgeDirectionA, edgeDirectionA);
+        // let edgeDirectionB :vec2 = vec2.sub(vec2.create(), extremeEdgeInB[1], extremeEdgeInB[0]);
+        // vec2.normalize(edgeDirectionB, edgeDirectionB);
 
-        // The reference edge is the one most perpendicular to the contact normal and the other one is the incident edge.
-        let reference_edge :[vec2, vec2];
-        let incident_edge :[vec2, vec2];
+        // // The reference edge is the one most perpendicular to the contact normal and the other one is the incident edge.
+        // let reference_edge :[vec2, vec2];
+        // let incident_edge :[vec2, vec2];
 
-        let reference_direction :vec2;
+        // let reference_direction :vec2;
 
-        let flipped :boolean;
-        if (Math.abs(vec2.dot(min_normal, edgeDirectionA)) <=
-            Math.abs(vec2.dot(min_normal, edgeDirectionB))) {
-            reference_edge = extremeEdgeInA;
-            reference_direction = edgeDirectionA;
-            incident_edge = extremeEdgeInB;
-            flipped = false;
-        } else {
-            reference_edge = extremeEdgeInB;
-            reference_direction = edgeDirectionB;
-            incident_edge = extremeEdgeInA;
-            flipped = true;
-        }
+        // let flipped :boolean;
+        // if (Math.abs(vec2.dot(min_normal, edgeDirectionA)) <=
+        //     Math.abs(vec2.dot(min_normal, edgeDirectionB))) {
+        //     reference_edge = extremeEdgeInA;
+        //     reference_direction = edgeDirectionA;
+        //     incident_edge = extremeEdgeInB;
+        //     flipped = false;
+        // } else {
+        //     reference_edge = extremeEdgeInB;
+        //     reference_direction = edgeDirectionB;
+        //     incident_edge = extremeEdgeInA;
+        //     flipped = true;
+        // }
 
-        vec2.normalize(reference_direction, reference_direction);
+        // vec2.normalize(reference_direction, reference_direction);
 
-        // Clip the incident edge by the first vertex of the reference edge.
-        let o1 :number = vec2.dot(reference_direction, reference_edge[0]); 
-        let contact_points :vec2[] = this.clip(incident_edge[0], incident_edge[1], reference_direction, o1);
-        if (contact_points.length < 2){
-            console.error("Clipping of manifold failed with too few points: " + contact_points.length);
-        }
+        // // Clip the incident edge by the first vertex of the reference edge.
+        // let o1 :number = vec2.dot(reference_direction, reference_edge[0]); 
+        // let contact_points :vec2[] = this.clip(incident_edge[0], incident_edge[1], reference_direction, o1);
+        // if (contact_points.length < 2){
+        //     console.error("Clipping of manifold failed with too few points: " + contact_points.length);
+        // }
         
-        // Clip whats left of the incident edge by the second vertex of the reference edge,
-        // but we need to clip in the opposite direction so we flip the direction and offset.
-        let o2 :number = vec2.dot(reference_direction, reference_edge[1]);
-        contact_points = this.clip(contact_points[0], contact_points[1], vec2.negate(vec2.create(), reference_direction), -o2);
-        if (contact_points.length < 2){
-            console.error("Clipping of manifold failed with too few points: " + contact_points.length);
-        }
+        // // Clip whats left of the incident edge by the second vertex of the reference edge,
+        // // but we need to clip in the opposite direction so we flip the direction and offset.
+        // let o2 :number = vec2.dot(reference_direction, reference_edge[1]);
+        // contact_points = this.clip(contact_points[0], contact_points[1], vec2.negate(vec2.create(), reference_direction), -o2);
+        // if (contact_points.length < 2){
+        //     console.error("Clipping of manifold failed with too few points: " + contact_points.length);
+        // }
         
         // let reference_normal = vec2.clone(reference_direction);
         // perpendicularize(reference_normal);
@@ -125,20 +128,31 @@ export default class SAT {
         //     contact_points.splice(1,1);
         // }
 
-        contact_points.filter((contact_point :vec2) => {
-            if(flipped) {
-                return polygonBodyB.contains(contact_point);
-            }
-            return polygonBodyA.contains(contact_point);
-        });
+        // contact_points.filter((contact_point :vec2) => {
+        //     if(flipped) {
+        //         return polygonBodyB.contains(contact_point);
+        //     }
+        //     return polygonBodyA.contains(contact_point);
+        // });
+
+        // Simplified contact point generation.
+        let contact_points :vec2[] = []
+        if(polygonBodyA.contains(extremeEdgeInB[0])) contact_points.push(extremeEdgeInB[0]);
+        if(polygonBodyA.contains(extremeEdgeInB[1])) contact_points.push(extremeEdgeInB[1]);
+        if(polygonBodyB.contains(extremeEdgeInA[0])) contact_points.push(extremeEdgeInA[0]);
+        if(polygonBodyB.contains(extremeEdgeInA[1])) contact_points.push(extremeEdgeInA[1]);
 
         // Compute final contact point.
-        let contact_point :vec2;
-        if(contact_points.length === 0) vec2.scale(contact_point, vec2.add(vec2.create(), reference_edge[0], reference_edge[1]), 0.5);
-        else if(contact_points.length === 1) contact_point = contact_points[0];
+        let contact_point :vec2 = vec2.create();
+        if (contact_points.length > 0){
+            contact_points.forEach((point :vec2) => {
+                vec2.add(contact_point, contact_point, point);
+            });
+            vec2.scale(contact_point, contact_point, 1.0 / contact_points.length);
+        }
         else {
-            contact_point = vec2.add(vec2.create(), contact_points[0], contact_points[1]);
-            vec2.scale(contact_point, contact_point, 0.5);
+            console.log("This shouldn't ever happen.");
+            contact_point = extremeEdgeInB[0];
         }
 
         return new CollisionManifold(polygonBodyA, polygonBodyB, penetration_vector, contact_point, min_normal);

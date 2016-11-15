@@ -37,7 +37,7 @@ let axes :[RectangleShape, RectangleShape];
 let onWindowLoad = function () {
     canvas = <HTMLCanvasElement> document.getElementById("gl-canvas");
 
-    let camera : Camera = new Camera(vec3.fromValues(0,250,0), 5, 5);
+    let camera : Camera = new Camera(vec3.fromValues(0,0,0), 1, 1);
     camera.onUpdate((camera : Camera, deltaTime : number) => {});
 
 
