@@ -25,18 +25,6 @@ export default class IgniEngine implements Engine {
 
     private _running : boolean;
     private _resetTimers : boolean;
-    
-    /**
-     * Reference to the restart function. When restarting, we wait one
-     * to be fired, catch that frameTime, and use it to update Clock's 
-     * timing.
-     */
-    private scheduleGameLoop : (frameTime : number) => void;
-
-    /**
-     * The same as {scheduleGameLoop}, but it schedules only one frame.
-     */
-    private scheduleFrame : (frameTime : number) => void;
 
     /**
      * Keep timing and framing info centralized
@@ -81,7 +69,7 @@ export default class IgniEngine implements Engine {
         this.world.addBody(body);
     }
 
-    private resetTimers () {
+    private initTimers () {
         let performanceNow = performance.now ();
 
         this.clock = <IClock> {
@@ -94,6 +82,19 @@ export default class IgniEngine implements Engine {
             pausedAt : 0,
             framePhysicsSteps : 0
         };
+    }
+
+    private resetTimers (frameTime :number) {
+        this.clock.lastPhysicsTick = frameTime;
+        this.clock.lastFrameTime = frameTime;
+        this.clock.frameCount = 0;
+
+        if(this._debugMode) {
+            // force a frame to always run (really hacky).
+            // TODO(econrado): come up with a better solution.
+            this.clock.lastFrameTime -= 1.2*this.clock.physicsUpdatePeriod;
+            this.clock.lastPhysicsTick -= 1.2*this.clock.physicsUpdatePeriod;
+        }
     }
 
     /**
@@ -113,19 +114,17 @@ export default class IgniEngine implements Engine {
     private runFrame = (frameTime : number) => {
         // reset timers if resuming from pause.
         if(this._resetTimers) {
-            this.clock.lastPhysicsTick = frameTime;
-            this.clock.lastFrameTime = frameTime;
-            this.clock.frameCount = 0;
-
-            if(this._debugMode) {
-                this.clock.lastFrameTime -= 1.2*this.clock.physicsUpdatePeriod;
-                this.clock.lastPhysicsTick -= 1.2*this.clock.physicsUpdatePeriod;
-            }
-
+            this.resetTimers(frameTime);
             this._resetTimers = false;
         }
 
         this.clock.deltaTime = (frameTime - this.clock.lastFrameTime);
+        
+        // Clamp delta time if the tab has lost focus. 
+        if(this.clock.deltaTime > 1.2*this.clock.physicsUpdatePeriod) {
+            this.resetTimers(frameTime);
+            this.clock.deltaTime = (frameTime - this.clock.lastFrameTime);
+        }
 
         let physicsTicks : number = 0;
         let nextPhysTick : number = this.clock.lastPhysicsTick + this.clock.physicsUpdatePeriod;
@@ -183,7 +182,7 @@ export default class IgniEngine implements Engine {
     public start() {
 
         // Reset all timers for a fresh simulation.
-        this.resetTimers();
+        this.initTimers();
 
         //  Start 
         this.gameLoop(performance.now ());

@@ -38,10 +38,6 @@
          this.point = point;
          this.normal = normal;
       }
-      
-      resolve() {
-          // TO DO: resolve collision.
-      }
 
       public debugRenderables (out : Renderable[]) : Renderable[] {
          out.push (this.bodyA.getLatestPhysicalShape ());
