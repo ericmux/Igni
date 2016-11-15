@@ -126,13 +126,16 @@ export default class RectangularBody extends Body {
         let extreme_vertex :vec2 = extreme_vertex_pair[0];
         let extreme_vertex_index :number = extreme_vertex_pair[1];
 
-        // Calculate candidate edges (poiting towards the extreme vertex).
-        let prev_vertex :vec2 = vertices[(extreme_vertex_index-1) % vertices.length];
-        let next_vertex :vec2 = vertices[(extreme_vertex_index+1) % vertices.length];
+        // Calculate candidate edges (poitning towards the extreme vertex).
+        let prev_vertex_index : number = extreme_vertex_index-1;
+        if (prev_vertex_index < 0) prev_vertex_index = vertices.length + prev_vertex_index;
+        let next_vertex_index : number = (extreme_vertex_index+1) % vertices.length;
+
+        let prev_vertex :vec2 = vertices[prev_vertex_index];
+        let next_vertex :vec2 = vertices[next_vertex_index];
 
         let prev_edge :vec2 = vec2.sub(vec2.create(), extreme_vertex, prev_vertex);
         let next_edge :vec2 = vec2.sub(vec2.create(), extreme_vertex, next_vertex);
-
         if (vec2.dot(prev_edge, direction) < vec2.dot(next_edge, direction)) {
             return [prev_vertex, extreme_vertex];
         }

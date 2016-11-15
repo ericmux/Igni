@@ -21,19 +21,10 @@ export default class IgniEngine implements Engine {
     private lastFrameID: number;
     
     private _debugDraw : boolean;
+    private _debugMode : boolean;
 
-    private running : boolean;
-
-    /**
-     * Reference to the Game Loop function. It invokes {processFrame}.
-     * The difference is {gameLoop} schedules the next raF.
-     */
-    private gameLoop : (frameTime : number) => void;
-    
-    /**
-     * Single frame code, with no raF callback
-     */
-    private processFrame : (frameTime : number) => void;
+    private _running : boolean;
+    private _resetTimers : boolean;
     
     /**
      * Reference to the restart function. When restarting, we wait one
@@ -51,46 +42,16 @@ export default class IgniEngine implements Engine {
      * Keep timing and framing info centralized
      */
     private clock : IClock;
-
-    /**
-     * Controls time flows. Values bigger than 1 are not valid.
-     * If 1 the simulation goes on 'standard' velocity. If < 1
-     * simulation goes slower. If < 0, simulation is stopped, 
-     * but frames continue to be processed.
-     * 
-     */
-    public set timeScale (timeScale : number) {
-        if (timeScale > 1.0) {
-            this._timeScale = 1.0;
-        }
-        else if (timeScale >= 0) {
-            this._timeScale = timeScale;
-        }
-        else {
-            this._timeScale = 0;
-        }
-    }
-
-    /**
-     * Value that scales the frame's delta time
-     */
-    public get timeScale () {
-        return this._timeScale;
-    }
     
     /** 
      * Resource Loader. 
      */
     public loader : Loader; 
 
-    private _timeScale : number;
-
     constructor(canvas :HTMLCanvasElement, camera :Shape, opts? : EngineOptions) {
         this.world = new World();
         this.renderer = new WGLRenderer (canvas, <WGLOptions> { depth_test: false, blend: true });
         this.renderer.setCamera(camera);
-        
-        this.timeScale = 1;
 
         this.loader = new Loader ();
         this._textureManager = new TextureManager (new Dictionary<string, WGLTexture> ());
@@ -102,12 +63,13 @@ export default class IgniEngine implements Engine {
         if (opts !== undefined) {
             //  If bindings not supplied, map to 1,2 and 3 keyboard keys
             if (opts.frameControl) {
-            window.document.addEventListener("keydown", debugFrameInput.bind (this, opts.stopKeyBinding || 49, 
+                window.document.addEventListener("keydown", debugFrameInput.bind (this, opts.stopKeyBinding || 49, 
                                                                                     opts.resumeKeyBinding || 50,
                                                                                     opts.resumeFrameKeyBinding || 51));
             }
             
             this._debugDraw = opts.debugDraw;
+            this._debugMode = false;
         }
     }
 
@@ -119,7 +81,7 @@ export default class IgniEngine implements Engine {
         this.world.addBody(body);
     }
 
-    private init () {
+    private resetTimers () {
         let performanceNow = performance.now ();
 
         this.clock = <IClock> {
@@ -134,91 +96,87 @@ export default class IgniEngine implements Engine {
         };
     }
 
-    private prepareGameLoop () {
-        /*
-        *  FrameTime is a browser passed parameter in ms
-        */
-        return (frameTime : number) => {
-            this.lastFrameID = window.requestAnimationFrame(this.gameLoop);
-            
-            this.processFrame (frameTime);
-        };
-    }
-
-    private prepareProcessFrame () {
-
-        return (frameTime : number) => {
-            this.clock.deltaTime = (frameTime - this.clock.lastFrameTime) * this.timeScale;
-
-            let physicsTicks : number = 0;
-            let nextPhysTick : number = this.clock.lastPhysicsTick + this.clock.physicsUpdatePeriod;
-
-            //  If frame time < nextPhysicsTick, no physics update to get done
-            //  If frame time >= nextPhysicsTick, then..
-            if (frameTime >= nextPhysTick) {
-                physicsTicks = Math.floor ((frameTime - this.clock.lastPhysicsTick) /
-                                            this.clock.physicsUpdatePeriod);
-            }
-
-            //  Renew debug renderables array each frame
-            this.debugRenderables.length = 0;
-
-            //  Update Pattern
-            for(let shape of this.bodylessShapes) {
-                shape.update(this.clock.deltaTime/1000);
-            }
-            this.world.update(this.clock.deltaTime/1000);
-
-            // Physics engine update loop.
-            for (let i = 0; i < physicsTicks; ++i) {
-                this.clock.lastPhysicsTick += this.clock.physicsUpdatePeriod;
-
-                // resolve collisions.
-                this.world.detectCollisions(this._debugDraw, this.debugRenderables);
-                this.world.resolveCollisions();
-
-                this.world.step(this.clock.lastPhysicsTick/1000, this.timeScale * this.clock.physicsUpdatePeriod/1000);
-            }
-
-            // Draw
-            this.renderer.clear();
-            for (let body of this.world.bodies) {
-                this.renderer.drawShape(body.getLatestShape());
-            }
-            for (let shape of this.bodylessShapes) {
-                this.renderer.drawShape(shape);
-            }
-            //  Debug Draw
-            for (let renderable of this.debugRenderables) {
-                this.renderer.debugDraw (renderable);        
-            }
-
-            ++this.clock.frameCount;
-            this.clock.framePhysicsSteps = physicsTicks;
-
-            this.clock.lastFrameTime = frameTime;
-
-            if (!this.running) this.clock.pausedAt = frameTime;
-        };
-    }
-
     /**
-     * Use this function's return to catch a frame, get the correct frameTime
-     * and then schedule {resume} with the correct frameTime. 
-     * @param resume It is the callback to be called after catching the correct frameTime
-     * @param additionalTime? Used for debugging resume with some delta time between frames (additionalTime)
+     * Reference to the Game Loop function. It invokes {processFrame}.
+     * The difference is {gameLoop} schedules the next raF.
      */
-    private prepareResume (resume : (frameTime : number) => void, additionalTime? : number) {
+    private gameLoop = (frameTime : number) => {
+        this.lastFrameID = window.requestAnimationFrame(this.gameLoop);
+        
+        // Run next frame.
+        this.runFrame (frameTime);
+    };
+    
+    /**
+     * Single frame code, with no raF callback
+     */
+    private runFrame = (frameTime : number) => {
+        // reset timers if resuming from pause.
+        if(this._resetTimers) {
+            this.clock.lastPhysicsTick = frameTime;
+            this.clock.lastFrameTime = frameTime;
+            this.clock.frameCount = 0;
 
-        return (frameTime : number) => {
-            
-            this.clock.pausedTime = frameTime - this.clock.pausedAt - (additionalTime || 0);
-            
-            this.clock.lastFrameTime += this.clock.pausedTime;
-            this.clock.lastPhysicsTick += this.clock.pausedTime;
+            if(this._debugMode) {
+                this.clock.lastFrameTime -= 1.2*this.clock.physicsUpdatePeriod;
+                this.clock.lastPhysicsTick -= 1.2*this.clock.physicsUpdatePeriod;
+            }
 
-            resume (frameTime);
+            this._resetTimers = false;
         }
+        console.log("frameTime: " + frameTime);
+        console.log("lastFrameTime: " + this.clock.lastFrameTime);
+
+        this.clock.deltaTime = (frameTime - this.clock.lastFrameTime);
+
+        let physicsTicks : number = 0;
+        let nextPhysTick : number = this.clock.lastPhysicsTick + this.clock.physicsUpdatePeriod;
+
+        //  If frame time < nextPhysicsTick, no physics update to get done
+        //  If frame time >= nextPhysicsTick, then..
+        if (frameTime >= nextPhysTick) {
+            physicsTicks = Math.floor ((frameTime - this.clock.lastPhysicsTick) /
+                                        this.clock.physicsUpdatePeriod);
+        }
+
+        //  Renew debug renderables array each frame
+        this.debugRenderables.length = 0;
+
+        //  Update Pattern
+        for(let shape of this.bodylessShapes) {
+            shape.update(this.clock.deltaTime/1000);
+        }
+        this.world.update(this.clock.deltaTime/1000);
+
+        // Physics engine update loop.
+        for (let i = 0; i < physicsTicks; ++i) {
+            this.clock.lastPhysicsTick += this.clock.physicsUpdatePeriod;
+
+            // resolve collisions.
+            this.world.detectCollisions(this._debugDraw, this.debugRenderables);
+            this.world.resolveCollisions();
+
+            // Step simulation.
+            this.world.step(this.clock.lastPhysicsTick/1000, this.clock.physicsUpdatePeriod/1000);
+        }
+
+        // Draw
+        this.renderer.clear();
+        for (let body of this.world.bodies) {
+            this.renderer.drawShape(body.getLatestShape());
+        }
+        for (let shape of this.bodylessShapes) {
+            this.renderer.drawShape(shape);
+        }
+        //  Debug Draw
+        for (let renderable of this.debugRenderables) {
+            this.renderer.debugDraw (renderable);        
+        }
+
+        ++this.clock.frameCount;
+        this.clock.framePhysicsSteps = physicsTicks;
+
+        this.clock.lastFrameTime = frameTime;
     }
 
     /**
@@ -226,19 +184,13 @@ export default class IgniEngine implements Engine {
      */
     public start() {
 
-        this.init ();
-
-        //  Grab references to these functions on context safe way
-        this.gameLoop = this.prepareGameLoop ();
-        this.processFrame = this.prepareProcessFrame ();
-        
-        this.scheduleGameLoop = this.prepareResume (this.gameLoop);
-        this.scheduleFrame = this.prepareResume (this.processFrame, this.clock.physicsUpdatePeriod);
+        // Reset all timers for a fresh simulation.
+        this.resetTimers();
 
         //  Start 
         this.gameLoop(performance.now ());
-
-        this.running = true;
+        this._running = true;
+        this._resetTimers = false;
     }
 
     /**
@@ -247,11 +199,11 @@ export default class IgniEngine implements Engine {
      * simulation, set {timeScale} to zero, instead. 
      */
     public stop() {
-        if (this.running) {
+        if (this._running) {
             window.cancelAnimationFrame(this.lastFrameID);
             this.clock.pausedAt = this.clock.lastFrameTime;
-
-            this.running = false;
+            this._running = false;
+            this._resetTimers = true;
         }
     }
 
@@ -259,9 +211,9 @@ export default class IgniEngine implements Engine {
      * Continue to request Animation Frames
      */
     public resume () {
-        if (!this.running) {
-            window.requestAnimationFrame(this.scheduleGameLoop);
-            this.running = true;
+        if (!this._running) {
+            window.requestAnimationFrame(this.gameLoop);
+            this._running = true;
         }
     }
 
@@ -269,12 +221,9 @@ export default class IgniEngine implements Engine {
      * Process one more frame. Used only for debug.
      */
     private resumeFrame () {
-        this.running = true;
-
         this.stop ();
-        window.requestAnimationFrame(this.scheduleFrame);
-        
-        this.running = false;
+        window.requestAnimationFrame(this.runFrame);
+        this._running = true;
     }
 
     /**
@@ -316,16 +265,8 @@ function debugFrameInput (stopKey : number, resumeKey : number, resumeFrameKey :
             this.resume ();
         } break;
         case resumeFrameKey: {
+            this._debugMode = true;
             this.resumeFrame ();
-        } break;
-        case 52: {
-            this.timeScale = 1;
-        } break;
-        case 53: {
-            this.timeScale = 0.5; 
-        } break;
-        case 54: {
-            this.timeScale = 0;
         } break;
     }
 }
