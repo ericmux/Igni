@@ -10,6 +10,15 @@ export default class LineShape extends Shape {
 
     constructor (begin : vec3, end : vec3, color? : vec4) {
         
+        super(begin);
+
+        this.setLine (begin, end, color);
+
+        this._lineDrawCall = new LineDrawCall (null, null, null, null);
+    }
+
+    public setLine (begin : vec3, end : vec3, color? : vec4) {
+        
         let length = vec3.distance (begin, end); 
         let rotation : number;
 
@@ -28,12 +37,10 @@ export default class LineShape extends Shape {
             rotation = Math.atan2(end[1] - begin[1], end[0] - begin[0]);
         }
 
-        super(begin);
-        
+        this._color = color || this._color || vec4.fromValues (1.0, 1.0, 1.0, 1.0);
+        this.setPosition (vec2.fromValues(begin[0], begin[1]));  
         this.setRotation (rotation);
         this.setScale (vec2.fromValues (length, 1));
-        this._color = color || vec4.fromValues (1.0, 1.0, 1.0, 1.0);
-        this._lineDrawCall = new LineDrawCall (null, null, null, null);
     }
 
     public toDrawCall (projection : mat4, view : mat4) : DrawCall {

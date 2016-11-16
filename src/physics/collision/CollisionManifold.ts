@@ -30,6 +30,10 @@
        */
       normal: vec2;
            
+
+      private debugContactPoint: CircleShape;
+      private debugNormal: LineShape;
+      private debugMtv: LineShape; 
       
       constructor(bodyA :Body, bodyB :Body, mtv: vec2, point: vec2, normal: vec2) {
          this.bodyA = bodyA;
@@ -37,6 +41,10 @@
          this.mtv = mtv;
          this.point = point;
          this.normal = normal;
+
+         this.debugContactPoint = new CircleShape (vec3.create(), 3);
+         this.debugNormal = new LineShape (vec3.create (), vec3.create (), vec4.fromValues(0,0,0,1));
+         this.debugMtv = new LineShape (vec3.create (), vec3.create ());
       }
       
       resolve() {
@@ -46,7 +54,9 @@
       public debugRenderables (out : Renderable[]) : Renderable[] {
          out.push (this.bodyA.getLatestPhysicalShape ());
          out.push (this.bodyB.getLatestPhysicalShape ());
-         out.push (new CircleShape (vec3.fromValues (this.point[0], this.point[1], 0), 3));
+
+         this.debugContactPoint.setPosition (this.point);
+         out.push (this.debugContactPoint);
 
          //  begin of mtv and normal vectors
          let normalScale = 10;
@@ -56,21 +66,24 @@
          let mtv = vec3.fromValues (this.mtv[0], this.mtv[1], 0);
          let mtvEnd = vec3.add (vec3.create (), begin, mtv);
          
+         this.debugMtv.setLine (begin, mtvEnd);
+
          //  normal debug
          let normal = vec3.fromValues (this.normal[0], this.normal[1], 0);
          let normalEnd = vec3.scaleAndAdd(vec3.create (), begin, normal, normalScale);
 
+         this.debugNormal.setLine (begin, normalEnd);
+
          //  order mtv and normal accordingly to who is bigger
          if (vec3.dist (begin, mtvEnd) < normalScale) {
-            out.push (new LineShape (begin, normalEnd, vec4.fromValues(0,0,0,1)));
-            out.push (new LineShape (begin, mtvEnd));
+            out.push (this.debugNormal);//new LineShape (begin, normalEnd));
+            out.push (this.debugMtv);//new LineShape (begin, mtvEnd));
          }
          else {
-            out.push (new LineShape (begin, mtvEnd));
-            out.push (new LineShape (begin, normalEnd, vec4.fromValues(0,0,0,1)));
+            out.push (this.debugMtv);
+            out.push (this.debugNormal);//new LineShape (begin, normalEnd, vec4.fromValues(0,0,0,1)));
          }
          
-
          return out; 
       }
    }

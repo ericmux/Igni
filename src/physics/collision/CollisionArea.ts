@@ -5,7 +5,7 @@ import CollisionManifold from "./CollisionManifold";
 interface CollisionArea {
     position: vec2;
     contains: (point :vec2) => boolean;
-    collide: (body :Body) => CollisionManifold;
+    collide: (out :CollisionManifold, body :Body) => boolean;
     getWorldAxes: () => vec2[];
     extremeVertex: (direction :vec2) => [vec2, number];
     extremeEdge: (direction :vec2) => [vec2, vec2];

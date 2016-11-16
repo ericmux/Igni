@@ -38,14 +38,14 @@ export default class CircularBody extends Body {
         return vec2.sqrLen(vec2.sub(vec2.create(), point, this.position)) <= this._radius*this._radius;
     }
 
-    public collide(body :Body) :CollisionManifold {
+    public collide(out :CollisionManifold, body :Body) :boolean {
         if(body instanceof CircularBody) {
-            return CollisionJumpTable.collideCircleCircle(this, body);
+            return CollisionJumpTable.collideCircleCircle(out, this, body);
         } 
         if(body instanceof RectangularBody) {
-            return CollisionJumpTable.collideCircleRectangle(this, body);
+            return CollisionJumpTable.collideCircleRectangle(out, this, body);
         }
-        return null;
+        return false;
     }
 
 

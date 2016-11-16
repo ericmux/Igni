@@ -65,16 +65,15 @@ export default class RectangularBody extends Body {
                 pointInBodyCoords[1] > this._height/2);
     }
 
-    public collide(body :Body) :CollisionManifold {
+    public collide(out : CollisionManifold, body :Body) : boolean {
         if(body instanceof CircularBody) {
-            return CollisionJumpTable.collideCircleRectangle(body, this);
+            return CollisionJumpTable.collideCircleRectangle(out, body, this);
         } 
         if(body instanceof RectangularBody) {
-            return CollisionJumpTable.collideRectangleRectangle(this, body);
+            return CollisionJumpTable.collideRectangleRectangle(out, this, body);
         }
-        return null;
+        return false;
     }
-
 
     public getWorldVertices() :vec2[] {
         this.updateTransforms();

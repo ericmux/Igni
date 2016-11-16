@@ -8,7 +8,7 @@ import CollisionManifold from "./CollisionManifold";
 // The SAT class provides static methods for collision tests between various types of shapes using
 // the Separating Axis Theorem.
 export default class SAT {
-    public static testCollisionPolygonCircle(polygonBody :RectangularBody, circularBody :CircularBody) :CollisionManifold {
+    public static testCollisionPolygonCircle(out :CollisionManifold, polygonBody :RectangularBody, circularBody :CircularBody) :boolean {
         let axes :vec2[] = polygonBody.getWorldAxes(); 
         
         // Extra axis from the vertex-based voronoi regions.
@@ -19,7 +19,7 @@ export default class SAT {
         axes.push(point_axis);
 
         let overlap_normal :[number, vec2] = this.testAxes(polygonBody, circularBody, axes);
-        if(!overlap_normal) return null;
+        if(!overlap_normal) return false;
         
         let min_overlap :number = overlap_normal[0];
         let min_normal :vec2 = overlap_normal[1];
@@ -47,14 +47,20 @@ export default class SAT {
             vec2.scale(contact_point, contact_point, 0.5);
         }
 
-        return new CollisionManifold(polygonBody, circularBody, penetration_vector, contact_point, min_normal);
+        out.bodyA = polygonBody;
+        out.bodyB = circularBody;
+        out.mtv = penetration_vector;
+        out.point = contact_point;
+        out.normal = min_normal;
+        
+        return true;
     }
 
-    public static testCollisionPolygonPolygon(polygonBodyA :RectangularBody, polygonBodyB :RectangularBody) :CollisionManifold {
+    public static testCollisionPolygonPolygon(out : CollisionManifold, polygonBodyA :RectangularBody, polygonBodyB :RectangularBody) :boolean {
         let axes :vec2[] = polygonBodyA.getWorldAxes().concat(polygonBodyB.getWorldAxes());
 
         let overlap_normal :[number, vec2] = this.testAxes(polygonBodyA, polygonBodyB, axes);
-        if(!overlap_normal) return null;
+        if(!overlap_normal) return false;
 
         let min_overlap :number = overlap_normal[0];
         let min_normal :vec2 = overlap_normal[1];
@@ -155,7 +161,13 @@ export default class SAT {
             contact_point = extremeEdgeInB[0];
         }
 
-        return new CollisionManifold(polygonBodyA, polygonBodyB, penetration_vector, contact_point, min_normal);
+        out.bodyA = polygonBodyA;
+        out.bodyB = polygonBodyB;
+        out.mtv = penetration_vector;
+        out.point = contact_point;
+        out.normal = min_normal;
+        
+        return true;
     }
 
     // return null or a pair with [minimum overlap, minimum normal].
