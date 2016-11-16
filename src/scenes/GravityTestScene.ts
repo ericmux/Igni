@@ -9,6 +9,8 @@ import RectangularBodyDefinition from "../physics/bodies/RectangularBodyDefiniti
 import CircularBodyDefinition from "../physics/bodies/CircularBodyDefinition";
 import CollisionManifold from "../physics/collision/CollisionManifold";
 import Engine from "../engine/Engine";
+import {KeyboardEventInfo} from "../input/EventInfo";
+import Keys from "../input/Keys";
 
 export default class GravityTestScene extends TestScene {
     public static build(game :Engine) :void {
@@ -37,6 +39,11 @@ export default class GravityTestScene extends TestScene {
                     collisionCallback: checkCollisionCallback
                 });
                 game.addBody(body);
+                body.onKeyDown((target :Body, event_info :KeyboardEventInfo) => {
+                    if(event_info.key === Keys.UP){
+                        vec2.add(target.velocity, target.velocity, vec2.fromValues(0.0, 10.0));
+                    }
+                });
             }
         }
 

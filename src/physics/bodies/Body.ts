@@ -6,10 +6,17 @@ import RectangleShape from "../../rendering/shapes/RectangleShape";
 import StepIntegrator from "../integration/StepIntegrator";
 import VelocityVerletIntegrator from "../integration/VelocityVerletIntegrator";
 import BodyDefinition from "./BodyDefinition";
+import IgniEngine from "../../engine/IgniEngine";
+import {KeyboardInteractable} from "../../input/Interactable";
+import {KeyboardEventInfo} from "../../input/EventInfo"; 
+import {KeyboardEvents} from "../../input/InputEvents";
 
-abstract class Body implements CollisionArea {
+abstract class Body implements CollisionArea, KeyboardInteractable {
     // Incremented every time a new body is created.
     public static nextID :number = 0;
+    
+    // Reference to the parent engine.
+    private _engine :IgniEngine;
 
     // TODO: units are still treated as px/sec. Fix
     private _id :number;
@@ -63,6 +70,7 @@ abstract class Body implements CollisionArea {
 
     constructor(bodyDef :BodyDefinition) {
         this._id = Body.nextID++;
+        this._engine = null;
 
         if(!bodyDef) bodyDef = <BodyDefinition>{ position: vec2.create() };
 
@@ -187,6 +195,28 @@ abstract class Body implements CollisionArea {
         this.dAngularVelocity = 0.0;
     }
 
+    public onKeyDown(handler :(target :Shape | Body, event_info? :KeyboardEventInfo) => void) {
+        if(!this._engine) {
+            console.error("This body is not attached to any engine object!");
+            return;
+        }
+        this._engine.subscribeTo(KeyboardEvents.KEYDOWN, this, handler);
+    }
+    public onKeyUp(handler :(target :Shape | Body, event_info? :KeyboardEventInfo) => void) {
+        if(!this._engine) {
+            console.error("This body is not attached to any engine object!");
+            return;
+        }
+        this._engine.subscribeTo(KeyboardEvents.KEYDOWN, this, handler);
+    }
+    public onKeyPressed(handler :(target :Shape | Body, event_info? :KeyboardEventInfo) => void) {
+        if(!this._engine) {
+            console.error("This body is not attached to any engine object!");
+            return;
+        }
+        this._engine.subscribeTo(KeyboardEvents.KEYDOWN, this, handler);    
+    }
+
     public get acceleration() :vec2 {
         return this._acceleration;
     }
@@ -225,6 +255,10 @@ abstract class Body implements CollisionArea {
 
     public get invMomentOfInertia() :number {
         return this._invMomentOfInertia;
+    }
+
+    public set engine(game :IgniEngine) {
+        this._engine = game;
     }
 }
 export default Body;
