@@ -72,76 +72,10 @@ export default class SAT {
             vec2.negate(min_normal, min_normal);
         }
         
-        // Contact point generation through edge clipping.
-        // See: http://www.dyn4j.org/2011/11/contact-points-using-clipping/.
+        // Simplified contact point generation. Considers only the vertices comprising the extreme edges.
         let extremeEdgeInA :[vec2, vec2] = polygonBodyA.extremeEdge(min_normal);
         let extremeEdgeInB :[vec2, vec2] = polygonBodyB.extremeEdge(vec2.negate(vec2.create(), min_normal));
 
-        // let edgeDirectionA :vec2 = vec2.sub(vec2.create(), extremeEdgeInA[1], extremeEdgeInA[0]);
-        // vec2.normalize(edgeDirectionA, edgeDirectionA);
-        // let edgeDirectionB :vec2 = vec2.sub(vec2.create(), extremeEdgeInB[1], extremeEdgeInB[0]);
-        // vec2.normalize(edgeDirectionB, edgeDirectionB);
-
-        // // The reference edge is the one most perpendicular to the contact normal and the other one is the incident edge.
-        // let reference_edge :[vec2, vec2];
-        // let incident_edge :[vec2, vec2];
-
-        // let reference_direction :vec2;
-
-        // let flipped :boolean;
-        // if (Math.abs(vec2.dot(min_normal, edgeDirectionA)) <=
-        //     Math.abs(vec2.dot(min_normal, edgeDirectionB))) {
-        //     reference_edge = extremeEdgeInA;
-        //     reference_direction = edgeDirectionA;
-        //     incident_edge = extremeEdgeInB;
-        //     flipped = false;
-        // } else {
-        //     reference_edge = extremeEdgeInB;
-        //     reference_direction = edgeDirectionB;
-        //     incident_edge = extremeEdgeInA;
-        //     flipped = true;
-        // }
-
-        // vec2.normalize(reference_direction, reference_direction);
-
-        // // Clip the incident edge by the first vertex of the reference edge.
-        // let o1 :number = vec2.dot(reference_direction, reference_edge[0]); 
-        // let contact_points :vec2[] = this.clip(incident_edge[0], incident_edge[1], reference_direction, o1);
-        // if (contact_points.length < 2){
-        //     console.error("Clipping of manifold failed with too few points: " + contact_points.length);
-        // }
-        
-        // // Clip whats left of the incident edge by the second vertex of the reference edge,
-        // // but we need to clip in the opposite direction so we flip the direction and offset.
-        // let o2 :number = vec2.dot(reference_direction, reference_edge[1]);
-        // contact_points = this.clip(contact_points[0], contact_points[1], vec2.negate(vec2.create(), reference_direction), -o2);
-        // if (contact_points.length < 2){
-        //     console.error("Clipping of manifold failed with too few points: " + contact_points.length);
-        // }
-        
-        // let reference_normal = vec2.clone(reference_direction);
-        // perpendicularize(reference_normal);
-
-        // // If we had to flip the incident and reference edges then we need to flip the reference edge normal to clip properly.
-        // if (flipped) vec2.negate(reference_normal, reference_normal);
-        // // get the largest depth
-        // let max :number = vec2.dot(reference_normal, reference_edge[0]);
-        // // make sure the final points are not past this maximum
-        // if (contact_points.length > 0 && vec2.dot(reference_normal, contact_points[0]) - max < 0.0) {
-        //     contact_points.splice(0,1);
-        // }
-        // if (contact_points.length > 1 && vec2.dot(reference_normal, contact_points[1]) - max < 0.0) {
-        //     contact_points.splice(1,1);
-        // }
-
-        // contact_points.filter((contact_point :vec2) => {
-        //     if(flipped) {
-        //         return polygonBodyB.contains(contact_point);
-        //     }
-        //     return polygonBodyA.contains(contact_point);
-        // });
-
-        // Simplified contact point generation.
         let contact_points :vec2[] = []
         if(polygonBodyA.contains(extremeEdgeInB[0])) contact_points.push(extremeEdgeInB[0]);
         if(polygonBodyA.contains(extremeEdgeInB[1])) contact_points.push(extremeEdgeInB[1]);

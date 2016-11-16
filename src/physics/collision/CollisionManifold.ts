@@ -46,10 +46,6 @@
          this.debugNormal = new LineShape (vec3.create (), vec3.create (), vec4.fromValues(0,0,0,1));
          this.debugMtv = new LineShape (vec3.create (), vec3.create ());
       }
-      
-      resolve() {
-          // TO DO: resolve collision.
-      }
 
       public debugRenderables (out : Renderable[]) : Renderable[] {
          out.push (this.bodyA.getLatestPhysicalShape ());
