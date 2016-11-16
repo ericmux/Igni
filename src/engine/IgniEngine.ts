@@ -74,6 +74,7 @@ export default class IgniEngine implements Engine {
 
     public addShape(shape: Shape) :void {
         this.bodylessShapes.push(shape);
+        shape.engine = this;
     }
 
     public addBody(body : Body) :void {

@@ -78,6 +78,17 @@ export default class GravityTestScene extends TestScene {
         });
         game.addBody(right_wall);
 
+        let moveable_shape : RectangleShape = new RectangleShape(vec2.create(), 50, 50);
+        game.addShape(moveable_shape);
+        moveable_shape.onKeyPressed((target :RectangleShape, event_info :KeyboardEventInfo) => {
+            let pos :vec2 = target.getPosition();
 
+            switch(event_info.key) {
+                case Keys.DOWN: target.translate(vec2.fromValues(0,-10)); break;
+                case Keys.UP: target.translate(vec2.fromValues(0,10)); break;
+                case Keys.LEFT: target.translate(vec2.fromValues(-10,0)); break;
+                case Keys.RIGHT: target.translate(vec2.fromValues(10,0)); break;
+            }
+        });
     }
 }
