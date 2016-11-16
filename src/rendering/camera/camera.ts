@@ -16,7 +16,7 @@ export default class Camera extends Shape {
         this.scale = vec3.fromValues(this._zoomX, this._zoomY, 1);
     }
 
-    constructor (position :vec3, zoomX :number, zoomY :number) {
+    constructor (position :vec2, zoomX :number, zoomY :number) {
         super(position);
         this.scale = vec3.fromValues(zoomX,zoomY,1);
     }

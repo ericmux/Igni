@@ -62,7 +62,7 @@ export class WGLRenderer implements Renderer {
 		this.setupDefaultVBOS ();
 
 		// Set up default static camera.
-		this.camera = new Camera (vec3.fromValues(0,0,0), 1,1);
+		this.camera = new Camera (vec2.fromValues(0,0), 1,1);
 
 		this.canvas = canvas;
 		this.squareShader = new FlatColorShader (WGLRenderer.gl, this.quadVBO);

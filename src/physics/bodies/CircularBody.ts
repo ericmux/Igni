@@ -26,8 +26,8 @@ export default class CircularBody extends Body {
         this._angularAcceleration = this.torque * this._invMomentOfInertia;
         this._oldAngularAcceleration = this._angularAcceleration;
 
-        this.physicalShape = new CircleShape(vec3.fromValues(this.position[0], this.position[1],1.0), this._radius);
-        this.visualShape = bodyDef.visualShape || new CircleShape(vec3.fromValues(this.position[0], this.position[1],1.0), this._radius);
+        this.physicalShape = new CircleShape(vec2.fromValues(this.position[0], this.position[1]), this._radius);
+        this.visualShape = bodyDef.visualShape || new CircleShape(vec2.fromValues(this.position[0], this.position[1]), this._radius);
     }
 
     public calculateMoI() :number {
@@ -38,14 +38,14 @@ export default class CircularBody extends Body {
         return vec2.sqrLen(vec2.sub(vec2.create(), point, this.position)) <= this._radius*this._radius;
     }
 
-    public collide(body :Body) :CollisionManifold {
+    public collide(out :CollisionManifold, body :Body) :boolean {
         if(body instanceof CircularBody) {
-            return CollisionJumpTable.collideCircleCircle(this, body);
+            return CollisionJumpTable.collideCircleCircle(out, this, body);
         } 
         if(body instanceof RectangularBody) {
-            return CollisionJumpTable.collideCircleRectangle(this, body);
+            return CollisionJumpTable.collideCircleRectangle(out, this, body);
         }
-        return null;
+        return false;
     }
 
 

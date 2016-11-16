@@ -1,4 +1,4 @@
-import {vec2, vec3, vec4, mat4} from "gl-matrix"
+import {vec2, mat4} from "gl-matrix"
 import DrawCall from "../shaders/DrawCall";
 import {WireQuadDrawCall} from "../shaders/debug/WireQuadShader";
 import RectangleShape from "../shapes/RectangleShape";
@@ -7,7 +7,7 @@ export default class WireRectangle extends RectangleShape {
     
     private _wireQuadDrawCall : WireQuadDrawCall;
 
-    constructor (position :vec3, width : number, height : number) {
+    constructor (position :vec2, width : number, height : number) {
         super(position, width, height);
         
         this._wireQuadDrawCall = new WireQuadDrawCall (null, null, null, null, null);

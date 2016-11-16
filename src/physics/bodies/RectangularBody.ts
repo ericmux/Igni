@@ -45,8 +45,8 @@ export default class RectangularBody extends Body {
             vec2.fromValues(0.0,-1.0)
         ];
 
-        this.physicalShape = new RectangleShape(vec3.fromValues(this.position[0], this.position[1],1.0), this._width, this._height);
-        this.visualShape = bodyDef.visualShape || new RectangleShape(vec3.fromValues(this.position[0], this.position[1],1.0), this._width, this._height);
+        this.physicalShape = new RectangleShape(vec2.fromValues(this.position[0], this.position[1]), this._width, this._height);
+        this.visualShape = bodyDef.visualShape || new RectangleShape(vec2.fromValues(this.position[0], this.position[1]), this._width, this._height);
     }
 
     public calculateMoI() :number {
@@ -65,16 +65,15 @@ export default class RectangularBody extends Body {
                 pointInBodyCoords[1] > this._height/2);
     }
 
-    public collide(body :Body) :CollisionManifold {
+    public collide(out : CollisionManifold, body :Body) : boolean {
         if(body instanceof CircularBody) {
-            return CollisionJumpTable.collideCircleRectangle(body, this);
+            return CollisionJumpTable.collideCircleRectangle(out, body, this);
         } 
         if(body instanceof RectangularBody) {
-            return CollisionJumpTable.collideRectangleRectangle(this, body);
+            return CollisionJumpTable.collideRectangleRectangle(out, this, body);
         }
-        return null;
+        return false;
     }
-
 
     public getWorldVertices() :vec2[] {
         this.updateTransforms();

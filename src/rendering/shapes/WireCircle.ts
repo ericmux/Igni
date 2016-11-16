@@ -1,4 +1,4 @@
-import {vec2, vec3, vec4, mat4} from "gl-matrix"
+import {vec2, mat4} from "gl-matrix"
 import DrawCall from "../shaders/DrawCall";
 import {WireCircleDrawCall} from "../shaders/debug/WireCircleShader";
 import CircleShape from "../shapes/CircleShape";
@@ -7,7 +7,7 @@ export default class WireCircle extends CircleShape {
     
     private _wireCircleDrawCall : WireCircleDrawCall;
 
-    constructor (position :vec3, radius : number) {
+    constructor (position :vec2, radius : number) {
         super(position, radius);
         
         this._wireCircleDrawCall = new WireCircleDrawCall (null,null,null,null,null,null, null);

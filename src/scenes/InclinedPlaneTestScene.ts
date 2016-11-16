@@ -1,4 +1,4 @@
-import {vec2, vec3, vec4} from "gl-matrix";
+import {vec2, vec4} from "gl-matrix";
 import TestScene from "./TestScene"
 import RectangleShape from "../rendering/shapes/RectangleShape";
 import Body from "../physics/bodies/Body";
@@ -27,7 +27,7 @@ export default class InclinedPlaneTestScene extends TestScene {
             let planeAngle = (Math.PI/180) * 75;
 
             let radius = 10;
-            let sprite = new Sprite (vec3.fromValues (0, 0, 0), "./basketball.png", 2*radius, 2*radius, vec4.fromValues(1,1,1,1), false);
+            let sprite = new Sprite (vec2.fromValues (0, 0), "./basketball.png", 2*radius, 2*radius, vec4.fromValues(1,1,1,1), false);
 
 
             let body : Body = new CircularBody(<CircularBodyDefinition>{
