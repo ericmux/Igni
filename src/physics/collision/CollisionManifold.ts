@@ -42,9 +42,9 @@
          this.point = point;
          this.normal = normal;
 
-         this.debugContactPoint = new CircleShape (vec3.create(), 3);
-         this.debugNormal = new LineShape (vec3.create (), vec3.create (), vec4.fromValues(0,0,0,1));
-         this.debugMtv = new LineShape (vec3.create (), vec3.create ());
+         this.debugContactPoint = new CircleShape (vec2.create(), 3);
+         this.debugNormal = new LineShape (vec2.create (), vec2.create (), vec4.fromValues(0,0,0,1));
+         this.debugMtv = new LineShape (vec2.create (), vec2.create ());
       }
 
       public debugRenderables (out : Renderable[]) : Renderable[] {
@@ -56,28 +56,30 @@
 
          //  begin of mtv and normal vectors
          let normalScale = 10;
-         let begin = vec3.fromValues (this.bodyA.position[0], this.bodyA.position[1], 0);
-
-         //  mtv debug
-         let mtv = vec3.fromValues (this.mtv[0], this.mtv[1], 0);
-         let mtvEnd = vec3.add (vec3.create (), begin, mtv);
          
-         this.debugMtv.setLine (begin, mtvEnd);
+         //  Vector to used to minimize garbage generation
+         //  And also represents line end points (for both mtv and normal)
+         let end = vec2.create ();
 
-         //  normal debug
-         let normal = vec3.fromValues (this.normal[0], this.normal[1], 0);
-         let normalEnd = vec3.scaleAndAdd(vec3.create (), begin, normal, normalScale);
+         //  Now 'end' is mtv end point. Set mtv line values
+         vec2.add (end, this.bodyA.position, this.mtv);
+         this.debugMtv.setLine (this.bodyA.position, end);
+         
+         //  Hold value for who is bigger
+         let isNormalBiggerThanMTV = normalScale > vec2.dist (this.bodyA.position, end);
 
-         this.debugNormal.setLine (begin, normalEnd);
+         //  Now 'end' is normal end point. Set normal line values
+         vec2.scaleAndAdd(end, this.bodyA.position, this.normal, normalScale);
+         this.debugNormal.setLine (this.bodyA.position, end);
 
-         //  order mtv and normal accordingly to who is bigger
-         if (vec3.dist (begin, mtvEnd) < normalScale) {
-            out.push (this.debugNormal);//new LineShape (begin, normalEnd));
-            out.push (this.debugMtv);//new LineShape (begin, mtvEnd));
+         //  Order mtv and normal accordingly to who is bigger
+         if (isNormalBiggerThanMTV) {
+            out.push (this.debugNormal);
+            out.push (this.debugMtv);
          }
          else {
             out.push (this.debugMtv);
-            out.push (this.debugNormal);//new LineShape (begin, normalEnd, vec4.fromValues(0,0,0,1)));
+            out.push (this.debugNormal);
          }
          
          return out; 

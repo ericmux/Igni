@@ -1,4 +1,4 @@
-import {vec2, vec3, vec4} from "gl-matrix";
+import {vec2, vec4} from "gl-matrix";
 import TestScene from "./TestScene"
 import RectangleShape from "../rendering/shapes/RectangleShape";
 import Body from "../physics/bodies/Body";
@@ -39,7 +39,7 @@ export default class CollisionTestScene extends TestScene {
             for (let i = 1; i <= 3; ++i) {
                 let path = "./"+i+".png";
                 let ii = i-1;
-                sprites.push (new Sprite (vec3.fromValues(left + ii * passo, bottom + ii * passo,0), path));
+                sprites.push (new Sprite (vec2.fromValues(left + ii * passo, bottom + ii * passo), path));
                 sprites[ii].onUpdate ((shape : Shape, deltaTime : number) => {});
                 game.addShape (sprites[ii]);
             }

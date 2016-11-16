@@ -26,8 +26,8 @@ export default class CircularBody extends Body {
         this._angularAcceleration = this.torque * this._invMomentOfInertia;
         this._oldAngularAcceleration = this._angularAcceleration;
 
-        this.physicalShape = new CircleShape(vec3.fromValues(this.position[0], this.position[1],1.0), this._radius);
-        this.visualShape = bodyDef.visualShape || new CircleShape(vec3.fromValues(this.position[0], this.position[1],1.0), this._radius);
+        this.physicalShape = new CircleShape(vec2.fromValues(this.position[0], this.position[1]), this._radius);
+        this.visualShape = bodyDef.visualShape || new CircleShape(vec2.fromValues(this.position[0], this.position[1]), this._radius);
     }
 
     public calculateMoI() :number {

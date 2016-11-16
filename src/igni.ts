@@ -12,7 +12,7 @@ import CircularBody from "./physics/bodies/CircularBody";
 import BodyDefinition from "./physics/bodies/BodyDefinition";
 import RectangularBodyDefinition from "./physics/bodies/RectangularBodyDefinition";
 import CircularBodyDefinition from "./physics/bodies/CircularBodyDefinition";
-import {vec2, vec3, vec4} from "gl-matrix";
+import {vec2, vec4} from "gl-matrix";
 import VelocityVerletIntegrator from "./physics/integration/VelocityVerletIntegrator";
 import SemiImplicitEulerIntegrator from "./physics/integration/SemiImplicitEulerIntegrator";
 import ForwardEulerIntegrator from "./physics/integration/ForwardEulerIntegrator";
@@ -37,7 +37,7 @@ let axes :[RectangleShape, RectangleShape];
 let onWindowLoad = function () {
     canvas = <HTMLCanvasElement> document.getElementById("gl-canvas");
 
-    let camera : Camera = new Camera(vec3.fromValues(0,0,0), 1, 1);
+    let camera : Camera = new Camera(vec2.fromValues(0,0), 1, 1);
     camera.onUpdate((camera : Camera, deltaTime : number) => {});
 
 
@@ -46,7 +46,7 @@ let onWindowLoad = function () {
         stopKeyBinding : 49,
         resumeKeyBinding : 50,
         resumeFrameKeyBinding : 51,
-        debugDraw : true
+        debugDraw : false
      });
 
     // Add axes for easy visualization.

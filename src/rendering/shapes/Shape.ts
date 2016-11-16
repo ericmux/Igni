@@ -6,19 +6,31 @@ abstract class Shape implements Renderable {
 
     private _modelMatrix: mat4;
     private _invModelMatrix: mat4;
-    private _size : vec3;
-    protected position : vec3; 
+    private _size : vec2;
+    protected position : vec2; 
     protected rotation : number;
     protected scale : vec3;
     protected updateCallback: (shape : Shape, deltaTime : number) => void;
 
-    constructor(position :vec3, size? : vec3) {
+    //  Rotation, Translate, Scale variables to avoid GC
+    private _allowedRotationAxis : vec3;
+    private _rotationQuaternion : quat;
+    private _translationVector : vec3;
+    private _scaleVector : vec3;
+
+    constructor(position :vec2, size? : vec2) {
         this.position = position;
         this.rotation = 0;
-        this._size = size || vec3.fromValues (1,1,1);
+        this._size = size || vec2.fromValues (1,1);
         this.scale = vec3.fromValues (1,1,1);
         this._modelMatrix = mat4.create();
         this._invModelMatrix = mat4.invert(mat4.create(), this._modelMatrix);
+        this._allowedRotationAxis = vec3.fromValues (0,0,1);
+        
+        //  There are set every frame before usage. So these values dont matter
+        this._rotationQuaternion = quat.create ();
+        this._translationVector = vec3.create ();
+        this._scaleVector = vec3.create ();
     }
 
     public update(deltaTime : number) {
@@ -30,7 +42,7 @@ abstract class Shape implements Renderable {
     }
 
     public translate(v : vec2) {
-        vec3.add(this.position, this.position, vec3.fromValues(v[0], v[1], 0));
+        vec2.add(this.position, this.position, v);
     }
 
     /**
@@ -49,7 +61,7 @@ abstract class Shape implements Renderable {
     }
 
     public setPosition(newPos : vec2) {
-        this.position = vec3.fromValues(newPos[0], newPos[1], 0);
+        this.position = newPos;
     }
 
     public getPosition() {
@@ -69,13 +81,15 @@ abstract class Shape implements Renderable {
     }
 
     protected updateModelMatrix () {
-        let q : quat = quat.create ();
-        quat.setAxisAngle (q, [0,0,1], this.rotation);
+        this._rotationQuaternion = quat.setAxisAngle (this._rotationQuaternion, this._allowedRotationAxis, this.rotation);
+        vec3.set (this._scaleVector, this._size[0] * this.scale[0], this._size[1] * this.scale[1], 1);
+        vec3.set (this._translationVector, this.position[0], this.position[1], 0);
 
-        let s = vec3.fromValues (this._size[0] * this.scale[0], this._size[1] * this.scale[1], 1);
-
-        this._modelMatrix = mat4.fromRotationTranslationScale (this._modelMatrix,
-            q, this.position, s);
+        this._modelMatrix = mat4.fromRotationTranslationScale (
+            this._modelMatrix,
+            this._rotationQuaternion,
+            this._translationVector,
+            this._scaleVector);
     }
 
     get modelMatrix () : mat4 {

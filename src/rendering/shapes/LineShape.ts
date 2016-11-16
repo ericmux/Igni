@@ -8,7 +8,7 @@ export default class LineShape extends Shape {
     protected _color  : vec4;
     private _lineDrawCall : LineDrawCall;
 
-    constructor (begin : vec3, end : vec3, color? : vec4) {
+    constructor (begin : vec2, end : vec2, color? : vec4) {
         
         super(begin);
 
@@ -17,9 +17,9 @@ export default class LineShape extends Shape {
         this._lineDrawCall = new LineDrawCall (null, null, null, null);
     }
 
-    public setLine (begin : vec3, end : vec3, color? : vec4) {
+    public setLine (begin : vec2, end : vec2, color? : vec4) {
         
-        let length = vec3.distance (begin, end); 
+        let length = vec2.distance (begin, end); 
         let rotation : number;
 
         if (begin[0] === end[0]) {
@@ -38,7 +38,7 @@ export default class LineShape extends Shape {
         }
 
         this._color = color || this._color || vec4.fromValues (1.0, 1.0, 1.0, 1.0);
-        this.setPosition (vec2.fromValues(begin[0], begin[1]));  
+        this.setPosition (begin);  
         this.setRotation (rotation);
         this.setScale (vec2.fromValues (length, 1));
     }

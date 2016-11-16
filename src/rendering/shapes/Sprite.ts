@@ -1,5 +1,5 @@
 import RectangleShape from "./RectangleShape";
-import {vec2, vec3, vec4, mat4} from "gl-matrix"
+import {vec2, vec4, mat4} from "gl-matrix"
 import DrawCall from "../shaders/DrawCall";
 import {SpriteDrawCall} from "../shaders/SpriteShader";
 import {TextureManager} from "../../loader/TextureManager";
@@ -20,7 +20,7 @@ export default class Sprite extends RectangleShape {
     private _maintainAspect : boolean;
     private _spriteDrawCall : SpriteDrawCall;
 
-    constructor (position :vec3, textureName : string, width? : number, height? : number, tintColor? : vec4, maintainAspect? : boolean) {    
+    constructor (position :vec2, textureName : string, width? : number, height? : number, tintColor? : vec4, maintainAspect? : boolean) {    
         
         let texture = Sprite.TextureManager.getTexture (textureName);
 

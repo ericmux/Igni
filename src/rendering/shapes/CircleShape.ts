@@ -10,8 +10,8 @@ export default class CircleShape extends Shape {
     protected _color  : vec4;
     private _flatColorCircleDrawCall : FlatColorCircleDrawCall;
 
-    constructor (position :vec3, radius : number) {
-        super(position, vec3.fromValues (radius, radius, 1));
+    constructor (position :vec2, radius : number) {
+        super(position, vec2.fromValues (radius, radius));
         
         this._color = vec4.fromValues (0.0, 0.0, 1.0, 1.0);
         this._radius = radius;

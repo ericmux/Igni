@@ -45,8 +45,8 @@ export default class RectangularBody extends Body {
             vec2.fromValues(0.0,-1.0)
         ];
 
-        this.physicalShape = new RectangleShape(vec3.fromValues(this.position[0], this.position[1],1.0), this._width, this._height);
-        this.visualShape = bodyDef.visualShape || new RectangleShape(vec3.fromValues(this.position[0], this.position[1],1.0), this._width, this._height);
+        this.physicalShape = new RectangleShape(vec2.fromValues(this.position[0], this.position[1]), this._width, this._height);
+        this.visualShape = bodyDef.visualShape || new RectangleShape(vec2.fromValues(this.position[0], this.position[1]), this._width, this._height);
     }
 
     public calculateMoI() :number {

@@ -10,8 +10,8 @@ export default class RectangleShape extends Shape {
     protected _color  : vec4;
     private _flatColorDrawCall : FlatColorDrawCall;
 
-    constructor (position :vec3, width : number, height : number) {
-        super(position, vec3.fromValues (width/2, height/2, 1));
+    constructor (position :vec2, width : number, height : number) {
+        super(position, vec2.fromValues (width/2, height/2));
         
         this._color = vec4.fromValues (1.0, 0.0, 0.0, 1.0);
         this._width = width;
