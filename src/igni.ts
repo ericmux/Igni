@@ -28,6 +28,7 @@ import CollisiontestScene from "./scenes/CollisiontestScene";
 import TextureLoadingTestScene from "./scenes/TextureLoadingTestScene";
 import GravityTestScene from "./scenes/GravityTestScene";
 import InclinedPlaneTestScene from "./scenes/InclinedPlaneTestScene";
+import BasketballsTestScene from "./scenes/BasketballsTestScene";
 
 //  Game, canvas and a reference to the axis shapes.
 let canvas : HTMLCanvasElement;
@@ -37,10 +38,23 @@ let axes :[RectangleShape, RectangleShape];
 let onWindowLoad = function () {
     canvas = <HTMLCanvasElement> document.getElementById("gl-canvas");
 
-    let camera : Camera = new Camera(vec2.fromValues(0,0), 1, 1);
-    camera.onUpdate((camera : Camera, deltaTime : number) => {});
+    let camera : Camera = new Camera(vec2.fromValues(0,-5));
+    let time = 0;
+    camera.onUpdate((camera : Camera, deltaTime : number) => {
+        if (time < 4) {
+            camera.incrementZoom (0.1 * deltaTime);
+            camera.translate (vec2.fromValues (1*deltaTime, 1 *deltaTime));
+        }
+        else if (time > 6){
+            
+            camera.setPosition (vec2.fromValues (0,0));
+            camera.setZoom (1);
+        }
 
+        time+=deltaTime;
+    });
 
+    
     game = new IgniEngine(canvas, camera, <EngineOptions> {
         frameControl : true,
         stopKeyBinding : 49,
@@ -62,10 +76,13 @@ let onWindowLoad = function () {
     // CollisiontestScene.build(game);
 
     // // Gravity test scene.
-    GravityTestScene.build(game);
+    // GravityTestScene.build(game);
 
     // InclinedPlaneTestScene
     // InclinedPlaneTestScene.build (game);
+
+    // Basketballs test scene
+    BasketballsTestScene.build (game);
 
     game.start();
 };

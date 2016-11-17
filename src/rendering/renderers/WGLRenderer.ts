@@ -62,7 +62,7 @@ export class WGLRenderer implements Renderer {
 		this.setupDefaultVBOS ();
 
 		// Set up default static camera.
-		this.camera = new Camera (vec2.fromValues(0,0), 1,1);
+		this.camera = new Camera (vec2.fromValues(0,0), 1, canvas.clientHeight);
 
 		this.canvas = canvas;
 		this.squareShader = new FlatColorShader (WGLRenderer.gl, this.quadVBO);
@@ -130,6 +130,8 @@ export class WGLRenderer implements Renderer {
 							this.canvas.height/2, 
 							-1,
 							1);
+							
+		this.setCameraHeight (height);
 	}
 
 	public debugDraw (renderable : Renderable) {
@@ -152,7 +154,7 @@ export class WGLRenderer implements Renderer {
 				
 			drawCall = drawCall as FlatColorCircleDrawCall;
 			
-			return new WireCircleDrawCall (drawCall.projection, drawCall.view, drawCall.model, vec4.fromValues (1,1,1,1), drawCall.center, drawCall.radius, drawCall.radius - 1);
+			return new WireCircleDrawCall (drawCall.projection, drawCall.view, drawCall.model, vec4.fromValues (1,1,1,1), drawCall.center, drawCall.radius, drawCall.radius - 0.05);
 		}
 		else if (drawCall instanceof SpriteDrawCall ||
 		    drawCall instanceof FlatColorDrawCall)
@@ -238,5 +240,17 @@ export class WGLRenderer implements Renderer {
 	// Set camera object.
 	public setCamera(camera : Shape) {
 		this.camera = camera;
+
+		this.setCameraHeight (this.canvas.clientHeight);
 	} 
+
+	/**
+	 * Make sure if this.camera is Camera, it has the actual screen heigth. 
+	 */
+	private setCameraHeight (heightPx :number) {
+		if (this.camera != null && (this.camera as Camera).setScreenHeight !== undefined) {
+			(this.camera as Camera).setScreenHeight (heightPx);
+		}							
+	}
+
 }

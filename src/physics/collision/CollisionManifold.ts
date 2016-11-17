@@ -42,7 +42,7 @@
          this.point = point;
          this.normal = normal;
 
-         this.debugContactPoint = new CircleShape (vec2.create(), 3);
+         this.debugContactPoint = new CircleShape (vec2.create(), 0.1);
          this.debugNormal = new LineShape (vec2.create (), vec2.create (), vec4.fromValues(0,0,0,1));
          this.debugMtv = new LineShape (vec2.create (), vec2.create ());
       }
@@ -55,7 +55,7 @@
          out.push (this.debugContactPoint);
 
          //  begin of mtv and normal vectors
-         let normalScale = 10;
+         let normalScale = 0.5;
          
          //  Vector to used to minimize garbage generation
          //  And also represents line end points (for both mtv and normal)
