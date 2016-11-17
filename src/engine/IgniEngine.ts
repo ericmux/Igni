@@ -19,12 +19,18 @@ export default class IgniEngine implements Engine {
     private renderer: Renderer;
     private _textureManager: TextureManager; 
     private lastFrameID: number;
-    
+
     private _debugDraw : boolean;
     private _debugMode : boolean;
 
     private _running : boolean;
     private _resetTimers : boolean;
+
+    /**
+     * Determine in how many pieces the physics engine will simulate
+     * one of its steps. The bigger the more precise the simulation.
+     */
+    private _physicsIteration: number;
 
     /**
      * Keep timing and framing info centralized
@@ -43,6 +49,8 @@ export default class IgniEngine implements Engine {
 
         this.loader = new Loader ();
         this._textureManager = new TextureManager (new Dictionary<string, WGLTexture> ());
+
+        this._physicsIteration = (opts !== undefined ) ? opts.iterationsPerPhysicsTick || 4 : 4;
 
         if (this.bodylessShapes.indexOf(camera) === -1){
             this.addShape(camera);
@@ -119,12 +127,13 @@ export default class IgniEngine implements Engine {
         }
 
         this.clock.deltaTime = (frameTime - this.clock.lastFrameTime);
-        
-        // Clamp delta time if the tab has lost focus. 
-        if(this.clock.deltaTime > 1.2*this.clock.physicsUpdatePeriod) {
-            this.resetTimers(frameTime);
-            this.clock.deltaTime = (frameTime - this.clock.lastFrameTime);
-        }
+  
+        //  Comment these 5 lines below because they are not a good solution for what they purpose
+        //Clamp delta time if the tab has lost focus. 
+        // if(this.clock.deltaTime > 1.2*this.clock.physicsUpdatePeriod) {
+        //     this.resetTimers(frameTime);
+        //     this.clock.deltaTime = (frameTime - this.clock.lastFrameTime);
+        // }
 
         let physicsTicks : number = 0;
         let nextPhysTick : number = this.clock.lastPhysicsTick + this.clock.physicsUpdatePeriod;
@@ -145,16 +154,21 @@ export default class IgniEngine implements Engine {
         }
         this.world.update(this.clock.deltaTime/1000);
 
+        let tinyStep = this.clock.physicsUpdatePeriod/this._physicsIteration;
+        
         // Physics engine update loop.
         for (let i = 0; i < physicsTicks; ++i) {
-            this.clock.lastPhysicsTick += this.clock.physicsUpdatePeriod;
+            for (let j = 0; j < this._physicsIteration; ++j) {
+                this.clock.lastPhysicsTick += tinyStep;
 
-            // resolve collisions.
-            this.world.detectCollisions(this._debugDraw, this.debugRenderables);
-            this.world.resolveCollisions();
+                // Step simulation.
+                this.world.step(this.clock.lastPhysicsTick/1000, tinyStep/1000);
 
-            // Step simulation.
-            this.world.step(this.clock.lastPhysicsTick/1000, this.clock.physicsUpdatePeriod/1000);
+                // resolve collisions.
+                this.world.detectCollisions(this._debugDraw, this.debugRenderables);
+                this.world.resolveCollisions();
+            }
+
         }
 
         // Draw

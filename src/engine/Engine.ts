@@ -21,5 +21,6 @@ export interface EngineOptions {
     stopKeyBinding : number,
     resumeKeyBinding : number,
     resumeFrameKeyBinding : number,
-    debugDraw : boolean
+    debugDraw : boolean,
+    iterationsPerPhysicsTick :number
 }
