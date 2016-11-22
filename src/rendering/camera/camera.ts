@@ -23,11 +23,6 @@ export default class Camera extends Shape {
      */
     private _pixelsToUnits :number;
 
-    /**
-     * The Camera has been initialized when it has 
-     */
-    private _initialized : boolean;
-
     constructor (position :vec2, zoom? :number, canvasHeightPx? :number) {
         super(position);
 
@@ -59,15 +54,9 @@ export default class Camera extends Shape {
         // Avoid losing pixelToUnits information due to height being 0
         if (heightPx === 0) return;
 
-        // We have to do this so the position passed to contructor is 
-        // correctly applied
-        if (! this._initialized) {
-            this.position = vec2.negate (this.position, this.position);    
-            this._initialized = true;
-        }
 
         let oldPixelToUnits = this._pixelsToUnits;
-        this._pixelsToUnits = heightPx / this._unitsAlongVerticalScreen;
+        this._pixelsToUnits = this._unitsAlongVerticalScreen / heightPx;
 
         this.position = vec2.scale (this.position, this.position, this._pixelsToUnits / oldPixelToUnits);
 
@@ -82,7 +71,7 @@ export default class Camera extends Shape {
         if (newZoom < 0) newZoom = 0;
 
         this._zoom = newZoom;
-        let s = this._zoom * this._pixelsToUnits;
+        let s = this._pixelsToUnits/this._zoom;
 
         this.scale = vec3.fromValues(s, s, 1);
     }
@@ -91,25 +80,7 @@ export default class Camera extends Shape {
         this.setZoom (this._zoom + inc);
     }
 
-    public setPosition(newPos : vec2) {    
-        newPos = vec2.negate (newPos, newPos);
-        newPos = vec2.scale (newPos, newPos, this._pixelsToUnits);
-        
-        this.position = newPos;
-    }
-
-    public translate(v : vec2) {
-        v = vec2.negate (v, v);
-        v = vec2.scale (v, v, this._pixelsToUnits);
-
-        vec2.add(this.position, this.position, v);
-    }
-
     public toDrawCall(projection: mat4, view : mat4) :DrawCall {
         return null;
-    }
-
-    public followShapeViewMatrix () : mat4 {
-        return this.modelMatrix;
     }
 }

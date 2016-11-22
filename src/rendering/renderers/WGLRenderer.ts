@@ -41,6 +41,8 @@ export class WGLRenderer implements Renderer {
 	private wireCircleShader : Shader;
 	private lineShader : Shader;
 
+	private viewMatrix : mat4;
+
 	constructor (canvas : HTMLCanvasElement, opts?: WGLOptions) {
 		opts = opts || <WGLOptions>{ depth_test: false, blend: false };
 
@@ -134,9 +136,14 @@ export class WGLRenderer implements Renderer {
 		this.setCameraHeight (height);
 	}
 
+	public beforeRender () : void {
+		this.clear ();
+		this.viewMatrix = this.camera.followShapeViewMatrix ();
+	}
+
 	public debugDraw (renderable : Renderable) {
 		this.render(this.toDebugDrawCall (
-			renderable.toDrawCall(this.projection_matrix, this.camera.followShapeViewMatrix())
+			renderable.toDrawCall(this.projection_matrix, this.viewMatrix)
 		    )
 		);		
 	}
@@ -171,7 +178,7 @@ export class WGLRenderer implements Renderer {
 	*  Draw a collection of shapes.
 	*/
 	public drawShape(shape: Shape) {
-		this.render(shape.toDrawCall(this.projection_matrix, this.camera.followShapeViewMatrix()));	
+		this.render(shape.toDrawCall(this.projection_matrix, this.viewMatrix));	
 	}
 
 	private render (drawCall: WireCircleDrawCall) : void;
