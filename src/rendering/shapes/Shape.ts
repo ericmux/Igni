@@ -1,5 +1,10 @@
 import {vec2, vec3, mat4, quat} from "gl-matrix";
 import {DrawCall, Renderable} from "../shaders/DrawCall";
+import IgniEngine from "../../engine/IgniEngine";
+import {KeyboardInteractable} from "../../input/Interactable";
+import {KeyboardEventInfo} from "../../input/EventInfo"; 
+import {KeyboardEvents} from "../../input/InputEvents";
+import Body from "../../physics/bodies/Body";
 
 abstract class Shape implements Renderable {
     public abstract toDrawCall(projection: mat4, view : mat4) :DrawCall;
@@ -18,6 +23,9 @@ abstract class Shape implements Renderable {
     private _translationVector : vec3;
     private _scaleVector : vec3;
 
+    // Reference to the parent engine.
+    private _engine :IgniEngine;
+
     constructor(position :vec2, size? : vec2) {
         this.position = position;
         this.rotation = 0;
@@ -31,6 +39,9 @@ abstract class Shape implements Renderable {
         this._rotationQuaternion = quat.create ();
         this._translationVector = vec3.create ();
         this._scaleVector = vec3.create ();
+        
+        this._engine = null;
+        this.updateCallback = (shape :Shape, deltaTime : number) => {};
     }
 
     public update(deltaTime : number) {
@@ -102,6 +113,32 @@ abstract class Shape implements Renderable {
         this.updateModelMatrix();
         mat4.invert(this._invModelMatrix, this._modelMatrix);
         return this._invModelMatrix;    
+    }
+
+    public onKeyDown(handler :(target :Shape | Body, event_info? :KeyboardEventInfo) => void) {
+        if(!this._engine) {
+            console.error("This body is not attached to any engine object!");
+            return;
+        }
+        this._engine.subscribeTo(KeyboardEvents.KEYDOWN, this, handler);
+    }
+    public onKeyUp(handler :(target :Shape | Body, event_info? :KeyboardEventInfo) => void) {
+        if(!this._engine) {
+            console.error("This body is not attached to any engine object!");
+            return;
+        }
+        this._engine.subscribeTo(KeyboardEvents.KEYDOWN, this, handler);
+    }
+    public onKeyPressed(handler :(target :Shape | Body, event_info? :KeyboardEventInfo) => void) {
+        if(!this._engine) {
+            console.error("This body is not attached to any engine object!");
+            return;
+        }
+        this._engine.subscribeTo(KeyboardEvents.KEYDOWN, this, handler);    
+    }
+
+    public set engine(game :IgniEngine) {
+        this._engine = game;
     }
 }
 export default Shape;

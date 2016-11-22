@@ -10,6 +10,9 @@ import World from "../physics/World";
 import {Loader} from "../loader/Loader";
 import {IClock} from "../utils/IClock";
 import {Dictionary} from "../utils/Dictionary";
+import InputManager from "../input/InputManager";
+import {EventInfo} from "../input/EventInfo";
+import {KeyboardEvents, MouseEvents} from "../input/InputEvents";
 
 export default class IgniEngine implements Engine {
 
@@ -18,6 +21,7 @@ export default class IgniEngine implements Engine {
     private world: World;
     private renderer: Renderer;
     private _textureManager: TextureManager; 
+    private _inputManager :InputManager;
     private lastFrameID: number;
 
     private _debugDraw : boolean;
@@ -49,6 +53,7 @@ export default class IgniEngine implements Engine {
 
         this.loader = new Loader ();
         this._textureManager = new TextureManager (new Dictionary<string, WGLTexture> ());
+        this._inputManager = new InputManager();
 
         this._physicsIteration = (opts !== undefined ) ? opts.iterationsPerPhysicsTick || 4 : 4;
 
@@ -69,12 +74,20 @@ export default class IgniEngine implements Engine {
         }
     }
 
+    // Defer call to InputManager.
+    public subscribeTo(event :KeyboardEvents | MouseEvents, target : Shape | Body, 
+                    handler :(target :Shape | Body, event_info? :EventInfo) => void) {
+        this._inputManager.subscribeTo(event, target, handler);
+    }
+
     public addShape(shape: Shape) :void {
         this.bodylessShapes.push(shape);
+        shape.engine = this;
     }
 
     public addBody(body : Body) :void {
         this.world.addBody(body);
+        body.engine = this;
     }
 
     private initTimers () {

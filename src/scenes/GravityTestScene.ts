@@ -9,6 +9,8 @@ import RectangularBodyDefinition from "../physics/bodies/RectangularBodyDefiniti
 import CircularBodyDefinition from "../physics/bodies/CircularBodyDefinition";
 import CollisionManifold from "../physics/collision/CollisionManifold";
 import Engine from "../engine/Engine";
+import {KeyboardEventInfo} from "../input/EventInfo";
+import Keys from "../input/Keys";
 
 export default class GravityTestScene extends TestScene {
     public static build(game :Engine) :void {
@@ -37,6 +39,11 @@ export default class GravityTestScene extends TestScene {
                     collisionCallback: checkCollisionCallback
                 });
                 game.addBody(body);
+                body.onKeyDown((target :Body, event_info :KeyboardEventInfo) => {
+                    if(event_info.key === Keys.UP){
+                        vec2.add(target.velocity, target.velocity, vec2.fromValues(0.0, 10.0));
+                    }
+                });
             }
         }
 
@@ -71,6 +78,17 @@ export default class GravityTestScene extends TestScene {
         });
         game.addBody(right_wall);
 
+        let moveable_shape : RectangleShape = new RectangleShape(vec2.create(), 50, 50);
+        game.addShape(moveable_shape);
+        moveable_shape.onKeyPressed((target :RectangleShape, event_info :KeyboardEventInfo) => {
+            let pos :vec2 = target.getPosition();
 
+            switch(event_info.key) {
+                case Keys.DOWN: target.translate(vec2.fromValues(0,-10)); break;
+                case Keys.UP: target.translate(vec2.fromValues(0,10)); break;
+                case Keys.LEFT: target.translate(vec2.fromValues(-10,0)); break;
+                case Keys.RIGHT: target.translate(vec2.fromValues(10,0)); break;
+            }
+        });
     }
 }
