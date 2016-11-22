@@ -22,6 +22,10 @@ import {Loader} from "./loader/Loader";
 import {Dictionary} from "./utils/Dictionary";
 import Sprite from "./rendering/shapes/Sprite";
 
+// Events
+import {KeyboardEventInfo} from "./input/EventInfo";
+import Keys from "./input/Keys";
+
 // Test Scenes.
 import ContainmentTestScene from "./scenes/ContainmentTestScene";
 import CollisiontestScene from "./scenes/CollisiontestScene";
@@ -29,6 +33,7 @@ import TextureLoadingTestScene from "./scenes/TextureLoadingTestScene";
 import GravityTestScene from "./scenes/GravityTestScene";
 import InclinedPlaneTestScene from "./scenes/InclinedPlaneTestScene";
 import BasketballsTestScene from "./scenes/BasketballsTestScene";
+import ThrowingTestScene from "./scenes/ThrowingTestScene";
 
 //  Game, canvas and a reference to the axis shapes.
 let canvas : HTMLCanvasElement;
@@ -39,22 +44,13 @@ let onWindowLoad = function () {
     canvas = <HTMLCanvasElement> document.getElementById("gl-canvas");
 
     let camera : Camera = new Camera(vec2.fromValues(0,-5));
-    let time = 0;
-    camera.onUpdate((camera : Camera, deltaTime : number) => {
-        if (time < 4) {
-            camera.incrementZoom (0.1 * deltaTime);
-            camera.translate (vec2.fromValues (1*deltaTime, 1 *deltaTime));
-        }
-        else if (time > 6){
-            
-            camera.setPosition (vec2.fromValues (0,0));
-            camera.setZoom (1);
-        }
+    camera.engine = game;
+    let dt = 0;
 
-        time+=deltaTime;
+    camera.onUpdate((camera : Camera, deltaTime : number) => {
+        dt = deltaTime;
     });
 
-    
     game = new IgniEngine(canvas, camera, <EngineOptions> {
         frameControl : true,
         stopKeyBinding : 49,
@@ -62,6 +58,19 @@ let onWindowLoad = function () {
         resumeFrameKeyBinding : 51,
         debugDraw : false
      });
+
+    camera.onKeyPressed((target :Camera, event_info :KeyboardEventInfo) => {
+        let pos :vec2 = target.getPosition();
+
+        switch(event_info.key) {
+            case Keys.W: target.translate(vec2.fromValues(0,1.5*dt)); break;
+            case Keys.A: target.translate(vec2.fromValues(-1.5*dt,0)); break;
+            case Keys.S: target.translate(vec2.fromValues(0,-1.5*dt)); break;
+            case Keys.D: target.translate(vec2.fromValues(1.5*dt,0)); break;
+            case Keys.Z: target.incrementZoom(dt); break;
+            case Keys.X: target.incrementZoom(-dt); break;
+        }
+    });
 
     // Add axes for easy visualization.
     axes = TestScene.addAxes(game);
@@ -82,7 +91,10 @@ let onWindowLoad = function () {
     // InclinedPlaneTestScene.build (game);
 
     // Basketballs test scene
-    BasketballsTestScene.build (game);
+    // BasketballsTestScene.build (game);
+
+    // ThrowingTestScene
+    ThrowingTestScene.build (game);
 
     game.start();
 };
